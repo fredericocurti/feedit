@@ -30,9 +30,10 @@
             $('.modal').modal();
             $("#loadingbar").hide()
             checkauth();
+            firebase.initializeApp(config);
+            var database = firebase.database();
         });
-        firebase.initializeApp(config);
-        var database = firebase.database();
+
         // Initialize Firebase
     </script>
     <!-- <nav class="white" role="navigation" >
@@ -56,13 +57,13 @@
       <div class="section">
 
 
-        <div id="index-banner" class="parallax-container">
+        <div id="index-banner">
           <div class="section no-pad-bot">
             <div class="container">
               <br><br>
               <h1 class="header center red-text">Feedit</h1>
               <div class="row center">
-                <h5 class="header col s12" style="color:black;">A maneira mais fácil de entender seus clientes: feedback instantâneo!</h5>
+                <h5 class="header col s12" style="color:white;">A maneira mais fácil de entender seus clientes: feedback instantâneo!</h5>
               </div>
               <div class="row center">
                 <a href="#modal1" id="download-button" class="btn-large waves-effect waves-light red darken-3">Começe agora</a>
