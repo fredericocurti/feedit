@@ -3,20 +3,20 @@
 
 <head>
     <!--Import Google Icon Font-->
-    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!--Import materialize.css-->
     <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection" />
     <link type="text/css" rel="stylesheet" href="css/style.css" />
-
+    <meta charset="utf-8">
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> Feedit </title>
 </head>
 
 <body>
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="js/materialize.min.js"></script>
-    <script type="text/javascript" src="js/firebase.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
     <script type="text/javascript" src="js/script.js"></script>
     <script type="text/javascript" src="js/init.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.7.1/firebase-app.js"></script>
@@ -29,27 +29,40 @@
             // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
             $('.modal').modal();
             $("#loadingbar").hide()
-            checkauth();
             firebase.initializeApp(config);
-            var database = firebase.database();
+            // var database = firebase.database();
+            Feedit.prototype.checkSetup()
         });
 
         // Initialize Firebase
     </script>
-    <div class="mainbg">
+    <div id="mainshow" class="mainbg">
 
         <!--   NavBar  -->
         <nav>
             <div class="nav-wrapper navcolor" style="z-index:2;">
-                <a href="#" class="brand-logo left" style="margin-left:10px;color:white;">Feedit</a>
+                <a href="#" class="brand-logo left" style="margin-left:10px;color:white;">feedit</a>
                 <!-- <img src="logo.png" width="45px;" style="margin-top:5px;margin-left:10px;"> -->
                 <ul id="nav-mobile" class="right">
-                    <li><a class="waves-effect waves-light" href="#modal1" style="color:white;">Login</a></li>
+                    <li><a id="topuserdisplay-off" class="waves-effect waves-light" href="#modal1" style="color:white;">Login</a></li>
+                    <li><a id="topuserdisplay" data-activates='dropdown1' class="dropdown-button waves-effect waves-light" href="#modal1" style="color:white;">Login</a></li>
                 </ul>
             </div>
         </nav>
 
+        <!-- Dropdown Structure -->
+        <ul id='dropdown1' class='dropdown-content'>
+            <h6 id="nameshow" class="center" style="color:black;padding-top:10px;"></h6>
+            <li><a id="logoffbutton" href="#!" class="waves-effect waves-light" onclick="feedit.signOut();">Fazer logoff</a></li>
+            <li class="divider"></li>
+        </ul>
+
+        <!-- Content Section -->
+        <div id="main-content">
+        </div>
+
         <!--  Banner  -->
+
         <div id="header" class="container" style="padding-bottom:150px;">
             <h1 class="header center" style="text-shadow: 3px 3px 4px #000000;padding-top:150px;">Feedit</h1>
             <div class="row center">
@@ -62,7 +75,7 @@
 
     <!--   Icon Section   -->
 
-    <div class="row" style="padding-bottom:250px;padding-top:100px;">
+    <div id="iconsection" class="row" style="padding-bottom:250px;padding-top:100px;visibility:hidden;">
         <div class="col s12 m4">
             <div class="icon-block">
                 <h2 class="center red-text"><i class="material-icons">flash_on</i></h2>
@@ -94,12 +107,13 @@
     </div>
     </div>
 
-    <!--  MODAL ------------------------------------------------------ -->
+    <!--  MODAL  -->
     <div id="modal1" class="modal" style="margin:auto;">
         <div class="modal-content">
             <h5 class="center-align">Faça login</h5>
             <div class="divider"></div>
 
+    <!-- LOGIN -->
             <div class="row" style="padding-top:25px;">
                 <form class="col s12">
                     <div class="row">
@@ -120,9 +134,17 @@
                 </form>
                 <div class="row center">
                     <div class="col s12">
-                        <a id="submitbt" class="waves-effect waves-light btn red darken-3 center" onclick="retrieve();">Entrar</a>
-                        <div id="loadingbar" class="progress red">
-                            <div class="indeterminate red darken-4"></div>
+                        <a id="submitbt" class="waves-effect waves-light btn red darken-3 center" onclick="login();">Entrar</a>
+                        <div id="loadingbar" class="preloader-wrapper big active">
+                          <div class="spinner-layer spinner-red-only">
+                            <div class="circle-clipper left">
+                              <div class="circle"></div>
+                            </div><div class="gap-patch">
+                              <div class="circle"></div>
+                            </div><div class="circle-clipper right">
+                              <div class="circle"></div>
+                            </div>
+                          </div>
                         </div>
                     </div>
                 </div>
@@ -131,7 +153,7 @@
 
             <div class="divider"></div>
 
-            <!-- NEW ACCOUNT ------------------------------------ -->
+            <!-- NEW ACCOUNT -->
             <div class="row center" style="margin-top:10px;">
                 <div class="col s12">
                     <h6 class="center-align">Ainda não possui uma conta?</h6>
