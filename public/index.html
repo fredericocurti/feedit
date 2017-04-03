@@ -40,8 +40,8 @@
 
         <!--   NavBar  -->
         <nav>
-            <div class="nav-wrapper navcolor" style="z-index:2;">
-                <a href="#" class="brand-logo left" style="margin-left:10px;color:white;">feedit</a>
+            <div id="navbar" class="nav-wrapper navcolor" style="z-index:2;">
+                <a href="#" class="brand-logo center" style="color:white;">feedit</a>
                 <!-- <img src="logo.png" width="45px;" style="margin-top:5px;margin-left:10px;"> -->
                 <ul id="nav-mobile" class="right">
                     <li><a id="topuserdisplay-off" class="waves-effect waves-light" href="#modal1" style="color:white;">Login</a></li>
@@ -110,28 +110,28 @@
     <!--  MODAL  -->
     <div id="modal1" class="modal" style="margin:auto;">
         <div class="modal-content">
-            <h5 class="center-align">Faça login</h5>
+            <h5 class="center-align" style="color:grey;"><b>Faça login</b></h5>
             <div class="divider"></div>
-
     <!-- LOGIN -->
-            <div class="row" style="padding-top:25px;">
-                <form class="col s12">
+                <form class="col s12" style="padding-top:20px;margin-left:7%">
                     <div class="row">
-                        <div class="input-field col s8">
+                        <div class="input-field col s10">
                             <i class="material-icons prefix">perm_identity</i>
                             <input id="useremail" type="email" class="validate">
                             <label for="useremail">Email</label>
                         </div>
                     </div>
 
+
                     <div class="row">
-                        <div class="input-field col s6">
+                        <div class="input-field col s10">
                             <i class="material-icons prefix">lock</i>
                             <input id="userpassword" type="password" class="validate">
                             <label for="userpassword">Senha</label>
                         </div>
                     </div>
                 </form>
+
                 <div class="row center">
                     <div class="col s12">
                         <a id="submitbt" class="waves-effect waves-light btn red darken-3 center" onclick="login();">Entrar</a>
@@ -149,7 +149,6 @@
                     </div>
                 </div>
 
-            </div>
 
             <div class="divider"></div>
 
@@ -165,7 +164,6 @@
 
 
         </div>
-    </div>
     </div>
 
     <footer class="page-footer red darken-3">

@@ -22,6 +22,14 @@ main {
     width: 90%;
 }
 
+.collapsible-body {
+    background-color: #f7f7f7;
+    display: none;
+    border-bottom: 1px solid #ddd;
+    box-sizing: border-box;
+    padding: 0.5rem;
+}
+
 .mainbg{
   background-image: url("../background1.jpg");
   background-size:cover;
@@ -56,7 +64,7 @@ main {
 }
 
 .navcolor{
-  background-color: rgba(211, 47, 47, 0.8) !important
+  background-color: rgba(211, 47, 47, 0.8);
 }
 
 .dropdown-content {

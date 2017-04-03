@@ -6,10 +6,14 @@ var config = {
   storageBucket: "febee-2b942.appspot.com",
   messagingSenderId: "301542026521"
 };
-
+var places = [];
+var updatecounter = 0;
 var initalstate = 0;
-// Initialize mainapp
+var newEval = null;
 
+console.log("update counter:"+updatecounter);
+
+// Initialize mainapp
 Feedit.prototype.displayGui = function(){
   $("#header").remove();
   $("#iconsection").remove();
@@ -19,10 +23,76 @@ Feedit.prototype.displayGui = function(){
   "<div class='center'><h4><b>Painel de Controle</b></h4><h6 style='color:grey;'>" + currentUser.email + " | ID: " + currentUser.uid +  "</h6>" +
   "<div class='divider'></div></div>"+
   "<div id='maindata'></div>");
+  $("#navbar").css("background-color","rgb(187,41,41)");
   $("#loadingbar").attr("style","");
   loading = document.getElementById("loadingbar");
   this.getData();
+  // Draws container for key values
+  $("#maindata").append(
+    '<div class="container">'+
+    '<h4 style="color:gray">Seus locais</h4>'+
+    '<ul id="main-values" class="collapsible" data-collapsible="expandable">'+
+    '</ul>'+
+    '</div>');
 }
+
+Feedit.prototype.displayData = function(kind){
+  console.log("display data called | updatecounter:"+updatecounter);
+  if(kind==0){
+    keyplaces = []
+      for (key in initialdb) {
+        if (initialdb.hasOwnProperty(key)) {
+          // Check for keys that contain different locals;
+          Key = initialdb[key]
+          // console.log(Key);
+          if(keyplaces.includes(Key.local) == true){
+            console.log("locale "+Key.local+" already exists. Appending to the correct place")
+            var localid = '#'+Key.local
+            $(localid).append(
+              '  <div class="collapsible-body"><span>'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
+              );
+            } else {
+              $("#main-values").append(
+                '<li id="'+Key.local+'">'+
+                '  <div class="collapsible-header"><i class="material-icons">label_outline</i>'+ Key.local.capitalize() + '</div>'+
+                '  <div class="collapsible-body"><span>'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'+
+                '</li>');
+            }
+            keyplaces.push(Key.local);
+        }
+    }
+    $("#loadingbar").remove();
+    console.log("Initial data written to UI successfully");
+    $('.collapsible').collapsible();
+
+  } else if (kind==1 && updatecounter>=1){
+    console.log("updatecounter >= 1!");
+    Key = newEval;
+    if(keyplaces.includes(Key.local) == true){
+      console.log("locale "+Key.local+" already exists. Appending to the correct place")
+      var localid = '#'+Key.local
+      $(localid).append(
+        '  <div class="collapsible-body"><span>'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
+        );
+      } else {
+        $("#main-values").append(
+          '<li id="'+Key.local+'">'+
+          '  <div class="collapsible-header"><i class="material-icons">label_outline</i>'+ Key.local + '</div>'+
+          '  <div class="collapsible-body"><span>'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'+
+          '</li>');
+      }
+      keyplaces.push(Key.local);
+  }
+  $('.collapsible').collapsible();
+  keyplacesindex = keyplaces.removeDuplicates();
+
+  for(i=0;i<keyplacesindex.length;i++){
+      $('.collapsible').collapsible('open',i);
+  }
+
+
+}
+
 
 function Feedit() {
   this.signInButton = document.getElementById('submitbt');
@@ -37,30 +107,46 @@ Feedit.prototype.initFirebase = function() {
   this.storage = firebase.storage();
   this.auth.onAuthStateChanged(this.onAuthStateChanged.bind(this));
   // Initiates Firebase auth and listen to auth state changes.
-  // this.auth.onAuthStateChanged(this.onAuthStateChanged.bind(this));
 };
 
+// Fetches and calls displayData of the initial database state
 Feedit.prototype.getData = function(){
   $("#maindata").append(loading);
   $("#loadingbar").center();
 
   var ref = this.database.ref(currentUser.uid);
     // Attach an asynchronous callback to read the data at our posts reference
-  ref.on("value", function(snapshot) {
-    console.log("Data obtained!");
-    this.currentdb = snapshot.val();
-    console.log(this.currentdb);
+  ref.once("value", function(snapshot) {
+    console.log("Initial data obtained:");
+    this.initialdb = snapshot.val();
+    console.log(this.initialdb);
+    console.log("Attempting do draw data")
+
+  feedit.displayData(0);
+  feedit.updateData();
 
     // Check if database is empty for user
-    if(this.currentdb == null){
+    if(this.initialdb == null){
       $("#maindata").append(
         "<h5 class='center' style='padding-top:50px;'> Não existem dados para esse usuário. Configure o dispositivo de feedback corretamente. </h5>");
     }
-
-
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
+}
+
+Feedit.prototype.updateData = function(){
+  console.log("updateData function ran | updatecounter:"+updatecounter);
+  var ref = this.database.ref(currentUser.uid);
+  ref.limitToLast(1).on("child_added", function(snapshot, prevChildKey) {
+    newEval = snapshot.val();
+    console.log("Last child recieved: ");
+    console.log(newEval);
+    // console.log("Previous child ID:" + prevChildKey);
+  feedit.displayData(1);
+  updatecounter ++;
+
+});
 }
 
 Feedit.prototype.checkSetup = function() {
@@ -102,6 +188,7 @@ Feedit.prototype.signOut = function() {
 };
 
 Feedit.prototype.onAuthStateChanged = function(user) {
+  console.log("Current user state:");
   console.log(user);
   currentUser = user;
   if (user) { // User is signed in!
@@ -131,13 +218,6 @@ Feedit.prototype.onAuthStateChanged = function(user) {
     initalstate = 0;
   }
 };
-
-function writeUserData(userId, name, email) {
-  firebase.database().ref('users/' + userId).set({
-    username: name,
-    email: email,
-  });
-}
 
 function retrieve(){
   $("#submitbt").hide();
@@ -208,5 +288,25 @@ function wait(ms){
   }
 }
 
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
 
+function expandAll(){
+  $(".collapsible-header").addClass("active");
+  $(".collapsible").collapsible({expandable: false});
+}
+
+function collapseAll(){
+  $(".collapsible-header").removeClass(function(){
+    return "active";
+  });
+  $(".collapsible").collapsible({accordion: true});
+  $(".collapsible").collapsible({accordion: false});
+}
 // $('.dropdown-button').dropdown('open');
+Array.prototype.removeDuplicates = function () {
+    return this.filter(function (item, index, self) {
+        return self.indexOf(item) == index;
+    });
+};
