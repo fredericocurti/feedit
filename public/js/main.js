@@ -17,8 +17,8 @@ console.log("update counter:"+updatecounter);
 Feedit.prototype.displayGui = function(){
   $("#header").remove();
   $("#iconsection").remove();
-  $("#main-content").css("height","800px");
   $("#mainshow").removeClass("mainbg");
+  $("#main-content").css("height","100%");
   $( "#main-content" ).append(
   "<div class='center'><h4><b>Painel de Controle</b></h4><h6 style='color:grey;'>" + currentUser.email + " | ID: " + currentUser.uid +  "</h6>" +
   "<div class='divider'></div></div>"+
@@ -64,7 +64,7 @@ Feedit.prototype.displayData = function(kind){
     $("#loadingbar").remove();
     console.log("Initial data written to UI successfully");
     $('.collapsible').collapsible();
-
+    // Adds aditional data loaded in realtime
   } else if (kind==1 && updatecounter>=1){
     console.log("updatecounter >= 1!");
     Key = newEval;
@@ -194,9 +194,8 @@ Feedit.prototype.onAuthStateChanged = function(user) {
   if (user) { // User is signed in!
     console.log("User is signed in");
     $('#modal1').modal('close');
-    $("#topuserdisplay").attr("href","#");
-    $("#topuserdisplay-off").hide();
-    $("#topuserdisplay").show();
+    $("#topuserdisplay-off").remove();
+    $('#topuserdisplay').css("display","block");
     document.getElementById("topuserdisplay").innerHTML = user.email;
     document.getElementById("nameshow").innerHTML = user.email;
 
@@ -213,8 +212,9 @@ Feedit.prototype.onAuthStateChanged = function(user) {
     }
 
   } else { // User is signed out!
+    // $("#topuserdisplay-off").css("visibility","visible");
+    $("#topuserdisplay-off").css("display","block");
     console.log("User has/is signed out!");
-    $("#topuserdisplay").hide();
     initalstate = 0;
   }
 };
@@ -235,7 +235,7 @@ function login(){
   var varpass = $("#userpassword").attr('class');
 
 
-  if(valemail == "validate valid" && varpass == "validate valid"){
+  if(valemail == "validate valid"){
     feedit.userName = $("#useremail").val();
     feedit.userPass = $("#userpassword").val();
     console.log("Loggin in with credentials:" + feedit.userName + "|" + feedit.userPass);
@@ -252,7 +252,7 @@ function login(){
 
 window.onload = function(){
   window.feedit = new Feedit();
-  $("#modal1").keypress(function(e) {
+  $("#userpassword").keypress(function(e) {
       if(e.which == 13) {
         $("#submitbt").click();
       }
