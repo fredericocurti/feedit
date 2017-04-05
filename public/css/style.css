@@ -30,8 +30,15 @@ main {
     padding: 0.5rem;
 }
 
+#toast-container {
+  top: auto !important;
+  right: auto !important;
+  bottom: 30% !important;
+  left:40% !important;
+}
+
 .mainbg{
-  background-image: url("../background1.jpg");
+  background-image: url("../img/background1.jpg");
   background-size:cover;
   width: 100% !important;
 }

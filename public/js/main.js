@@ -10,6 +10,8 @@ var places = [];
 var updatecounter = 0;
 var initalstate = 0;
 var newEval = null;
+var datacounter = 0;
+var db = {};
 
 console.log("update counter:"+updatecounter);
 
@@ -20,7 +22,7 @@ Feedit.prototype.displayGui = function(){
   $("#mainshow").removeClass("mainbg");
   $("#main-content").css("height","100%");
   $( "#main-content" ).append(
-  "<div class='center'><h4><b>Painel de Controle</b></h4><h6 style='color:grey;'>" + currentUser.email + " | ID: " + currentUser.uid +  "</h6>" +
+  "<div class='center'><h5><b>Painel de Controle</b></h5><h6 style='color:grey;'>" + currentUser.email + " | ID: " + currentUser.uid +  "</h6>" +
   "<div class='divider'></div></div>"+
   "<div id='maindata'></div>");
   $("#navbar").css("background-color","rgb(187,41,41)");
@@ -30,11 +32,39 @@ Feedit.prototype.displayGui = function(){
   // Draws container for key values
   $("#maindata").append(
     '<div class="container">'+
-    '<h4 style="color:gray">Seus locais</h4>'+
+    '<h5 style="color:gray">Seus locais</h5>'+
     '<ul id="main-values" class="collapsible" data-collapsible="expandable">'+
     '</ul>'+
     '</div>');
 }
+
+Feedit.prototype.displayData2 = function(data){
+  // console.log("display data called | updatecounter:"+updatecounter);
+  Key = data;
+    if(places.includes(Key.local) == true){
+      console.log("locale "+Key.local+" already exists. Appending to the correct place")
+      var localid = '#'+Key.local
+      $(localid).append(
+      '  <div class="collapsible-body"><span>'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
+      );
+    } else {
+      $("#main-values").append(
+        '<li id="'+Key.local+'">'+
+        '  <div class="collapsible-header" id="'+Key.local+'"><i class="material-icons">label_outline</i>'+ Key.local.capitalize() + '</div>'+
+        '  <div class="collapsible-body"><span>'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'+
+        '</li>');
+    }
+    places.push(Key.local);
+    $("#loadingbar").remove();
+    console.log("Initial data written to UI successfully");
+    $('.collapsible').collapsible();
+    // Adds aditional data loaded in realtime
+    for(i=0;i<places.removeDuplicates().length;i++){
+        $('.collapsible').collapsible('open',i);
+    }
+}
+
+
 
 Feedit.prototype.displayData = function(kind){
   console.log("display data called | updatecounter:"+updatecounter);
@@ -116,15 +146,17 @@ Feedit.prototype.getData = function(){
 
   var ref = this.database.ref(currentUser.uid);
     // Attach an asynchronous callback to read the data at our posts reference
-  ref.once("value", function(snapshot) {
+  ref.on("child_added", function(snapshot) {
     console.log("Initial data obtained:");
     this.initialdb = snapshot.val();
-    console.log(this.initialdb);
-    console.log("Attempting do draw data")
+    // console.log(this.initialdb);
+    // console.log("Attempting do draw data")
+    db[datacounter] = (this.initialdb);
 
-  feedit.displayData(0);
-  feedit.updateData();
-
+  feedit.displayData2(this.initialdb);
+  // feedit.displayData(0);
+  // feedit.updateData();
+datacounter++;
     // Check if database is empty for user
     if(this.initialdb == null){
       $("#maindata").append(
@@ -143,7 +175,7 @@ Feedit.prototype.updateData = function(){
     console.log("Last child recieved: ");
     console.log(newEval);
     // console.log("Previous child ID:" + prevChildKey);
-  feedit.displayData(1);
+  // feedit.displayData(1);
   updatecounter ++;
 
 });
