@@ -7,6 +7,9 @@
   width: 140px; /* Need a specific value to work */
 }
 
+html{
+  height:100%;
+}
 
 body {
   display: flex;
@@ -22,6 +25,16 @@ main {
     width: 90%;
 }
 
+.Site {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+}
+
+.Site-content {
+  flex: 1;
+}
+
 .collapsible-body {
     background-color: #f7f7f7;
     display: none;
@@ -30,12 +43,15 @@ main {
     padding: 0.5rem;
 }
 
-#toast-container {
-  top: auto !important;
-  right: auto !important;
-  bottom: 30% !important;
-  left:40% !important;
+@media only screen and (min-device-width: 480px) {
+  #toast-container {
+    top: auto !important;
+    right: auto !important;
+    bottom: 30% !important;
+    left:40% !important;
+  }
 }
+
 
 .mainbg{
   background-image: url("../img/background1.jpg");
@@ -153,6 +169,6 @@ p {
   font-size: inherit;
 }
 
-footer.page-footer {
+/*footer.page-footer {
   margin: 0;
-}
+}*/
