@@ -45,39 +45,44 @@ Feedit.prototype.startHandler = function(){
 }
 
 Feedit.prototype.onDataLoaded = function(){
-  // change badge counter
+  $('.collapsible').collapsible();
+  console.log("collapsible function ran");
   // $(".badge").attr("class","badge");
+
+  console.log("Beginning click listener on new badge green");
+
 }
 
 // Initialize mainapp
 Feedit.prototype.displayGui = function(){
-  $("#loadingbar").attr("style","");
-  $("#loadingbar").center();
-  $("#header").remove();
-  $("#iconsection").remove();
-  $("#mainshow").removeClass("mainbg");
-  $( "#main-content" ).append(
-  "<div class='center'><h5><b>Painel de Controle</b></h5><h6 style='color:grey;'>" + currentUser.email + " | ID: " + currentUser.uid +  "</h6>" +
-  "<div class='divider'></div></div>"+
-  "<div id='maindata' class='Site-content'></div>");
-  loading = document.getElementById("loadingbar");
-  $("#maindata").append(loading);
-  $("#navbar").css("background-color","rgb(187,41,41)");
+    $("#loadingbar").attr("style","");
+    $("#loadingbar").center();
+    $("#header").remove();
+    $("#iconsection").remove();
+    $("#mainshow").removeClass("mainbg");
+    $( "#main-content" ).append(
+    "<div class='center'><h5><b>Painel de Controle</b></h5><h6 style='color:grey;'>" + currentUser.email + " | ID: " + currentUser.uid +  "</h6>" +
+    "<div class='divider'></div></div>"+
+    "<div id='maindata' class='Site-content'></div>");
+    loading = document.getElementById("loadingbar");
+    $("#maindata").append(loading);
+    $("#navbar").css("background-color","rgb(187,41,41)");
 
-  // Draws container for key values
-  $("#maindata").append(
-    '<div class="container">'+
-    '<h5 style="color:gray">Seus locais</h5>'+
-    '<ul id="main-values" class="collapsible" data-collapsible="expandable" >'+
-    '</ul>'+
-    '</div>');
+    // Draws container for key values
+    $("#maindata").append(
+      '<div class="container">'+
+      '<h5 style="color:gray">Seus locais</h5>'+
+      // '<div class="row center" style="margin-bottom:0px;border-style: solid;border-color:#e7e7e7;"><div class="col s4">Nota</div><div class="col s4">Hora</div><div class="col s4">Data</div></div>'+
+      '<ul id="main-values" class="collapsible" data-collapsible="expandable" >'+
+      '</ul>'+
+      '</div>');
 }
 
-Feedit.prototype.displayData2 = function(data){
+Feedit.prototype.displayData = function(data){
   Key = data;
 
     if(places.includes(Key.local) == true){ // PREPENDS TO THE LATEST ITEM LIST
-      console.log("locale "+Key.local+" already exists. Appending to the correct place")
+      // console.log("locale "+Key.local+" already exists. Appending to the correct place")
       var localid = '#'+Key.local;
       var localid_counter_ref = '#counter-'+Key.local;
       var localchild_id = '#'+Key.local+'>:nth-child(2)';
@@ -95,89 +100,55 @@ Feedit.prototype.displayData2 = function(data){
         '</li>');
     }
 
-    if (initialislodaded == true){ // adds and counts new label
+//  Dealing with NEW badges
+    if (initialislodaded == true){ // adds and counts new badges only if it added after initload is complete
       newBadge = '<span id="badge-'+Key.local+'" class="new badge green" data-badge-caption="Nova"></span>'
       var localid_header = '#header-'+Key.local;
       var localid_badge = '#badge-'+Key.local;
       var flag = $(localid_header).attr('hasflag');
       $(localid_header).attr('counter',parseInt($(localid_header).attr('counter'))+1);
       $(localid_badge).html(parseInt($(localid_header).attr('counter')));
+      $(localid_badge).attr("data-badge-caption","Novas");
 
-      console.log(flag);
-
-      if(flag == "0"){
+      if(flag == "0"){ // adds badge for the first time
         $(localid_header).append(newBadge);
         $(localid_header).attr('hasflag','1');
         $(localid_header).attr('counter','1');
+
+        // adds click listener
+        $(localid_header).click(function(){
+          $(localid_header).attr('hasflag',0);
+          $(localid_header).attr('counter',0);
+
+          $(this).children().eq(2).remove();
+        });
       }
     }
 
     places.push(Key.local);
     $("#loadingbar").remove();
-    $('.collapsible').collapsible();
+    // $('.collapsible').collapsible();
+    // if (initialislodaded == true){
+    //   $('.collapsible').collapsible();
+    // }
     //Adds aditional data loaded in realtime
-    for(i=0;i<places.removeDuplicates().length;i++){
-        $('.collapsible').collapsible('open',i);
+
+    // before opening check if it already open
+
+    placesdeduped = places.removeDuplicates();
+    for(i=0;i<placesdeduped.length;i++){
+      var currentplace = "#"+placesdeduped[i];
+      console.log("LOCAL: "+currentplace + " class " + $(currentplace).attr("class"));
+      if ($(currentplace).attr("class") == 'active'){
+        console.log("The card"+currentplace+"was open. Reopening");
+        $('.collapsible').collapsible();
+      } else if ($(currentplace).attr("class") == '' || typeof $(currentplace).attr("class") == undefined){
+        console.log("The card "+currentplace+" was closed. Reclosing")
+        $('.collapsible').collapsible('close',i);
+      }
+
     }
 }
-
-// Function called to display data onload and every time a new key is pushed to the db
-// Feedit.prototype.displayData = function(kind){
-//   console.log("display data called | updatecounter:"+updatecounter);
-//   if(kind==0){
-//     keyplaces = []
-//       for (key in initialdb) {
-//         if (initialdb.hasOwnProperty(key)) {
-//           // Check for keys that contain different locals;
-//           Key = initialdb[key]
-//           // console.log(Key);
-//           if(keyplaces.includes(Key.local) == true){
-//             console.log("locale "+Key.local+" already exists. Appending to the correct place")
-//             var localid = '#'+Key.local
-//             $(localid).append(
-//               '  <div class="collapsible-body"><span>'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
-//               );
-//             } else {
-//               $("#main-values").append(
-//                 '<li id="'+Key.local+'">'+
-//                 '  <div class="collapsible-header"><i class="material-icons">label_outline</i>'+ Key.local.capitalize() + '</div>'+
-//                 '  <div class="collapsible-body"><span>'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'+
-//                 '</li>');
-//             }
-//             keyplaces.push(Key.local);
-//         }
-//     }
-//     $("#loadingbar").remove();
-//     console.log("Initial data written to UI successfully");
-//     $('.collapsible').collapsible();
-//     // Adds aditional data loaded in realtime
-//   } else if (kind==1 && updatecounter>=1){
-//     console.log("updatecounter >= 1!");
-//     Key = newEval;
-//     if(keyplaces.includes(Key.local) == true){
-//       console.log("locale "+Key.local+" already exists. Appending to the correct place")
-//       var localid = '#'+Key.local
-//       $(localid).append(
-//         '  <div class="collapsible-body"><span>'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
-//         );
-//       } else {
-//         $("#main-values").append(
-//           '<li id="'+Key.local+'">'+
-//           '  <div class="collapsible-header"><i class="material-icons">label_outline</i>'+ Key.local + '</div>'+
-//           '  <div class="collapsible-body"><span>'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'+
-//           '</li>');
-//       }
-//       keyplaces.push(Key.local);
-//   }
-//   $('.collapsible').collapsible();
-//   keyplacesindex = keyplaces.removeDuplicates();
-//
-//   for(i=0;i<keyplacesindex.length;i++){
-//       $('.collapsible').collapsible('open',i);
-//   }
-//
-//
-// }
 
 // Fetches and calls displayData of the data
 Feedit.prototype.getData = function(){
@@ -191,7 +162,7 @@ Feedit.prototype.getData = function(){
     datacounter++;
 
     // displays data as soon as it is obtained
-    feedit.displayData2(this.key);
+    feedit.displayData(this.key);
 
     // Check if initial data has been loaded fully;
     if(datacounter === currentUser.count){
@@ -208,19 +179,6 @@ Feedit.prototype.getData = function(){
 
 }
 
-// Feedit.prototype.updateData = function(){
-//   console.log("updateData function ran | updatecounter:"+updatecounter);
-//   var ref = this.database.ref(currentUser.uid);
-//   ref.limitToLast(1).on("child_added", function(snapshot, prevChildKey) {
-//     newEval = snapshot.val();
-//     console.log("Last child recieved: ");
-//     console.log(newEval);
-//     // console.log("Previous child ID:" + prevChildKey);
-//   // feedit.displayData(1);
-//   updatecounter ++;
-//
-// });
-// }
 
 Feedit.prototype.checkSetup = function() {
   if (!window.firebase || !(firebase.app instanceof Function) || !window.config) {
@@ -272,9 +230,13 @@ Feedit.prototype.onAuthStateChanged = function(user) {
     document.getElementById("topuserdisplay").innerHTML = user.email;
     document.getElementById("nameshow").innerHTML = user.email;
 
-    feedit.displayGui();
+    if (initialstate == 0){
+      feedit.displayGui(initialstate);
+      feedit.startHandler(initialstate);
+    }
+
+    initialstate=1
     Materialize.toast("Usuário autenticado com sucesso!",4000);
-    feedit.startHandler();
 
     // Começa o display da GUI de usuário:
 
@@ -286,21 +248,10 @@ Feedit.prototype.onAuthStateChanged = function(user) {
   }
 };
 
-// function retrieve(){
-//   $("#submitbt").hide();
-//   $("#loadingbar").show();
-//   return firebase.database().ref('/').once('value').then(function(snapshot) {
-//     var username = snapshot.val();
-//     window.username = username;
-//     // document.write(username)
-//     // ...
-//   });
-// }
 
 function login(){
   var valemail = $('#useremail').attr('class');
   var varpass = $("#userpassword").attr('class');
-
 
   if(valemail == "validate valid"){
     feedit.userName = $("#useremail").val();
@@ -317,14 +268,18 @@ function login(){
   }
 };
 
+// ---------------------- AUX FUNCTIONS ----------------------------------------
+
 window.onload = function(){
   window.feedit = new Feedit();
+
   $("#userpassword").keypress(function(e) {
       if(e.which == 13) {
         $("#submitbt").click();
       }
   });
 }
+
 
 $('.dropdown-button').dropdown({
     inDuration: 300,
