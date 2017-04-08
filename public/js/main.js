@@ -46,11 +46,8 @@ Feedit.prototype.startHandler = function(){
 
 Feedit.prototype.onDataLoaded = function(){
   $('.collapsible').collapsible();
-  console.log("collapsible function ran");
+  console.log("Initial collapsible started");
   // $(".badge").attr("class","badge");
-
-  console.log("Beginning click listener on new badge green");
-
 }
 
 // Initialize mainapp
@@ -73,7 +70,7 @@ Feedit.prototype.displayGui = function(){
       '<div class="container">'+
       '<h5 style="color:gray">Seus locais</h5>'+
       // '<div class="row center" style="margin-bottom:0px;border-style: solid;border-color:#e7e7e7;"><div class="col s4">Nota</div><div class="col s4">Hora</div><div class="col s4">Data</div></div>'+
-      '<ul id="main-values" class="collapsible" data-collapsible="expandable" >'+
+      '<ul id="main-values" class="collapsible" data-collapsible="expandable" style="max-height:700px;overflow-y:auto">'+
       '</ul>'+
       '</div>');
 }
@@ -84,23 +81,28 @@ Feedit.prototype.displayData = function(data){
     if(places.includes(Key.local) == true){ // PREPENDS TO THE LATEST ITEM LIST
       // console.log("locale "+Key.local+" already exists. Appending to the correct place")
       var localid = '#'+Key.local;
+      var localid_content = '#content-'+Key.local;
       var localid_counter_ref = '#counter-'+Key.local;
       var localchild_id = '#'+Key.local+'>:nth-child(2)';
       // $("#biblioteca>:nth-child(2)").before("<div>inserted div</div>");
       $(localchild_id).before(
-      '  <div class="collapsible-body"><span style="padding-left:5%">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
+      '  <div class="collapsible-body" style="padding:4px;"><span style="padding-left:5%;">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
       );
+      // $(localid).append(
+      // '<div class="collapsible-body"><span style="padding-left:5%">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
+      // );
       $(localid_counter_ref).html($(localid)[0].childElementCount-1);
 
     } else {  // APPENDS FOR THE FIRST TIME, CREATING THE HEADER
       $("#main-values").append(
-        '<li id="'+Key.local+'">'+
-        '  <div class="collapsible-header" hasflag="0" id="header-'+Key.local+'"><i class="material-icons">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
-          '  <div class="collapsible-body" id="last-'+Key.local+'"><span style="padding-left:5%">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'+
+        '<li id="'+Key.local+'"">'+ //style="max-height:300px;overflow-y:auto;
+        '<div class="collapsible-header" hasflag="0" id="header-'+Key.local+'"><i class="material-icons">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
+        '<div class="collapsible-body" id="last-'+Key.local+'" style="padding:3px;"><span style="padding-left:5%">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'+
+        '</div'+
         '</li>');
     }
 
-//  Dealing with NEW badges
+//  THIS PORTION WILL ONLY RUN ON NEW VALUES ARE ADDED TO THE DB WHILE THE APP IS RUNNING
     if (initialislodaded == true){ // adds and counts new badges only if it added after initload is complete
       newBadge = '<span id="badge-'+Key.local+'" class="new badge green" data-badge-caption="Nova"></span>'
       var localid_header = '#header-'+Key.local;
@@ -119,35 +121,33 @@ Feedit.prototype.displayData = function(data){
         $(localid_header).click(function(){
           $(localid_header).attr('hasflag',0);
           $(localid_header).attr('counter',0);
-
           $(this).children().eq(2).remove();
         });
       }
-    }
+
+      placesdeduped = places.removeDuplicates();
+      var mustopen = [];
+
+      // Checks for the cards that are open
+      for(i=0;i<placesdeduped.length;i++){
+        var currentplace = "#"+placesdeduped[i];
+        if ($(currentplace).attr("class") == 'active'){
+          mustopen.push(i);
+        }
+      }
+
+      $('.collapsible').collapsible(); // reloads collapsible, closes all
+
+      // opens the ones that should stay open
+      for(j=0;j<mustopen.length;j++){
+        $('.collapsible').collapsible('open',mustopen[j]);
+      }
+
+    } // CLOSES INITIALISLODADED = TRUE
 
     places.push(Key.local);
     $("#loadingbar").remove();
-    // $('.collapsible').collapsible();
-    // if (initialislodaded == true){
-    //   $('.collapsible').collapsible();
-    // }
-    //Adds aditional data loaded in realtime
 
-    // before opening check if it already open
-
-    placesdeduped = places.removeDuplicates();
-    for(i=0;i<placesdeduped.length;i++){
-      var currentplace = "#"+placesdeduped[i];
-      console.log("LOCAL: "+currentplace + " class " + $(currentplace).attr("class"));
-      if ($(currentplace).attr("class") == 'active'){
-        console.log("The card"+currentplace+"was open. Reopening");
-        $('.collapsible').collapsible();
-      } else if ($(currentplace).attr("class") == '' || typeof $(currentplace).attr("class") == undefined){
-        console.log("The card "+currentplace+" was closed. Reclosing")
-        $('.collapsible').collapsible('close',i);
-      }
-
-    }
 }
 
 // Fetches and calls displayData of the data
