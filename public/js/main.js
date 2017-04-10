@@ -47,6 +47,7 @@ Feedit.prototype.startHandler = function(){
 Feedit.prototype.onDataLoaded = function(){
   $('.collapsible').collapsible();
   console.log("Initial collapsible started");
+  fixheaders()
   // $(".badge").attr("class","badge");
 }
 
@@ -396,9 +397,16 @@ String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
-function expandAll(){
-  $(".collapsible-header").addClass("active");
-  $(".collapsible").collapsible({expandable: false});
+function fixheaders(){
+  for(i=0;i < places.removeDuplicates().length;i++){
+      place = places.removeDuplicates()[i];
+      $("#header-"+place).click();
+      $(".collapsible").collapsible('close',i);
+  }
+  // for(i=0;i < places.removeDuplicates().length;i++){
+  //     place = places.removeDuplicates()[i];
+  //     $("#header-"+place).click();
+  // }
 }
 
 function collapseAll(){
