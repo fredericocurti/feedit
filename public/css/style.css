@@ -34,8 +34,8 @@ main {
 
 #notifications-button{
   position: fixed !important;
-  top: 9%;
-  left:92%;
+  bottom: 9%;
+  left:90%;
 }
 .toprightcorner{
   /*padding:0px;*/
@@ -52,6 +52,7 @@ main {
 
 .tooltipster-base{
   height: inherit !important;
+  z-index: 999 !important;
 }
 
 .collapsible-body {

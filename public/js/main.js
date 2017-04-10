@@ -47,7 +47,17 @@ Feedit.prototype.startHandler = function(){
 Feedit.prototype.onDataLoaded = function(){
   $('.collapsible').collapsible();
   console.log("Initial collapsible started");
-  fixheaders()
+  fixheaders();
+  $('#usersettingsbutton').click(function(){
+    feedit.userSettings();
+    $('#user-modal').modal('open');
+  });
+
+  // $(localid_header).click(function(){
+  //   $(localid_header).attr('hasflag',0);
+  //   $(localid_header).attr('counter',0);
+  //   $(this).children().eq(2).remove();
+  // });
   // $(".badge").attr("class","badge");
 }
 
@@ -61,7 +71,7 @@ Feedit.prototype.displayGui = function(){
     $( "#main-content" ).append(
     "<div class='center'><h5><b>Painel de Controle</b></h5><h6 style='color:grey;'>" + currentUser.email + " | ID: " + currentUser.uid +  "</h6>" +
     "<div class='divider'></div></div>"+
-    '<a id="notifications-button" status="on" class="fixed-action-btn toprightcorner btn-floating btn-large waves-effect waves-light red darken-2 tooltip" data-tooltip-content="#tooltip_content"><img id="notifications-button-img" src="img/bell.png" width="28px"></a>'+
+    '<a id="notifications-button" status="on" class="fixed-action-btn toprightcorner btn-floating btn-large waves-effect waves-light red darken-4 tooltip" data-tooltip-content="#tooltip_content"><img id="notifications-button-img" src="img/bell.png" width="28px"></a>'+
 
     '<div class="tooltip_templates">'+
     '<span id="tooltip_content">'+
@@ -73,7 +83,7 @@ Feedit.prototype.displayGui = function(){
     '<div class="row">'+
       '<div class="col m2">'+
       '<h5 style="color:grey;"> Menu </h5>'+
-      '<a class="waves-effect waves-light btn red darken-3"><i class="material-icons left"></i>Locais</a>'+
+      '<a class="waves-effect waves-light btn disabled red darken-3"><i class="material-icons left"></i>Locais</a>'+
       '</div>'+
       '<div class="col s12 m10">'+
       "<div id='maindata' class='Site-content'></div>"+
@@ -86,13 +96,13 @@ Feedit.prototype.displayGui = function(){
     $("#notifications-button").click(function(){
       if ($("#notifications-button").attr("status") == 'on'){
         $("#notifications-button").attr('status','off');
-        $("#notifications-button").removeClass('red darken-2');
+        $("#notifications-button").removeClass('red darken-4');
         $("#notifications-button").addClass('grey');
         $("#notifications-button-img").attr('src','img/bell_crossed.png');
       } else {
         $("#notifications-button").attr("status",'on');
         $("#notifications-button").removeClass('grey');
-        $("#notifications-button").addClass('red darken-2');
+        $("#notifications-button").addClass('red darken-4');
         $("#notifications-button-img").attr('src','img/bell.png');
       }
     });
@@ -107,7 +117,7 @@ Feedit.prototype.displayGui = function(){
       animation : 'grow',
       content: $("#tooltip_content"),
       theme: 'tooltipster-shadow',
-      side: 'left',
+      side: 'top',
       trigger : 'custom',
       timer : 2000,
       contentAsHTML: true,
@@ -141,16 +151,16 @@ Feedit.prototype.displayData = function(data){
       // );
       if(initialislodaded == false){
         $(localchild_test).before(
-        '  <div class="collapsible-body" id="'+datacounter+'" style="padding:4px;"><span style="padding-left:5%;">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
+        '  <div class="collapsible-body" id="'+datacounter+'" style="padding:4px;"><span style="padding-left:5%;">'+ Key.nota +' '*20 + Key.data + ' '*20 + Key.hora +'</span></div>'
         );
       }
       else if(initialislodaded == true){
         datacounter_id = "#"+datacounter
         $(localchild_test).before(
-        '  <div class="collapsible-body" id="'+datacounter+'" style="padding:4px;background-color:#b0e0e2;"><span style="padding-left:5%;">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
+        '  <div class="collapsible-body" id="'+datacounter+'" style="padding:4px;background-color:#b0e0e2;"><span style="padding-left:5%;">'+ Key.nota + '</span><span style="padding-left:40%">' + Key.data + '</span><span style="right:10px !important;">' + Key.hora +'</span></div>'
         );
         // $(datacounter_id).animate({opacity:'1'}, 2000);
-        $(datacounter_id).animate({backgroundColor: '#F7F7F7'}, 2000);
+        $(datacounter_id).animate({backgroundColor: '#F7F7F7'}, 1000);
       }
 
       $
@@ -165,8 +175,8 @@ Feedit.prototype.displayData = function(data){
       $("#main-values").append(
         '<li id="'+Key.local+'"">'+ //style="max-height:300px;overflow-y:auto;
         '<div class="collapsible-header" hasflag="0" id="header-'+Key.local+'"><i class="material-icons">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
-        '<div class=collapsible-body id="test-'+Key.local+'" style="padding:0px;max-height:300px;overflow-y:auto">'+
-        '   <div class="collapsible-body" id="'+datacounter+'" style="padding:4px;"><span style="padding-left:5%">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'+
+        '<div class=collapsible-body id="test-'+Key.local+'" style="padding:0px;max-height:300px;overflow-y:auto">'+ // DIV CONTAINING KEYS
+        '   <div class="collapsible-body" id="'+datacounter+'" style="padding:4px;"><span style="padding-left:5%">'+ Key.nota + '</span><span style="padding-left:20%">' + Key.data + '</span><span style="padding-left:10%>"' + Key.hora +'</span></div>'+
         '</div>'+
         '</li>'
       );
@@ -301,6 +311,21 @@ Feedit.prototype.signOut = function() {
   location.reload();
 };
 
+Feedit.prototype.userSettings = function(){
+  $("#mainshow").append(
+    '<div id="user-modal" class="modal bottom-sheet">'+
+    		'<div class="modal-content">'+
+    				'<h4 style="color:grey">Configurações da Conta</h4>'+
+    				'<p>A bunch of text</p>'+
+    		'</div>'+
+    		'<div class="modal-footer">'+
+    				'<a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Agree</a>'+
+    		'</div>'+
+    '</div>'
+  );
+  $('.modal').modal();
+}
+
 Feedit.prototype.onAuthStateChanged = function(user) {
   console.log("User auth state:");
   console.log(user);
@@ -355,7 +380,6 @@ function login(){
 
 window.onload = function(){
   window.feedit = new Feedit();
-
   $("#userpassword").keypress(function(e) {
       if(e.which == 13) {
         $("#submitbt").click();
