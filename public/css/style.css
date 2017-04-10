@@ -31,18 +31,45 @@ main {
   flex-direction: column;
 }
 
+
+#notifications-button{
+  position: fixed !important;
+  top: 9%;
+  left:92%;
+}
+.toprightcorner{
+  /*padding:0px;*/
+
+}
 .Site-content {
   flex: 1;
 }
 
+.data-container{
+  margin-left:5% !important;
+  margin-right:5% !important;
+}
+
+.tooltipster-base{
+  height: inherit !important;
+}
+
 .collapsible-body {
     background-color: #f7f7f7;
-    display: none;
+    display: block;
     border-bottom: 1px solid #ddd;
     box-sizing: border-box;
     padding: 0.5rem;
+    color:black;
 }
 
+@media only screen and (max-device-width: 480px) {
+  #notifications-button{
+    position: fixed;
+    right: 40% !important;
+    bottom: 12% !important;
+  }
+}
 @media only screen and (min-device-width: 480px) {
   #toast-container {
     top: auto !important;
@@ -52,6 +79,14 @@ main {
   }
 }
 
+.sticky {
+  position: fixed;
+  z-index: 9999;
+  width: 100%;
+}
+
+
+.tooltip_templates { display: none; }
 
 .mainbg{
   background-image: url("../img/background1.jpg");
@@ -92,10 +127,9 @@ main {
 
 .dropdown-content {
     background-color: #FFF
-
     margin: 0;
     display: none;
-    min-width: 100px;
+    min-width: 190px;
     max-height: 650px;
     overflow-y: auto;
     opacity: 0;
@@ -104,12 +138,16 @@ main {
     will-change: width, height;
 }
 
+
 .dropdown-content li>a, .dropdown-content li>span {
     font-size: 16px;
     color: rgba(211, 47, 47, 1) !important;
     display: block;
     line-height: 22px;
     padding: 14px 16px;
+}
+.dropdown-content li>a>i {
+    margin: 0 10px 0 0;
 }
 
 nav {

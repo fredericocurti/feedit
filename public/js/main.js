@@ -15,7 +15,7 @@ var db = {};
 var initialislodaded = false;
 
 function Feedit() {
-  this.signInButton = document.getElementById('submitbt');
+  // this.signInButton = document.getElementById('submitbt');
   // this.signInButton.addEventListener('click', this.signIn.bind(this));
   this.initFirebase();
 }
@@ -60,20 +60,68 @@ Feedit.prototype.displayGui = function(){
     $( "#main-content" ).append(
     "<div class='center'><h5><b>Painel de Controle</b></h5><h6 style='color:grey;'>" + currentUser.email + " | ID: " + currentUser.uid +  "</h6>" +
     "<div class='divider'></div></div>"+
-    "<div id='maindata' class='Site-content'></div>");
+    '<a id="notifications-button" status="on" class="fixed-action-btn toprightcorner btn-floating btn-large waves-effect waves-light red darken-2 tooltip" data-tooltip-content="#tooltip_content"><img id="notifications-button-img" src="img/bell.png" width="28px"></a>'+
+
+    '<div class="tooltip_templates">'+
+    '<span id="tooltip_content">'+
+        'No new notifications'+
+    '</span>'+
+    '</div>'+
+
+    '<div class="data-container">'+
+    '<div class="row">'+
+      '<div class="col m2">'+
+      '<h5 style="color:grey;"> Menu </h5>'+
+      '<a class="waves-effect waves-light btn red darken-3"><i class="material-icons left"></i>Locais</a>'+
+      '</div>'+
+      '<div class="col s12 m10">'+
+      "<div id='maindata' class='Site-content'></div>"+
+      '</div>'+
+    '</div'+
+    '</div>'
+  );
+
+  // Deals with the notification button state = on/off
+    $("#notifications-button").click(function(){
+      if ($("#notifications-button").attr("status") == 'on'){
+        $("#notifications-button").attr('status','off');
+        $("#notifications-button").removeClass('red darken-2');
+        $("#notifications-button").addClass('grey');
+        $("#notifications-button-img").attr('src','img/bell_crossed.png');
+      } else {
+        $("#notifications-button").attr("status",'on');
+        $("#notifications-button").removeClass('grey');
+        $("#notifications-button").addClass('red darken-2');
+        $("#notifications-button-img").attr('src','img/bell.png');
+      }
+    });
+    //   $(localid_header).attr('counter',0);
+    //   $(this).children().eq(2).remove();
+    // });
+
     loading = document.getElementById("loadingbar");
     $("#maindata").append(loading);
     $("#navbar").css("background-color","rgb(187,41,41)");
-
+    $('.tooltip').tooltipster({
+      animation : 'grow',
+      content: $("#tooltip_content"),
+      theme: 'tooltipster-shadow',
+      side: 'left',
+      trigger : 'custom',
+      timer : 2000,
+      contentAsHTML: true,
+      contentCloning: true
+    });
     // Draws container for key values
     $("#maindata").append(
-      '<div class="container">'+
+      '<div>'+
       '<h5 style="color:gray">Seus locais</h5>'+
       // '<div class="row center" style="margin-bottom:0px;border-style: solid;border-color:#e7e7e7;"><div class="col s4">Nota</div><div class="col s4">Hora</div><div class="col s4">Data</div></div>'+
-      '<ul id="main-values" class="collapsible" data-collapsible="expandable" style="max-height:700px;overflow-y:auto">'+
+      '<ul id="main-values" class="collapsible" data-collapsible="expandable">'+
       '</ul>'+
       '</div>');
 }
+
 
 Feedit.prototype.displayData = function(data){
   Key = data;
@@ -81,25 +129,47 @@ Feedit.prototype.displayData = function(data){
     if(places.includes(Key.local) == true){ // PREPENDS TO THE LATEST ITEM LIST
       // console.log("locale "+Key.local+" already exists. Appending to the correct place")
       var localid = '#'+Key.local;
+      var localchild_test = '#test-'+Key.local+'>:nth-child(1)';
+      var localchild_testref = '#test-'+Key.local
       var localid_content = '#content-'+Key.local;
       var localid_counter_ref = '#counter-'+Key.local;
       var localchild_id = '#'+Key.local+'>:nth-child(2)';
       // $("#biblioteca>:nth-child(2)").before("<div>inserted div</div>");
-      $(localchild_id).before(
-      '  <div class="collapsible-body" style="padding:4px;"><span style="padding-left:5%;">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
-      );
-      // $(localid).append(
-      // '<div class="collapsible-body"><span style="padding-left:5%">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
+      // $(localchild_id).before(
+      // '  <div class="collapsible-body" style="padding:4px;"><span style="padding-left:5%;">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
       // );
-      $(localid_counter_ref).html($(localid)[0].childElementCount-1);
+      if(initialislodaded == false){
+        $(localchild_test).before(
+        '  <div class="collapsible-body" id="'+datacounter+'" style="padding:4px;"><span style="padding-left:5%;">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
+        );
+      }
+      else if(initialislodaded == true){
+        datacounter_id = "#"+datacounter
+        $(localchild_test).before(
+        '  <div class="collapsible-body" id="'+datacounter+'" style="padding:4px;background-color:#b0e0e2;"><span style="padding-left:5%;">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
+        );
+        // $(datacounter_id).animate({opacity:'1'}, 2000);
+        $(datacounter_id).animate({backgroundColor: '#F7F7F7'}, 2000);
+      }
+
+      $
+      // $(localid_test).append(
+      // '<div class="collapsible-body"><span>'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
+      // );
+      $(localid_counter_ref).html($(localchild_testref)[0].childElementCount-1);
 
     } else {  // APPENDS FOR THE FIRST TIME, CREATING THE HEADER
+      var localid = '#'+Key.local;
+      var localid_header = '#header-'+Key.local;
       $("#main-values").append(
         '<li id="'+Key.local+'"">'+ //style="max-height:300px;overflow-y:auto;
         '<div class="collapsible-header" hasflag="0" id="header-'+Key.local+'"><i class="material-icons">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
-        '<div class="collapsible-body" id="last-'+Key.local+'" style="padding:3px;"><span style="padding-left:5%">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'+
-        '</div'+
-        '</li>');
+        '<div class=collapsible-body id="test-'+Key.local+'" style="padding:0px;max-height:300px;overflow-y:auto">'+
+        '   <div class="collapsible-body" id="'+datacounter+'" style="padding:4px;"><span style="padding-left:5%">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'+
+        '</div>'+
+        '</li>'
+      );
+      // $(localid).click();
     }
 
 //  THIS PORTION WILL ONLY RUN ON NEW VALUES ARE ADDED TO THE DB WHILE THE APP IS RUNNING
@@ -150,6 +220,15 @@ Feedit.prototype.displayData = function(data){
 
 }
 
+Feedit.prototype.showNotification = function(key){
+  var nota = key.nota;
+  var nota_img = '<img style="padding-top:10px;display: block;margin: 0 auto;" src="img/'+nota+'.png">'
+  var notification_text = "<div class='row center' style='padding-top:4px;'>Nova avaliação<br><b>"+nota.capitalize()+"</b> no local <b>"+key.local.capitalize()+"</b></div>";
+  $('.tooltip').tooltipster('content',nota_img+notification_text);
+  $('.tooltip').tooltipster('open');
+
+}
+
 // Fetches and calls displayData of the data
 Feedit.prototype.getData = function(){
   var ref = this.database.ref(currentUser.uid);
@@ -164,6 +243,10 @@ Feedit.prototype.getData = function(){
     // displays data as soon as it is obtained
     feedit.displayData(this.key);
 
+    if( initialislodaded == true && $("#notifications-button").attr("status") == 'on'){
+      feedit.showNotification(this.key);
+    }
+
     // Check if initial data has been loaded fully;
     if(datacounter === currentUser.count){
       console.log("Initial data loading complete - launching initialislodaded as True");
@@ -176,7 +259,6 @@ Feedit.prototype.getData = function(){
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
-
 }
 
 
