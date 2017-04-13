@@ -8,15 +8,15 @@
     <!--Import Google Icon Font-->
     <!--Import materialize.css-->
     <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection" />
-    <link type="text/css" rel="stylesheet" href="css/style.css" />
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
     <link rel="stylesheet" type="text/css" href="css/tooltipster.bundle.min.css"/>
     <link rel="stylesheet" type="text/css" href="css/plugins/tooltipster/sideTip/themes/shadow.min.css"/>
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="js/materialize.min.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/jquery.slimscroll.min.js"></script>
     <script type="text/javascript" src="js/jquery.color-2.1.2.min.js"></script>
-    <script type="text/javascript" src="js/script.js"></script>
     <script type="text/javascript" src="js/tooltipster.bundle.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.7.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.7.1/firebase-auth.js"></script>
@@ -35,7 +35,7 @@
             $("#loadingbar").hide()
             firebase.initializeApp(config);
             // var database = firebase.database();
-            Feedit.prototype.checkSetup()
+            Feedit.prototype.checkSetup();
         });
 
         // Initialize Firebase

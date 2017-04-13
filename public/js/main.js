@@ -48,6 +48,8 @@ Feedit.prototype.onDataLoaded = function(){
   $('.collapsible').collapsible();
   console.log("Initial collapsible started");
   fixheaders();
+  // $('.scrollbar-outer').scrollbar();
+
   $('#usersettingsbutton').click(function(){
     feedit.userSettings();
     $('#user-modal').modal('open');
@@ -134,14 +136,15 @@ Feedit.prototype.displayGui = function(){
 }
 
 
+
 Feedit.prototype.displayData = function(data){
   Key = data;
 
     if(places.includes(Key.local) == true){ // PREPENDS TO THE LATEST ITEM LIST
       // console.log("locale "+Key.local+" already exists. Appending to the correct place")
       var localid = '#'+Key.local;
-      var localchild_test = '#test-'+Key.local+'>:nth-child(1)';
-      var localchild_testref = '#test-'+Key.local
+      var localchild_data = '#data-'+Key.local+'>:nth-child(1)';
+      var localchild_dataref = '#data-'+Key.local
       var localid_content = '#content-'+Key.local;
       var localid_counter_ref = '#counter-'+Key.local;
       var localchild_id = '#'+Key.local+'>:nth-child(2)';
@@ -150,33 +153,40 @@ Feedit.prototype.displayData = function(data){
       // '  <div class="collapsible-body" style="padding:4px;"><span style="padding-left:5%;">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
       // );
       if(initialislodaded == false){
-        $(localchild_test).before(
-        '  <div class="collapsible-body" id="'+datacounter+'" style="padding:4px;"><span style="padding-left:5%;">'+ Key.nota +' '*20 + Key.data + ' '*20 + Key.hora +'</span></div>'
+        $(localchild_data).before(
+        '<div class="collapsible-body row datarow" id="'+datacounter+'">'+
+        '   <span class="col s4 left-align">'+ Key.nota +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
+        '</div>'
         );
+
       }
       else if(initialislodaded == true){
         datacounter_id = "#"+datacounter
-        $(localchild_test).before(
-        '  <div class="collapsible-body" id="'+datacounter+'" style="padding:4px;background-color:#b0e0e2;"><span style="padding-left:5%;">'+ Key.nota + '</span><span style="padding-left:40%">' + Key.data + '</span><span style="right:10px !important;">' + Key.hora +'</span></div>'
+        $(localchild_data).before(
+        '<div class="collapsible-body row datarow" id="'+datacounter+'" style="background-color:#b0e0e2;">'+
+        '   <span class="col s4 left-align">'+ Key.nota +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
+        '</div>'
         );
         // $(datacounter_id).animate({opacity:'1'}, 2000);
-        $(datacounter_id).animate({backgroundColor: '#F7F7F7'}, 1000);
+        $(datacounter_id).animate({backgroundColor: '#F7F7F7'}, 2000);
       }
 
       $
       // $(localid_test).append(
       // '<div class="collapsible-body"><span>'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
       // );
-      $(localid_counter_ref).html($(localchild_testref)[0].childElementCount-1);
+      $(localid_counter_ref).html($(localchild_dataref)[0].childElementCount-1);
 
     } else {  // APPENDS FOR THE FIRST TIME, CREATING THE HEADER
       var localid = '#'+Key.local;
       var localid_header = '#header-'+Key.local;
       $("#main-values").append(
         '<li id="'+Key.local+'"">'+ //style="max-height:300px;overflow-y:auto;
-        '<div class="collapsible-header" hasflag="0" id="header-'+Key.local+'"><i class="material-icons">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
-        '<div class=collapsible-body id="test-'+Key.local+'" style="padding:0px;max-height:300px;overflow-y:auto">'+ // DIV CONTAINING KEYS
-        '   <div class="collapsible-body" id="'+datacounter+'" style="padding:4px;"><span style="padding-left:5%">'+ Key.nota + '</span><span style="padding-left:20%">' + Key.data + '</span><span style="padding-left:10%>"' + Key.hora +'</span></div>'+
+        '<div class="collapsible-header waves-effect" hasflag="0" id="header-'+Key.local+'"><i class="material-icons">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
+        '<div id="data-'+Key.local+'" class="collapsible-body" style="padding:0px;overflow-y:auto;max-height:300px;">'+ // DIV CONTAINING KEYS
+        '   <div class="collapsible-body row datarow" id="'+datacounter+'">'+
+        '   <span class="col s4 left-align">'+ Key.nota +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
+        '   </div>'+
         '</div>'+
         '</li>'
       );
@@ -203,6 +213,10 @@ Feedit.prototype.displayData = function(data){
           $(localid_header).attr('hasflag',0);
           $(localid_header).attr('counter',0);
           $(this).children().eq(2).remove();
+          // $(this).children().eq(2).fadeOut(2000, function(){
+          //   $(this).children().eq(2).remove();
+          // });
+
         });
       }
 
@@ -245,7 +259,7 @@ Feedit.prototype.getData = function(){
   var ref = this.database.ref(currentUser.uid);
 
   // Attach an asynchronous callback to read data as soon as it is added to the database
-  ref.on("child_added", function(snapshot) {
+  ref.limitToLast(2500).on("child_added", function(snapshot) {
     this.key = snapshot.val();
 
     db[datacounter] = (this.key);
@@ -311,6 +325,26 @@ Feedit.prototype.signOut = function() {
   location.reload();
 };
 
+Feedit.prototype.registerNewUser = function(){
+  var valemail = $('#useremail').attr('class');
+  var varpass = $("#userpassword").attr('class');
+
+  if(valemail == "validate valid"){
+    var email = $('#useremail').val();
+    var password = $("#userpassword").val();
+    this.auth.createUserWithEmailAndPassword(email,password).catch(function(error) {
+  // Handle Errors here.
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  // ...
+});
+  Materialize.toast("NOVO USUÁRIO REGISTRADO COM SUCESSO!",3000);
+
+  } else {
+    Materialize.toast("Por favor preencha os campos corretamente",2000);
+  }
+}
+
 Feedit.prototype.userSettings = function(){
   $("#mainshow").append(
     '<div id="user-modal" class="modal bottom-sheet">'+
@@ -332,6 +366,7 @@ Feedit.prototype.onAuthStateChanged = function(user) {
   currentUser = user;
   if (user) { // User is signed in!
     console.log("User is signed in");
+    $("#newUID").html(" ID: "+currentUser.uid);
     $('#modal1').modal('close');
     $("#topuserdisplay-off").remove();
     $('#topuserdisplay').css("display","block");
@@ -354,6 +389,9 @@ Feedit.prototype.onAuthStateChanged = function(user) {
     console.log("User has/is signed out!");
     initialstate = 0;
   }
+
+
+
 };
 
 

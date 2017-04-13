@@ -25,6 +25,11 @@ main {
     width: 90%;
 }
 
+.datarow{
+  margin:0px !important;
+  padding:4px !important;
+}
+
 .Site {
   display: flex;
   min-height: 100%;
@@ -57,7 +62,7 @@ main {
 
 .collapsible-body {
     background-color: #f7f7f7;
-    display: block;
+    display:block;
     border-bottom: 1px solid #ddd;
     box-sizing: border-box;
     padding: 0.5rem;
