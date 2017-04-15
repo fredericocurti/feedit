@@ -11,6 +11,7 @@
     <link type="text/css" rel="stylesheet" href="css/style.css"/>
     <link rel="stylesheet" type="text/css" href="css/tooltipster.bundle.min.css"/>
     <link rel="stylesheet" type="text/css" href="css/plugins/tooltipster/sideTip/themes/shadow.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/nouislider.css"/>
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="js/materialize.min.js"></script>
@@ -18,10 +19,11 @@
     <script type="text/javascript" src="js/jquery.slimscroll.min.js"></script>
     <script type="text/javascript" src="js/jquery.color-2.1.2.min.js"></script>
     <script type="text/javascript" src="js/tooltipster.bundle.min.js"></script>
+    <script type="text/javascript" src="js/nouislider.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.7.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.7.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.7.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/3.7.1/firebase-messaging.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.7.1/firebase-storage.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.7.4/firebase.js"></script>
 </head>
 
@@ -36,6 +38,14 @@
             firebase.initializeApp(config);
             // var database = firebase.database();
             Feedit.prototype.checkSetup();
+            $('.button-collapse').sideNav({
+                menuWidth: 300, // Default is 300
+                edge: 'left', // Choose the horizontal origin
+                closeOnClick: false, // Closes side-nav on <a> clicks, useful for Angular/Meteor
+                draggable: true // Choose whether you can drag to open on touch screens
+              }
+            );
+
         });
 
         // Initialize Firebase
@@ -43,27 +53,44 @@
     <div id="mainshow" class="mainbg Site-content">
 
         <!--   NavBar  -->
-        <nav>
+      <div class="navbar-fixed  ">
+        <nav class="nav">
             <div id="navbar" class="nav-wrapper navcolor sticky" style="z-index:2;">
                 <a href="#" class="brand-logo center" style="color:white;">feedit</a>
+                <ul class="left">
+                  <li>
+                    <div id="slide-button" class="row" style="display:none">
+                    <a href="#" data-activates="slide-out" class="button-collapse show-on-large" style="color:white;width:150px;margin-left:5px;"><i style="display:inline-block" class="material-icons">menu</i><div style="position:relative;top:-7px;margin-left:10px;color:white;display:inline-block">Opções</div></a>
+                  <li>
+                </ul>
                 <!-- <img src="logo.png" width="45px;" style="margin-top:5px;margin-left:10px;"> -->
                 <ul id="nav-mobile" class="right">
-                    <li><a id="topuserdisplay-off" class="waves-effect waves-light" href="#modal1" style="color:white;display:none;">Login</a></li>
-                    <li><a id="topuserdisplay" data-activates='dropdown1' class="dropdown-button waves-effect waves-light" style="color:white;display:none;">Login</a></li>
+                    <li><a id="topuserdisplay-off" class="waves-effect waves-light" href="#modal1" style="color:white;display:none;height:100%">Login</a></li>
+                    <li><a id="topuserdisplay" data-activates='dropdown1' class="dropdown-button waves-effect waves-light" style="font-size:0.7rem;color:white;display:none;">Login</a></li>
                 </ul>
             </div>
+
+            <!-- <div class="nav-content" style="background-color: #981c1c;">
+                <ul class="tabs tabs-transparent">
+                    <li class="tab"><a href="#test1">Test 1</a></li>
+                    <li class="tab"><a class="active" href="#test2">Test 2</a></li>
+                    <li class="tab"><a href="#test4">Test 4</a></li>
+                </ul>
+            </div> -->
+        <div style="width:100%;height:10px;background-color: #981c1c;"></div>
         </nav>
+      </div>
 
         <!-- Dropdown Structure -->
         <ul id='dropdown1' class='dropdown-content'>
-            <h6 id="nameshow" class="center" style="color:black;padding-top:10px;"></h6>
-            <li><a id="usersettingsbutton" href="#!" data-target:="user-modal"><i class="material-icons">assignment_ind</i>Minha conta</a></li>
+            <h6 id="nameshow" class="center" style="font-size:1rem;color:black;padding-top:10px;"></h6>
+            <li><a id="usersettingsbutton" href="#!" data-target:="user-modal"><i class="material-icons">settings</i>Configurações</a></li>
             <li><a id="logoffbutton" href="#!" class="waves-effect waves-light" onclick="feedit.signOut();"><i class="material-icons">power_settings_new</i>Encerrar sessão</a></li
             <li class="divider"></li>
         </ul>
 
         <!-- Content Section -->
-        <div id="main-content" class="Site-content">
+        <div id="main-content" class="Site-content" style="padding-top:10px;">
         </div>
 
         <!--  Banner  -->
@@ -170,6 +197,30 @@
 
         </div>
     </div>
+
+<ul id="slide-out" class="side-nav">
+    <li>
+        <div class="userView">
+            <div class="background">
+                <img src="img/pattern.jpg" width="400px;">
+            </div>
+            <a href="#!user"><img id="sidebar-thumb" class="circle" src="img/default-icon-user.png"></a>
+            <a href="#!name"><span id="user-name" class="side-bar-text white-text name"></span></a>
+            <a href="#!email"><span id="user-email" class="side-bar-text white-text email"></span></a>
+        </div>
+    </li>
+    <li><a href="#!"><i class="material-icons">view_module</i>Visão Geral</a></li>
+    <li><a href="#!">Second Link</a></li>
+    <li>
+        <div class="divider"></div>
+    </li>
+    <li><a class="subheader">Subheader</a></li>
+    <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+    <li><a id="sidenav-usersettingsbutton" class="waves-effect" href="#!" data-target:="user-modal"><i class="material-icons">settings</i>Configurações</a></li>
+    <li><a id="logoffbutton" href="#!" class="waves-effect waves-light" onclick="feedit.signOut();"><i class="material-icons">power_settings_new</i>Encerrar sessão</a></li>
+</ul>
+
+
 
     <footer class="page-footer red darken-3">
         <div class="container">

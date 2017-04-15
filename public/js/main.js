@@ -13,6 +13,9 @@ var newEval = null;
 var datacounter = 0;
 var db = {};
 var initialislodaded = false;
+var limit = 0;
+var userimg = "img/default-icon-user.png";
+
 
 function Feedit() {
   // this.signInButton = document.getElementById('submitbt');
@@ -34,6 +37,8 @@ Feedit.prototype.startHandler = function(){
   ref.once("value", function(snap) {
     currentUser.count = snap.numChildren();
     console.log("INITIAL DATA COUNT:", currentUser.count);
+    console.log("Setting limit to: "+currentUser.count);
+    limit = currentUser.count;
 
     if(currentUser.count == 0){
       $("#maindata").append(
@@ -45,15 +50,27 @@ Feedit.prototype.startHandler = function(){
 }
 
 Feedit.prototype.onDataLoaded = function(){
+  $("#slide-button").css("display","block");
   $('.collapsible').collapsible();
   console.log("Initial collapsible started");
   fixheaders();
+
+  $("#data-counter").html("Você possui "+currentUser.count+" avaliações no total. Mostrando as últimas "+limit);
   // $('.scrollbar-outer').scrollbar();
 
   $('#usersettingsbutton').click(function(){
     feedit.userSettings();
     $('#user-modal').modal('open');
   });
+
+  $('#sidenav-usersettingsbutton').click(function(){
+    $('.button-collapse').sideNav('hide');
+    feedit.userSettings();
+    $('#user-modal').modal('open');
+  });
+
+
+
 
   // $(localid_header).click(function(){
   //   $(localid_header).attr('hasflag',0);
@@ -71,8 +88,6 @@ Feedit.prototype.displayGui = function(){
     $("#iconsection").remove();
     $("#mainshow").removeClass("mainbg");
     $( "#main-content" ).append(
-    "<div class='center'><h5><b>Painel de Controle</b></h5><h6 style='color:grey;'>" + currentUser.email + " | ID: " + currentUser.uid +  "</h6>" +
-    "<div class='divider'></div></div>"+
     '<a id="notifications-button" status="on" class="fixed-action-btn toprightcorner btn-floating btn-large waves-effect waves-light red darken-4 tooltip" data-tooltip-content="#tooltip_content"><img id="notifications-button-img" src="img/bell.png" width="28px"></a>'+
 
     '<div class="tooltip_templates">'+
@@ -83,13 +98,12 @@ Feedit.prototype.displayGui = function(){
 
     '<div class="data-container">'+
     '<div class="row">'+
-      '<div class="col m2">'+
-      '<h5 style="color:grey;"> Menu </h5>'+
-      '<a class="waves-effect waves-light btn disabled red darken-3"><i class="material-icons left"></i>Locais</a>'+
-      '</div>'+
-      '<div class="col s12 m10">'+
+      '<div class="col s12 m12">'+
       "<div id='maindata' class='Site-content'></div>"+
       '</div>'+
+      // '<div class="col s6 m6">'+
+      // '<h4>HUEAHUEA</h4>'+
+      // '</div>'+
     '</div'+
     '</div>'
   );
@@ -114,7 +128,7 @@ Feedit.prototype.displayGui = function(){
 
     loading = document.getElementById("loadingbar");
     $("#maindata").append(loading);
-    $("#navbar").css("background-color","rgb(187,41,41)");
+    // $("#navbar").css("background-color","rgb(187,41,41)");
     $('.tooltip').tooltipster({
       animation : 'grow',
       content: $("#tooltip_content"),
@@ -128,8 +142,9 @@ Feedit.prototype.displayGui = function(){
     // Draws container for key values
     $("#maindata").append(
       '<div>'+
-      '<h5 style="color:gray">Seus locais</h5>'+
-      // '<div class="row center" style="margin-bottom:0px;border-style: solid;border-color:#e7e7e7;"><div class="col s4">Nota</div><div class="col s4">Hora</div><div class="col s4">Data</div></div>'+
+      '<h5 style="color:gray">Visão Geral</h5>'+
+      '<div class="divider"></div>'+
+      '<h6 id="data-counter" style="padding:10px;"></h6>'+
       '<ul id="main-values" class="collapsible" data-collapsible="expandable">'+
       '</ul>'+
       '</div>');
@@ -155,27 +170,29 @@ Feedit.prototype.displayData = function(data){
       if(initialislodaded == false){
         $(localchild_data).before(
         '<div class="collapsible-body row datarow" id="'+datacounter+'">'+
-        '   <span class="col s4 left-align">'+ Key.nota +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
+        '   <span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
         '</div>'
         );
+        colorString(datacounter);
 
       }
       else if(initialislodaded == true){
         datacounter_id = "#"+datacounter
         $(localchild_data).before(
         '<div class="collapsible-body row datarow" id="'+datacounter+'" style="background-color:#b0e0e2;">'+
-        '   <span class="col s4 left-align">'+ Key.nota +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
+        '   <span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
         '</div>'
         );
         // $(datacounter_id).animate({opacity:'1'}, 2000);
         $(datacounter_id).animate({backgroundColor: '#F7F7F7'}, 2000);
+        $("#data-counter").html("Você possui "+datacounter+" avaliações");
+        colorString(datacounter);
       }
 
-      $
       // $(localid_test).append(
       // '<div class="collapsible-body"><span>'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
       // );
-      $(localid_counter_ref).html($(localchild_dataref)[0].childElementCount-1);
+      $(localid_counter_ref).html($(localchild_dataref)[0].childElementCount);
 
     } else {  // APPENDS FOR THE FIRST TIME, CREATING THE HEADER
       var localid = '#'+Key.local;
@@ -183,14 +200,15 @@ Feedit.prototype.displayData = function(data){
       $("#main-values").append(
         '<li id="'+Key.local+'"">'+ //style="max-height:300px;overflow-y:auto;
         '<div class="collapsible-header waves-effect" hasflag="0" id="header-'+Key.local+'"><i class="material-icons">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
-        '<div id="data-'+Key.local+'" class="collapsible-body" style="padding:0px;overflow-y:auto;max-height:300px;">'+ // DIV CONTAINING KEYS
+          '<div id="data-'+Key.local+'" class="collapsible-body" style="padding:0px;overflow-y:auto;max-height:300px;">'+ // DIV CONTAINING KEYS
         '   <div class="collapsible-body row datarow" id="'+datacounter+'">'+
-        '   <span class="col s4 left-align">'+ Key.nota +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
-        '   </div>'+
+        '   <span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
+          '</div>'+
         '</div>'+
         '</li>'
       );
       // $(localid).click();
+      colorString(datacounter);
     }
 
 //  THIS PORTION WILL ONLY RUN ON NEW VALUES ARE ADDED TO THE DB WHILE THE APP IS RUNNING
@@ -259,7 +277,7 @@ Feedit.prototype.getData = function(){
   var ref = this.database.ref(currentUser.uid);
 
   // Attach an asynchronous callback to read data as soon as it is added to the database
-  ref.limitToLast(2500).on("child_added", function(snapshot) {
+  ref.limitToLast(limit).on("child_added", function(snapshot) {
     this.key = snapshot.val();
 
     db[datacounter] = (this.key);
@@ -273,7 +291,7 @@ Feedit.prototype.getData = function(){
     }
 
     // Check if initial data has been loaded fully;
-    if(datacounter === currentUser.count){
+    if(datacounter === limit){
       console.log("Initial data loading complete - launching initialislodaded as True");
       initialislodaded = true;
 
@@ -349,14 +367,87 @@ Feedit.prototype.userSettings = function(){
   $("#mainshow").append(
     '<div id="user-modal" class="modal bottom-sheet">'+
     		'<div class="modal-content">'+
+        '<div class="row">'+
     				'<h4 style="color:grey">Configurações da Conta</h4>'+
-    				'<p>A bunch of text</p>'+
-    		'</div>'+
+    				'<h6 style="color:grey" class="left-align"><b>ID :</b> '+currentUser.uid+'</h6>'+
+        '</div>'+
+          '<div class="row center">'+
+          '<form id="form1" runat="server">'+
+							'<div class="image-upload">'+
+							'<label for="file-input">'+
+							'<img id="blah" height="100px" width="100px" class="circle" src="'+userimg+'">'+
+							'</label>'+
+							'<input id="file-input" type="file">'+
+							'</div>'+
+          '</form>'+
+	        // '<a href="#!user"><img class="circle" width="100px" src="img/default-icon-user.png"></a>'+
+          '</div>'+
+          '<div id="slider">'+
+						'<form action="#">'+
+		            '<p class="range-field">'+
+				            '<input type="range" min="50" max="'+currentUser.count+'" step="5" />'+
+		            '</p>'+
+            '</form>'+
+          '</div>'+
+          				'<div class="row">'+
+          						'<div class="input-field col s6">'+
+          								'<input disabled placeholder="" id="username" type="text" class="validate">'+
+          								'<label class="active" for="username">Nome do usuário/empresa</label>'+
+          						'</div>'+
+          						'<div class="input-field col s6">'+
+          								'<input disabled placeholder="" id="email" type="text" class="validate">'+
+          								'<label class="active" for="email">Email</label>'+
+          						'</div>'+
+          				'</div>'+
+                  '<div class="row center">'+
+                      '<div class="col m4 s12">'+
+                        '<a class="userbt center waves-effect waves-light btn blue lighten-2"><i class="material-icons left">mode_edit</i>Editar</a>'+
+                      '</div>'+
+          						'<div class="col m4 s12">'+
+                        '<a class="userbt center waves-effect waves-light btn green lighten-2"><i class="material-icons left">play_for_work</i>Baixar dados</a>'+
+                      '</div>'+
+                      '<div class="col m4 s12">'+
+                        '<a class="userbt center waves-effect waves-light btn red lighten-2"><i class="material-icons left">lock</i>Redefinir senha</a>'+
+                      '</div>'+
+
+                  '</div>'+
+
+                          				// '<div class="row">'+
+          				// 		'<div class="input-field col s6">'+
+          				// 				'<input id="password" type="password" class="validate">'+
+          				// 				'<label for="password">Password</label>'+
+          				// 		'</div>'+
+          				// '</div>'+
+          				// '<div class="row">'+
+          				// 		'<div class="input-field col s12">'+
+          				// 				'<input id="email" type="email" class="validate">'+
+          				// 				'<label class="active" for="email">Email</label>'+
+          				// 		'</div>'+
+          				// '</div>'+
+          				// '<div class="row">'+
+          				// 		'<div class="col s12">'+
+          				// 				'This is an inline input field:'+
+          				// 				'<div class="input-field inline">'+
+          				// 						'<input id="email" type="email" class="validate">'+
+          				// 						'<label class="active" for="email" data-error="wrong" data-success="right">Email</label>'+
+          				// 				'</div>'+
+          				// 		'</div>'+
+          				// '</div>'+
+          		'</form>'+
+        '</div>'+
     		'<div class="modal-footer">'+
-    				'<a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Agree</a>'+
+    				'<a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Fechar</a>'+
     		'</div>'+
     '</div>'
   );
+  $("#file-input").change(function(){
+      readURL(this);
+  });
+
+
+
+  $("#username").attr("placeholder",currentUser.displayName);
+  $("#email").attr("placeholder",currentUser.email);
   $('.modal').modal();
 }
 
@@ -364,6 +455,7 @@ Feedit.prototype.onAuthStateChanged = function(user) {
   console.log("User auth state:");
   console.log(user);
   currentUser = user;
+
   if (user) { // User is signed in!
     console.log("User is signed in");
     $("#newUID").html(" ID: "+currentUser.uid);
@@ -372,6 +464,7 @@ Feedit.prototype.onAuthStateChanged = function(user) {
     $('#topuserdisplay').css("display","block");
     document.getElementById("topuserdisplay").innerHTML = user.email;
     document.getElementById("nameshow").innerHTML = user.email;
+    document.getElementById("user-email").innerHTML = user.email;
 
     if (initialstate == 0){
       feedit.displayGui(initialstate);
@@ -380,6 +473,15 @@ Feedit.prototype.onAuthStateChanged = function(user) {
 
     initialstate=1
     Materialize.toast("Usuário autenticado com sucesso!",4000);
+
+    if (user.photoURL != null){
+      console.log("User has a profile pic.");
+      userimg = user.photoURL;
+      $("#sidebar-thumb").attr("src",user.photoURL);
+    } else {
+      console.log("User doesnt have a profile pic. Setting default");
+    }
+
 
     // Começa o display da GUI de usuário:
 
@@ -423,6 +525,7 @@ window.onload = function(){
         $("#submitbt").click();
       }
   });
+
 }
 
 
@@ -459,6 +562,20 @@ String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
+function colorString(counter){
+  if ($("#"+counter).children()[0].innerHTML == "Excelente"){
+    $("#"+counter).children()[0].outerHTML = '<span class="col s4 left-align nota-excelente">Excelente</span>'
+  }
+  else if ($("#"+counter).children()[0].innerHTML == "Bom"){
+    $("#"+counter).children()[0].outerHTML = '<span class="col s4 left-align nota-bom">Bom</span>'
+  }
+  else if ($("#"+counter).children()[0].innerHTML == "Ruim"){
+    $("#"+counter).children()[0].outerHTML = '<span class="col s4 left-align nota-ruim">Ruim</span>'
+  }
+
+}
+
+
 function fixheaders(){
   for(i=0;i < places.removeDuplicates().length;i++){
       place = places.removeDuplicates()[i];
@@ -484,3 +601,25 @@ Array.prototype.removeDuplicates = function () {
         return self.indexOf(item) == index;
     });
 };
+
+function readURL(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            $('#blah').attr('src', e.target.result);
+            currentUser.updateProfile({
+            photoURL: e.target.result
+            }).then(function() {
+            // Materialize.toast("Imagem do usuário atualizada com sucesso",1000);
+            $("#sidebar-thumb").attr("src",currentUser.photoURL);
+
+          }, function(error) {
+            Materialize.toast("Ocorreu um erro");
+            });
+        }
+
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
