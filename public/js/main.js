@@ -382,13 +382,13 @@ Feedit.prototype.userSettings = function(){
           '</form>'+
 	        // '<a href="#!user"><img class="circle" width="100px" src="img/default-icon-user.png"></a>'+
           '</div>'+
-          '<div id="slider">'+
-						'<form action="#">'+
-		            '<p class="range-field">'+
-				            '<input type="range" min="50" max="'+currentUser.count+'" step="5" />'+
-		            '</p>'+
-            '</form>'+
-          '</div>'+
+          // '<div id="slider">'+
+					// 	'<form action="#">'+
+		      //       '<p class="range-field">'+
+				  //           '<input type="range" min="50" max="'+currentUser.count+'" step="5" />'+
+		      //       '</p>'+
+          //   '</form>'+
+          // '</div>'+
           				'<div class="row">'+
           						'<div class="input-field col s6">'+
           								'<input disabled placeholder="" id="username" type="text" class="validate">'+
@@ -452,7 +452,7 @@ Feedit.prototype.userSettings = function(){
 }
 
 Feedit.prototype.onAuthStateChanged = function(user) {
-  console.log("User auth state:");
+  console.log("Current user auth-state:");
   console.log(user);
   currentUser = user;
 
@@ -504,7 +504,7 @@ function login(){
   if(valemail == "validate valid"){
     feedit.userName = $("#useremail").val();
     feedit.userPass = $("#userpassword").val();
-    console.log("Logging in with credentials:" + feedit.userName + "|" + feedit.userPass);
+    console.log("Logging in to:" + feedit.userName);
     feedit.signIn();
     if(initialstate == 0){
       $("#submitbt").hide();
