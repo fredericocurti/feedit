@@ -13,6 +13,7 @@ var newEval = null;
 var datacounter = 0;
 var db = {};
 var initialislodaded = false;
+var userSettingsnotLoaded = true;
 var limit = 0;
 var userimg = "img/default-icon-user.png";
 
@@ -145,7 +146,9 @@ Feedit.prototype.displayGui = function(){
       '<h5 style="color:gray">Visão Geral</h5>'+
       '<div class="divider"></div>'+
       '<h6 id="data-counter" style="padding:10px;"></h6>'+
-      '<ul id="main-values" class="collapsible" data-collapsible="expandable">'+
+      '</div>'+
+      '<div id="data-wrapper" class="row">'+
+      // '<ul id="main-values" class="collapsible" data-collapsible="expandable">'+
       '</ul>'+
       '</div>');
 }
@@ -197,15 +200,19 @@ Feedit.prototype.displayData = function(data){
     } else {  // APPENDS FOR THE FIRST TIME, CREATING THE HEADER
       var localid = '#'+Key.local;
       var localid_header = '#header-'+Key.local;
-      $("#main-values").append(
-        '<li id="'+Key.local+'"">'+ //style="max-height:300px;overflow-y:auto;
-        '<div class="collapsible-header waves-effect" hasflag="0" id="header-'+Key.local+'"><i class="material-icons">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
-          '<div id="data-'+Key.local+'" class="collapsible-body" style="padding:0px;overflow-y:auto;max-height:300px;">'+ // DIV CONTAINING KEYS
-        '   <div class="collapsible-body row datarow" id="'+datacounter+'">'+
-        '   <span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
-          '</div>'+
-        '</div>'+
-        '</li>'
+      $("#data-wrapper").append(
+        '<div class="col m6 s12">'+
+            '<ul class="collapsible raw" data-collapsible="expandable">'+
+                '<li id="'+Key.local+'"">'+ //style="max-height:300px;overflow-y:auto;
+                    '<div class="collapsible-header waves-effect" hasflag="0" id="header-'+Key.local+'"><i class="material-icons">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
+                    '<div id="data-'+Key.local+'" class="collapsible-body" style="padding:0px;overflow-y:auto;max-height:300px;">'+ // DIV CONTAINING KEYS
+                        '<div class="collapsible-body row datarow" id="'+datacounter+'">'+
+                            '<span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
+                        '</div>'+
+                    '</div>'+
+                '</li>'+
+            '</ul>'+
+        '</div>'
       );
       // $(localid).click();
       colorString(datacounter);
@@ -364,82 +371,90 @@ Feedit.prototype.registerNewUser = function(){
 }
 
 Feedit.prototype.userSettings = function(){
-  $("#mainshow").append(
-    '<div id="user-modal" class="modal bottom-sheet">'+
-    		'<div class="modal-content">'+
-        '<div class="row">'+
-    				'<h4 style="color:grey">Configurações da Conta</h4>'+
-    				'<h6 style="color:grey" class="left-align"><b>ID :</b> '+currentUser.uid+'</h6>'+
-        '</div>'+
-          '<div class="row center">'+
-          '<form id="form1" runat="server">'+
-							'<div class="image-upload">'+
-							'<label for="file-input">'+
-							'<img id="blah" height="100px" width="100px" class="circle" src="'+userimg+'">'+
-							'</label>'+
-							'<input id="file-input" type="file">'+
-							'</div>'+
-          '</form>'+
-	        // '<a href="#!user"><img class="circle" width="100px" src="img/default-icon-user.png"></a>'+
+  if (userSettingsnotLoaded == true){
+    $("#mainshow").append(
+      '<div id="user-modal" class="modal bottom-sheet">'+
+          '<div class="modal-content">'+
+          '<div class="container">'+
+          '<div class="row">'+
+              '<h4 style="color:grey">Configurações da Conta</h4>'+
+              '<h6 style="color:grey" class="left-align"><b>ID :</b> '+currentUser.uid+'</h6>'+
           '</div>'+
-          // '<div id="slider">'+
-					// 	'<form action="#">'+
-		      //       '<p class="range-field">'+
-				  //           '<input type="range" min="50" max="'+currentUser.count+'" step="5" />'+
-		      //       '</p>'+
-          //   '</form>'+
-          // '</div>'+
-          				'<div class="row">'+
-          						'<div class="input-field col s6">'+
-          								'<input disabled placeholder="" id="username" type="text" class="validate">'+
-          								'<label class="active" for="username">Nome do usuário/empresa</label>'+
-          						'</div>'+
-          						'<div class="input-field col s6">'+
-          								'<input disabled placeholder="" id="email" type="text" class="validate">'+
-          								'<label class="active" for="email">Email</label>'+
-          						'</div>'+
-          				'</div>'+
-                  '<div class="row center">'+
-                      '<div class="col m4 s12">'+
-                        '<a class="userbt center waves-effect waves-light btn blue lighten-2"><i class="material-icons left">mode_edit</i>Editar</a>'+
-                      '</div>'+
-          						'<div class="col m4 s12">'+
-                        '<a class="userbt center waves-effect waves-light btn green lighten-2"><i class="material-icons left">play_for_work</i>Baixar dados</a>'+
-                      '</div>'+
-                      '<div class="col m4 s12">'+
-                        '<a class="userbt center waves-effect waves-light btn red lighten-2"><i class="material-icons left">lock</i>Redefinir senha</a>'+
-                      '</div>'+
+            '<div class="row center">'+
+            '<form id="form1" runat="server">'+
+                '<div class="image-upload">'+
+                '<label for="file-input">'+
+                '<img id="blah" height="100px" width="100px" class="circle" src="'+userimg+'">'+
+                '</label>'+
+                '<input id="file-input" type="file">'+
+                '</div>'+
+            '</form>'+
+            // '<a href="#!user"><img class="circle" width="100px" src="img/default-icon-user.png"></a>'+
+            '</div>'+
+            // '<div id="slider">'+
+            // 	'<form action="#">'+
+            //       '<p class="range-field">'+
+            //           '<input type="range" min="50" max="'+currentUser.count+'" step="5" />'+
+            //       '</p>'+
+            //   '</form>'+
+            // '</div>'+
+                    '<div class="row">'+
+                        '<div class="input-field col s6">'+
+                            '<input disabled placeholder="" id="username" type="text" class="validate">'+
+                            '<label class="active" for="username">Nome do usuário/empresa</label>'+
+                        '</div>'+
+                        '<div class="input-field col s6">'+
+                            '<input disabled placeholder="" id="email" type="text" class="validate">'+
+                            '<label class="active" for="email">Email</label>'+
+                        '</div>'+
+                    '</div>'+
+                    '<div class="row center">'+
+                        '<div class="col m4 s12">'+
+                          '<a class="userbt center waves-effect waves-light btn blue lighten-2"><i class="material-icons left">mode_edit</i>Editar</a>'+
+                        '</div>'+
+                        '<div class="col m4 s12">'+
+                          '<a class="userbt center waves-effect waves-light btn green lighten-2"><i class="material-icons left">play_for_work</i>Baixar dados</a>'+
+                        '</div>'+
+                        '<div class="col m4 s12">'+
+                          '<a class="userbt center waves-effect waves-light btn red lighten-2"><i class="material-icons left">lock</i>Redefinir senha</a>'+
+                        '</div>'+
 
-                  '</div>'+
+                    '</div>'+
 
-                          				// '<div class="row">'+
-          				// 		'<div class="input-field col s6">'+
-          				// 				'<input id="password" type="password" class="validate">'+
-          				// 				'<label for="password">Password</label>'+
-          				// 		'</div>'+
-          				// '</div>'+
-          				// '<div class="row">'+
-          				// 		'<div class="input-field col s12">'+
-          				// 				'<input id="email" type="email" class="validate">'+
-          				// 				'<label class="active" for="email">Email</label>'+
-          				// 		'</div>'+
-          				// '</div>'+
-          				// '<div class="row">'+
-          				// 		'<div class="col s12">'+
-          				// 				'This is an inline input field:'+
-          				// 				'<div class="input-field inline">'+
-          				// 						'<input id="email" type="email" class="validate">'+
-          				// 						'<label class="active" for="email" data-error="wrong" data-success="right">Email</label>'+
-          				// 				'</div>'+
-          				// 		'</div>'+
-          				// '</div>'+
-          		'</form>'+
+                                    // '<div class="row">'+
+                    // 		'<div class="input-field col s6">'+
+                    // 				'<input id="password" type="password" class="validate">'+
+                    // 				'<label for="password">Password</label>'+
+                    // 		'</div>'+
+                    // '</div>'+
+                    // '<div class="row">'+
+                    // 		'<div class="input-field col s12">'+
+                    // 				'<input id="email" type="email" class="validate">'+
+                    // 				'<label class="active" for="email">Email</label>'+
+                    // 		'</div>'+
+                    // '</div>'+
+                    // '<div class="row">'+
+                    // 		'<div class="col s12">'+
+                    // 				'This is an inline input field:'+
+                    // 				'<div class="input-field inline">'+
+                    // 						'<input id="email" type="email" class="validate">'+
+                    // 						'<label class="active" for="email" data-error="wrong" data-success="right">Email</label>'+
+                    // 				'</div>'+
+                    // 		'</div>'+
+                    // '</div>'+
+                '</form>'+
+          '</div>'+
         '</div>'+
-    		'<div class="modal-footer">'+
-    				'<a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Fechar</a>'+
-    		'</div>'+
-    '</div>'
-  );
+          '<div class="modal-footer">'+
+              '<a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Fechar</a>'+
+          '</div>'+
+      '</div>'
+    );
+
+  userSettingsnotLoaded = false;
+
+  }
+
   $("#file-input").change(function(){
       readURL(this);
   });
