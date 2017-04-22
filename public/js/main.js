@@ -6,6 +6,8 @@ var config = {
   storageBucket: "febee-2b942.appspot.com",
   messagingSenderId: "301542026521"
 };
+
+var locales = {};
 var places = [];
 var updatecounter = 0;
 var initialstate = 0;
@@ -16,6 +18,21 @@ var initialislodaded = false;
 var userSettingsnotLoaded = true;
 var limit = 0;
 var userimg = "img/default-icon-user.png";
+
+function dataBlock(value){
+  this.data = {};
+  this.place = value.local;
+  this.counters = {}
+  this.counters["total"] = 0;
+  this.counters["ruim"] = 0;
+  this.counters["bom"] = 0;
+  this.counters["excelente"] = 0;
+
+  this.increaseCounter = function(counter){
+    this.counters[counter] ++;
+  }
+
+}
 
 
 function Feedit() {
@@ -51,9 +68,29 @@ Feedit.prototype.startHandler = function(){
 }
 
 Feedit.prototype.onDataLoaded = function(){
+
   $("#slide-button").css("display","block");
   $('.collapsible').collapsible();
   console.log("Initial collapsible started");
+
+
+  for(i=0;i<Object.keys(locales).length;i++){
+    header_id = "#header-"+Object.keys(locales)[i];
+    local = locales[Object.keys(locales)[i]];
+    badge_ruim = '<span id="badge-ruim" class="new badge circular-badge" style="background-color:#dd2c00;" data-badge-caption="'+local.counters.ruim+'"></span>'
+    badge_bom = '<span id="badge-bom" class="new badge circular-badge" style="background-color:#ccff90;" data-badge-caption="'+local.counters.bom+'"></span>'
+    badge_excelente = '<span id="badge-excelente" class="new badge circular-badge" style="background-color:#c6ff00;" data-badge-caption="'+local.counters.excelente+'"></span>'
+
+    $(header_id).append(badge_ruim,badge_bom,badge_excelente);
+    for(j=3;j<=5;j++){
+      if ($(header_id)[0].childNodes[j].getAttribute("data-badge-caption") == 0){
+        $(header_id).children().eq(j-1).css("display","none");
+      }
+    }
+  }
+
+
+
   fixheaders();
 
   $("#data-counter").html("Você possui "+currentUser.count+" avaliações no total. Mostrando as últimas "+limit);
@@ -68,17 +105,9 @@ Feedit.prototype.onDataLoaded = function(){
     $('.button-collapse').sideNav('hide');
     feedit.userSettings();
     $('#user-modal').modal('open');
+
   });
 
-
-
-
-  // $(localid_header).click(function(){
-  //   $(localid_header).attr('hasflag',0);
-  //   $(localid_header).attr('counter',0);
-  //   $(this).children().eq(2).remove();
-  // });
-  // $(".badge").attr("class","badge");
 }
 
 // Initialize mainapp
@@ -89,7 +118,7 @@ Feedit.prototype.displayGui = function(){
     $("#iconsection").remove();
     $("#mainshow").removeClass("mainbg");
     $( "#main-content" ).append(
-    '<a id="notifications-button" status="on" class="fixed-action-btn toprightcorner btn-floating btn-large waves-effect waves-light red darken-4 tooltip" data-tooltip-content="#tooltip_content"><img id="notifications-button-img" src="img/bell.png" width="28px"></a>'+
+    '<a id="notifications-button" status="on" class="fixed-action-btn toprightcorner btn-floating btn-large waves-effect waves-light red accent-2 tooltip" data-tooltip-content="#tooltip_content"><img id="notifications-button-img" src="img/bell.png" width="28px"></a>'+
 
     '<div class="tooltip_templates">'+
     '<span id="tooltip_content">'+
@@ -147,12 +176,11 @@ Feedit.prototype.displayGui = function(){
       '<div class="divider"></div>'+
       '<h6 id="data-counter" style="padding:10px;"></h6>'+
       '</div>'+
-      '<div id="data-wrapper" class="row">'+
+      '<div id="data-wrapper" class="grid" style="containerStyle: null;">'+
       // '<ul id="main-values" class="collapsible" data-collapsible="expandable">'+
       '</ul>'+
       '</div>');
 }
-
 
 
 Feedit.prototype.displayData = function(data){
@@ -160,6 +188,7 @@ Feedit.prototype.displayData = function(data){
 
     if(places.includes(Key.local) == true){ // PREPENDS TO THE LATEST ITEM LIST
       // console.log("locale "+Key.local+" already exists. Appending to the correct place")
+      var localid_header = '#header-'+Key.local;
       var localid = '#'+Key.local;
       var localchild_data = '#data-'+Key.local+'>:nth-child(1)';
       var localchild_dataref = '#data-'+Key.local
@@ -171,6 +200,7 @@ Feedit.prototype.displayData = function(data){
       // '  <div class="collapsible-body" style="padding:4px;"><span style="padding-left:5%;">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
       // );
       if(initialislodaded == false){
+        // adds initial data
         $(localchild_data).before(
         '<div class="collapsible-body row datarow" id="'+datacounter+'">'+
         '   <span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
@@ -180,31 +210,44 @@ Feedit.prototype.displayData = function(data){
 
       }
       else if(initialislodaded == true){
+        // adds data
         datacounter_id = "#"+datacounter
         $(localchild_data).before(
         '<div class="collapsible-body row datarow" id="'+datacounter+'" style="background-color:#b0e0e2;">'+
         '   <span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
         '</div>'
         );
-        // $(datacounter_id).animate({opacity:'1'}, 2000);
+
+        // animates newly added dade background color
         $(datacounter_id).animate({backgroundColor: '#F7F7F7'}, 2000);
         $("#data-counter").html("Você possui "+datacounter+" avaliações");
-        colorString(datacounter);
+
+        colorString(datacounter); // colors the string
+
+        // Sets the counter for each grading
+        $(localid_header)[0].childNodes[3].setAttribute("data-badge-caption",locales[Key.local].counters.ruim);
+        $(localid_header)[0].childNodes[4].setAttribute("data-badge-caption",locales[Key.local].counters.bom);
+        $(localid_header)[0].childNodes[5].setAttribute("data-badge-caption",locales[Key.local].counters.excelente);
+
+        for (k=3;k<=5;k++){
+          if ($(localid_header)[0].childNodes[k].getAttribute("data-badge-caption") != 0 ){
+              $(localid_header).children().eq(k-1).css("display","block");
+          }
+        }
+
       }
 
-      // $(localid_test).append(
-      // '<div class="collapsible-body"><span>'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
-      // );
       $(localid_counter_ref).html($(localchild_dataref)[0].childElementCount);
 
     } else {  // APPENDS FOR THE FIRST TIME, CREATING THE HEADER
+      var col_label = "col-"+Key.local;
       var localid = '#'+Key.local;
       var localid_header = '#header-'+Key.local;
       $("#data-wrapper").append(
-        '<div class="col m6 s12">'+
-            '<ul class="collapsible raw" data-collapsible="expandable">'+
+        '<div class="grid-item">'+
+            '<ul id="'+col_label+'" class="collapsible" style="margin:0px;" data-collapsible="expandable">'+
                 '<li id="'+Key.local+'"">'+ //style="max-height:300px;overflow-y:auto;
-                    '<div class="collapsible-header waves-effect" hasflag="0" id="header-'+Key.local+'"><i class="material-icons">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
+                    '<div class="collapsible-header waves-effect waves-subtle" hasflag="0" id="header-'+Key.local+'"><i class="tiny material-icons">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
                     '<div id="data-'+Key.local+'" class="collapsible-body" style="padding:0px;overflow-y:auto;max-height:300px;">'+ // DIV CONTAINING KEYS
                         '<div class="collapsible-body row datarow" id="'+datacounter+'">'+
                             '<span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
@@ -215,7 +258,17 @@ Feedit.prototype.displayData = function(data){
         '</div>'
       );
       // $(localid).click();
+
       colorString(datacounter);
+
+      $(localid_header).click(function(){
+        console.log("refreshing grid");
+        // refreshgrid();
+        setTimeout(function(){ refreshgrid(); }, 100);
+        setTimeout(function(){ refreshgrid(); }, 300);
+
+      });
+
     }
 
 //  THIS PORTION WILL ONLY RUN ON NEW VALUES ARE ADDED TO THE DB WHILE THE APP IS RUNNING
@@ -237,7 +290,7 @@ Feedit.prototype.displayData = function(data){
         $(localid_header).click(function(){
           $(localid_header).attr('hasflag',0);
           $(localid_header).attr('counter',0);
-          $(this).children().eq(2).remove();
+          $(this).children().eq(5).remove();
           // $(this).children().eq(2).fadeOut(2000, function(){
           //   $(this).children().eq(2).remove();
           // });
@@ -252,7 +305,7 @@ Feedit.prototype.displayData = function(data){
       for(i=0;i<placesdeduped.length;i++){
         var currentplace = "#"+placesdeduped[i];
         if ($(currentplace).attr("class") == 'active'){
-          mustopen.push(i);
+          mustopen.push(placesdeduped[i]);
         }
       }
 
@@ -260,8 +313,12 @@ Feedit.prototype.displayData = function(data){
 
       // opens the ones that should stay open
       for(j=0;j<mustopen.length;j++){
-        $('.collapsible').collapsible('open',mustopen[j]);
+        place_toopen = mustopen[j];
+        col_to_open = "#col-"+place_toopen;
+        $(col_to_open).collapsible('open',0);
       }
+
+      refreshgrid();
 
     } // CLOSES INITIALISLODADED = TRUE
 
@@ -285,16 +342,36 @@ Feedit.prototype.getData = function(){
 
   // Attach an asynchronous callback to read data as soon as it is added to the database
   ref.limitToLast(limit).on("child_added", function(snapshot) {
-    this.key = snapshot.val();
+    this.key = snapshot.key;
+    this.val = snapshot.val();
 
-    db[datacounter] = (this.key);
+    db[this.key] = this.val;
     datacounter++;
+    //
+
+    // Deals with the locale objects when data is recieved
+    local = this.val.local
+    if (locales[local] != undefined){
+      locales[local].data[this.key] = this.val;
+      locales[local].increaseCounter("total");
+      locales[local].increaseCounter(this.val.nota);
+
+    } else {
+      locales[local] = new dataBlock(this.val);
+      locales[local].increaseCounter("total");
+      locales[local].increaseCounter(this.val.nota);
+    }
+
+
+    // console.log(locales[this.val.local]);
+
+
 
     // displays data as soon as it is obtained
-    feedit.displayData(this.key);
+    feedit.displayData(this.val);
 
     if( initialislodaded == true && $("#notifications-button").attr("status") == 'on'){
-      feedit.showNotification(this.key);
+      feedit.showNotification(this.val);
     }
 
     // Check if initial data has been loaded fully;
@@ -543,7 +620,6 @@ window.onload = function(){
 
 }
 
-
 $('.dropdown-button').dropdown({
     inDuration: 300,
     outDuration: 225,
@@ -597,19 +673,24 @@ function fixheaders(){
       $("#header-"+place).click();
       $(".collapsible").collapsible('close',i);
   }
+  refreshgrid()
   // for(i=0;i < places.removeDuplicates().length;i++){
   //     place = places.removeDuplicates()[i];
   //     $("#header-"+place).click();
   // }
 }
 
-function collapseAll(){
-  $(".collapsible-header").removeClass(function(){
-    return "active";
+function refreshgrid(){
+  $('.grid').masonry({
+  // options
+  itemSelector: '.grid-item',
+  transitionDuration: '0.2s'
+  // columnWidth: 400,
+  // percentPosition: true,
+  // horizontalOrder : true,
   });
-  $(".collapsible").collapsible({accordion: true});
-  $(".collapsible").collapsible({accordion: false});
 }
+
 // $('.dropdown-button').dropdown('open');
 Array.prototype.removeDuplicates = function () {
     return this.filter(function (item, index, self) {
