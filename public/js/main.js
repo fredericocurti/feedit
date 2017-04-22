@@ -247,7 +247,7 @@ Feedit.prototype.displayData = function(data){
         '<div class="grid-item">'+
             '<ul id="'+col_label+'" class="collapsible" style="margin:0px;" data-collapsible="expandable">'+
                 '<li id="'+Key.local+'"">'+ //style="max-height:300px;overflow-y:auto;
-                    '<div class="collapsible-header waves-effect waves-subtle" hasflag="0" id="header-'+Key.local+'"><i class="tiny material-icons">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
+                    '<div class="collapsible-header waves-effect waves-subtle" hasflag="0" id="header-'+Key.local+'"><i class="tiny material-icons" style="margin-right:7px !important;">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
                     '<div id="data-'+Key.local+'" class="collapsible-body" style="padding:0px;overflow-y:auto;max-height:300px;">'+ // DIV CONTAINING KEYS
                         '<div class="collapsible-body row datarow" id="'+datacounter+'">'+
                             '<span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
