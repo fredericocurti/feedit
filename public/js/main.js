@@ -90,7 +90,6 @@ Feedit.prototype.onDataLoaded = function(){
   }
 
 
-
   fixheaders();
 
   $("#data-counter").html("Você possui "+currentUser.count+" avaliações no total. Mostrando as últimas "+limit);
@@ -195,10 +194,7 @@ Feedit.prototype.displayData = function(data){
       var localid_content = '#content-'+Key.local;
       var localid_counter_ref = '#counter-'+Key.local;
       var localchild_id = '#'+Key.local+'>:nth-child(2)';
-      // $("#biblioteca>:nth-child(2)").before("<div>inserted div</div>");
-      // $(localchild_id).before(
-      // '  <div class="collapsible-body" style="padding:4px;"><span style="padding-left:5%;">'+ Key.nota +' | ' + Key.date + ' | ' + Key.time +'</span></div>'
-      // );
+
       if(initialislodaded == false){
         // adds initial data
         $(localchild_data).before(
@@ -264,8 +260,9 @@ Feedit.prototype.displayData = function(data){
       $(localid_header).click(function(){
         console.log("refreshing grid");
         // refreshgrid();
-        setTimeout(function(){ refreshgrid(); }, 100);
-        setTimeout(function(){ refreshgrid(); }, 300);
+        setTimeout(function(){ refreshgrid(); }, 150);
+        setTimeout(function(){ refreshgrid(); }, 250);
+
 
       });
 
@@ -547,6 +544,7 @@ Feedit.prototype.onAuthStateChanged = function(user) {
   console.log("Current user auth-state:");
   console.log(user);
   currentUser = user;
+  $('#initloading').remove();
 
   if (user) { // User is signed in!
     console.log("User is signed in");
@@ -554,7 +552,18 @@ Feedit.prototype.onAuthStateChanged = function(user) {
     $('#modal1').modal('close');
     $("#topuserdisplay-off").remove();
     $('#topuserdisplay').css("display","block");
-    document.getElementById("topuserdisplay").innerHTML = user.email;
+
+    if (user.photoURL != null){
+      console.log("User has a profile pic.");
+      userimg = user.photoURL;
+      $("#sidebar-thumb").attr("src",user.photoURL);
+    } else {
+      console.log("User doesnt have a profile pic. Setting default");
+    }
+
+    document.getElementById("topuserdisplay").innerHTML = '<img style="margin-top:10px;" class="circle user-img" width="30px" height="30px" src="'+userimg+'">';
+    $("#imgshow").prepend('<img style="margin-top:10px;" class="circle user-img" width="30px" height="30px" src="'+userimg+'">');
+
     document.getElementById("nameshow").innerHTML = user.email;
     document.getElementById("user-email").innerHTML = user.email;
 
@@ -566,19 +575,8 @@ Feedit.prototype.onAuthStateChanged = function(user) {
     initialstate=1
     Materialize.toast("Usuário autenticado com sucesso!",4000);
 
-    if (user.photoURL != null){
-      console.log("User has a profile pic.");
-      userimg = user.photoURL;
-      $("#sidebar-thumb").attr("src",user.photoURL);
-    } else {
-      console.log("User doesnt have a profile pic. Setting default");
-    }
-
-
-    // Começa o display da GUI de usuário:
-
   } else { // User is signed out!
-    // $("#topuserdisplay-off").css("visibility","visible");
+    $("#intro-content").css("display","block");
     $("#topuserdisplay-off").css("display","block");
     console.log("User has/is signed out!");
     initialstate = 0;

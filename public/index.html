@@ -34,7 +34,10 @@
     <script>
         $(document).ready(function() {
             // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
-            $('.modal').modal();
+            $('.modal').modal({
+              startingTop: '4%', // Starting top style attribute
+              endingTop: '8%' // Ending top style attribute
+            });
             $("#loadingbar").hide()
             firebase.initializeApp(config);
             // var database = firebase.database();
@@ -62,102 +65,106 @@
                   <li>
                     <div id="slide-button" class="row" style="display:none">
                     <a href="#" data-activates="slide-out" class="button-collapse show-on-large" style="color:white;width:130px;margin-left:0px;"><i style="display:inline-block" class="material-icons">menu</i><div style="position:relative;top:-7px;margin-left:10px;color:white;display:inline-block">Opções</div></a>
+                    </div>
                   <li>
                 </ul>
-                <!-- <img src="logo.png" width="45px;" style="margin-top:5px;margin-left:10px;"> -->
-                <ul id="nav-mobile" class="right">
+                <ul id="nav-mobile" class="right" style="height:inherit;">
                     <li><a id="topuserdisplay-off" class="waves-effect waves-light" href="#modal1" style="color:white;display:none;height:100%">Login</a></li>
-                    <li><a id="topuserdisplay" data-activates='dropdown1' class="dropdown-button waves-effect waves-light" style="font-size:0.85rem;color:white;display:none;">Login</a></li>
+                    <li style="height:inherit;"><a id="topuserdisplay" data-activates='dropdown1' class="dropdown-button waves-effect waves-light" style="height:inherit;font-size:0.85rem;color:white;display:none;">Login</a></li>
                 </ul>
             </div>
-
-            <!-- <div class="nav-content" style="background-color: #981c1c;">
-                <ul class="tabs tabs-transparent">
-                    <li class="tab"><a href="#test1">Test 1</a></li>
-                    <li class="tab"><a class="active" href="#test2">Test 2</a></li>
-                    <li class="tab"><a href="#test4">Test 4</a></li>
-                </ul>
-            </div> -->
-        <!-- <div style="width:100%;height:10px;background-color: #981c1c;"></div> -->
         </nav>
       </div>
 
         <!-- Dropdown Structure -->
-        <ul id='dropdown1' class='dropdown-content'>
-            <h6 id="nameshow" class="center" style="font-size:1rem;color:black;padding-top:10px;"></h6>
-            <li><a id="usersettingsbutton" href="#!" data-target:="user-modal"><i class="material-icons">settings</i>Configurações</a></li>
-            <li><a id="logoffbutton" href="#!" class="waves-effect waves-light" onclick="feedit.signOut();"><i class="material-icons">power_settings_new</i>Encerrar sessão</a></li
-            <li class="divider"></li>
-        </ul>
+      <ul id='dropdown1' class='dropdown-content'>
+          <div id="imgshow" class="right" style="margin-right:15px;"></div>
+          <h6 id="nameshow" class="center" style="font-size:1rem;color:black;padding-top:10px;height:36px;"></h6>
+          <div class="divider"></div>
+          <li><a id="usersettingsbutton" href="#!" data-target:="user-modal"><i class="material-icons">settings</i>Configurações</a></li>
+          <li><a id="logoffbutton" href="#!" class="waves-effect waves-light" onclick="feedit.signOut();"><i class="material-icons">power_settings_new</i>Encerrar sessão</a></li
+          <li class="divider"></li>
+      </ul>
 
         <!-- Content Section -->
-        <div id="main-content" class="Site-content" style="padding-top:10px;padding-bottom:50px;">
-        </div>
+      <div id="main-content" class="Site-content" style="padding-bottom:50px;">
+      </div>
 
-        <!--  Banner  -->
+      <div id="initloading" class="preloader-wrapper big active">
+        <div class="spinner-layer spinner-yellow-only">
+          <div class="circle-clipper left">
+            <div class="circle"></div>
+          </div><div class="gap-patch">
+            <div class="circle"></div>
+          </div><div class="circle-clipper right">
+            <div class="circle"></div>
+          </div>
+        </div>
+      </div>
+
+      <script> $("#initloading").center(); </script>
+    <!--  Banner  -->
+    <div id="intro-content" style="display:none">
 
         <div id="header" class="container" style="padding-bottom:150px;">
-            <h1 class="header center" style="text-shadow: 3px 3px 4px #000000;padding-top:150px;">feedit</h1>
+            <h1 class="header center">feedit</h1>
             <div class="row center">
                 <h5 class="header col s12" style="color:white;text-shadow: 3px 3px 4px #000000;">A maneira mais fácil de entender seus clientes: feedback instantâneo!</h5>
                 <a href="#modal1" id="download-button" class="btn-large waves-effect waves-light red darken-3" style="margin-top:5%">Começe agora</a>
             </div>
         </div>
-    </div>
-
 
     <!--   Icon Section   -->
 
-    <div id="iconsection" class="row" style="padding-bottom:250px;padding-top:100px;display:none;">
-        <div class="col s12 m4">
-            <div class="icon-block">
-                <h2 class="center red-text"><i class="material-icons">flash_on</i></h2>
-                <h5 class="center">Speeds up development</h5>
+        <div id="iconsection" class="row" style="padding-bottom:250px;padding-top:100px;display:none;">
+            <div class="col s12 m4">
+                <div class="icon-block">
+                    <h2 class="center red-text"><i class="material-icons">flash_on</i></h2>
+                    <h5 class="center">Speeds up development</h5>
 
-                <p class="light">blalbalba</p>
+                    <p class="light">blalbalba</p>
+                </div>
+            </div>
+
+            <div class="col s12 m4">
+                <div class="icon-block">
+                    <h2 class="center red-text"><i class="material-icons">group</i></h2>
+                    <h5 class="center">User Experience Focused</h5>
+
+                    <p class="light">blablabla</p>
+                </div>
+            </div>
+
+            <div class="col s12 m4">
+                <div class="icon-block">
+                    <h2 class="center red-text"><i class="material-icons">settings</i></h2>
+                    <h5 class="center">Easy to work with</h5>
+
+                    <p class="light">blablabla</p>
+                </div>
             </div>
         </div>
 
-        <div class="col s12 m4">
-            <div class="icon-block">
-                <h2 class="center red-text"><i class="material-icons">group</i></h2>
-                <h5 class="center">User Experience Focused</h5>
-
-                <p class="light">blablabla</p>
-            </div>
-        </div>
-
-        <div class="col s12 m4">
-            <div class="icon-block">
-                <h2 class="center red-text"><i class="material-icons">settings</i></h2>
-                <h5 class="center">Easy to work with</h5>
-
-                <p class="light">blablabla</p>
-            </div>
-        </div>
     </div>
-
-    </div>
-    </div>
-
+  </div>
     <!--  MODAL  -->
-    <div id="modal1" class="modal" style="margin:auto;">
+    <div id="modal1" class="modal" style="margin:auto; max-width:500px;">
         <div class="modal-content" style="padding-top:5px;">
             <h5 class="center-align" style="color:grey;"><b>Faça login</b></h5>
             <div class="divider"></div>
     <!-- LOGIN -->
-                <form class="col s12" style="padding-top:20px;margin-left:7%">
+                <form class="col s12" style="padding-top:10px;">
                     <div class="row">
-                        <div class="input-field col s10">
+                        <div class="input-field col s11">
                             <i class="material-icons prefix">perm_identity</i>
-                            <input id="useremail" type="email" class="validate">
+                            <input id="useremail" style="margin-bottom:10px;" type="email" class="validate">
                             <label for="useremail">Email</label>
                         </div>
                     </div>
 
 
                     <div class="row">
-                        <div class="input-field col s10">
+                        <div class="input-field col s11">
                             <i class="material-icons prefix">lock</i>
                             <input id="userpassword" type="password" class="validate">
                             <label for="userpassword">Senha</label>
@@ -199,27 +206,27 @@
         </div>
     </div>
 
-<ul id="slide-out" class="side-nav">
-    <li>
-        <div class="userView">
-            <div class="background">
-                <img src="img/pattern.jpg" width="400px;">
+    <ul id="slide-out" class="side-nav">
+        <li>
+            <div class="userView">
+                <div class="background">
+                    <img src="img/pattern.jpg" width="400px;">
+                </div>
+                <a href="#!user"><img id="sidebar-thumb" class="circle" src="img/default-icon-user.png"></a>
+                <a href="#!name"><span id="user-name" class="side-bar-text white-text name"></span></a>
+                <a href="#!email"><span id="user-email" class="side-bar-text white-text email"></span></a>
             </div>
-            <a href="#!user"><img id="sidebar-thumb" class="circle" src="img/default-icon-user.png"></a>
-            <a href="#!name"><span id="user-name" class="side-bar-text white-text name"></span></a>
-            <a href="#!email"><span id="user-email" class="side-bar-text white-text email"></span></a>
-        </div>
-    </li>
-    <li><a href="#!"><i class="material-icons">view_module</i>Visão Geral</a></li>
-    <li><a href="#!">Em breve...</a></li>
-    <li>
-        <div class="divider"></div>
-    </li>
-    <li><a class="subheader">Opções</a></li>
-    <!-- <li><a class="waves-effect" href="#!">Third Link With Waves</a></li> -->
-    <li><a id="sidenav-usersettingsbutton" class="waves-effect" href="#!" data-target:="user-modal"><i class="material-icons">settings</i>Configurações</a></li>
-    <li><a id="logoffbutton" href="#!" class="waves-effect waves-light" onclick="feedit.signOut();"><i class="material-icons">power_settings_new</i>Encerrar sessão</a></li>
-</ul>
+        </li>
+        <li><a href="#!"><i class="material-icons">view_module</i>Visão Geral</a></li>
+        <li><a href="#!">Em breve...</a></li>
+        <li>
+            <div class="divider"></div>
+        </li>
+        <li><a class="subheader">Opções</a></li>
+        <!-- <li><a class="waves-effect" href="#!">Third Link With Waves</a></li> -->
+        <li><a id="sidenav-usersettingsbutton" class="waves-effect" href="#!" data-target:="user-modal"><i class="material-icons">settings</i>Configurações</a></li>
+        <li><a id="logoffbutton" href="#!" class="waves-effect waves-light" onclick="feedit.signOut();"><i class="material-icons">power_settings_new</i>Encerrar sessão</a></li>
+    </ul>
 
 
 
