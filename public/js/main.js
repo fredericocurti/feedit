@@ -18,6 +18,7 @@ var initialislodaded = false;
 var userSettingsnotLoaded = true;
 var limit = 0;
 var userimg = "img/default-icon-user.png";
+var counterMemory = {}
 
 function dataBlock(value){
   this.data = {};
@@ -106,6 +107,34 @@ Feedit.prototype.onDataLoaded = function(){
     $('#user-modal').modal('open');
 
   });
+
+  // Calculates the differences between last session and current, appending new badges respectively
+  if (localStorage.lastuserCount){
+    parsed_lastuserCount = JSON.parse(localStorage.lastuserCount);
+
+    if (parsed_lastuserCount.uid == currentUser.uid){
+      console.log("There is a last user Count avaiable!, attempting to calculate differences");
+
+      for(i=0;i < Object.keys(locales).length;i++){
+        var currentcounter = locales[Object.keys(locales)[i]].counters.total;
+        var parsedcounter = parsed_lastuserCount[Object.keys(locales)[i]];
+        console.log(currentcounter + " " + parsedcounter);
+        counterMemory[Object.keys(locales)[i]] = currentcounter - parsedcounter;
+      }
+
+      for(i=0;i < Object.keys(counterMemory).length;i++){
+        if (counterMemory[Object.keys(counterMemory)[i]] != 0){
+          console.log("Existe uma diferenca no local "+Object.keys(counterMemory)[i]);
+          var localid_header = '#header-'+Object.keys(counterMemory)[i];
+
+          $(localid_header).append(
+          '<span class="new badge cyan" data-badge-caption="'+counterMemory[Object.keys(counterMemory)[i]]+' Novas"></span>');
+
+        }
+      }
+    }
+
+  }
 
 }
 
@@ -258,7 +287,7 @@ Feedit.prototype.displayData = function(data){
       colorString(datacounter);
 
       $(localid_header).click(function(){
-        console.log("refreshing grid");
+        // console.log("refreshing grid");
         // refreshgrid();
         setTimeout(function(){ refreshgrid(); }, 150);
         setTimeout(function(){ refreshgrid(); }, 250);
@@ -288,6 +317,7 @@ Feedit.prototype.displayData = function(data){
           $(localid_header).attr('hasflag',0);
           $(localid_header).attr('counter',0);
           $(this).children().eq(5).remove();
+          $(this).children().eq(6).remove();
           // $(this).children().eq(2).fadeOut(2000, function(){
           //   $(this).children().eq(2).remove();
           // });
@@ -355,6 +385,7 @@ Feedit.prototype.getData = function(){
 
     } else {
       locales[local] = new dataBlock(this.val);
+      locales[local].data[this.key] = this.val;
       locales[local].increaseCounter("total");
       locales[local].increaseCounter(this.val.nota);
     }
@@ -618,6 +649,12 @@ window.onload = function(){
 
 }
 
+window.onbeforeunload = function () {
+    console.log("Saving data");
+    saveCounterMemory();
+};
+
+
 $('.dropdown-button').dropdown({
     inDuration: 300,
     outDuration: 225,
@@ -629,6 +666,16 @@ $('.dropdown-button').dropdown({
     stopPropagation: false // Stops event propagation
   }
 );
+
+function saveCounterMemory(){
+  counterMemory["uid"] = currentUser.uid;
+  for(i=0;i < Object.keys(locales).length;i++){
+    counterMemory[Object.keys(locales)[i]] = locales[Object.keys(locales)[i]].counters.total;
+  }
+  counterMemoryString = JSON.stringify(counterMemory);
+  localStorage.setItem("lastuserCount",counterMemoryString);
+  return counterMemory;
+}
 
 jQuery.fn.center = function () {
     this.css("position","absolute");
