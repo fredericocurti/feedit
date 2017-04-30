@@ -18,6 +18,7 @@ var initialislodaded = false;
 var userSettingsnotLoaded = true;
 var limit = 0;
 var userimg = "img/default-icon-user.png";
+var notification_sound = new Audio('assets/pop.mp3');
 var counterMemory = {}
 
 function dataBlock(value){
@@ -360,6 +361,7 @@ Feedit.prototype.showNotification = function(key){
   var notification_text = "<div class='row center' style='padding-top:4px;'>Nova avaliação<br><b>"+nota.capitalize()+"</b> no local <b>"+key.local.capitalize()+"</b></div>";
   $('.tooltip').tooltipster('content',nota_img+notification_text);
   $('.tooltip').tooltipster('open');
+  notification_sound.play();
 
 }
 
@@ -371,8 +373,8 @@ Feedit.prototype.getData = function(){
   ref.limitToLast(limit).on("child_added", function(snapshot) {
     this.key = snapshot.key;
     this.val = snapshot.val();
-
-    db[this.key] = this.val;
+    //
+    // db[this.key] = this.val;
     datacounter++;
     //
 
