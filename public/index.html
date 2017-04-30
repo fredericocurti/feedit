@@ -43,7 +43,7 @@
             // var database = firebase.database();
             Feedit.prototype.checkSetup();
             $('.button-collapse').sideNav({
-                menuWidth: 300, // Default is 300
+                menuWidth: 275, // Default is 300
                 edge: 'left', // Choose the horizontal origin
                 closeOnClick: false, // Closes side-nav on <a> clicks, useful for Angular/Meteor
                 draggable: true // Choose whether you can drag to open on touch screens
@@ -90,7 +90,7 @@
       <div id="main-content" class="Site-content" style="padding-bottom:50px;">
       </div>
 
-      <div id="initloading" class="preloader-wrapper big active">
+      <div id="initloading" class="preloader-wrapper active">
         <div class="spinner-layer spinner-yellow-only">
           <div class="circle-clipper left">
             <div class="circle"></div>
@@ -115,7 +115,6 @@
         </div>
 
     <!--   Icon Section   -->
-
         <div id="iconsection" class="row" style="padding-bottom:250px;padding-top:100px;display:none;">
             <div class="col s12 m4">
                 <div class="icon-block">
@@ -147,7 +146,7 @@
 
     </div>
   </div>
-    <!--  MODAL  -->
+    <!--  LOGIN MODAL  -->
     <div id="modal1" class="modal" style="margin:auto; max-width:500px;">
         <div class="modal-content" style="padding-top:5px;">
             <h5 class="center-align" style="color:grey;"><b>Faça login</b></h5>
@@ -175,7 +174,7 @@
                 <div class="row center">
                     <div class="col s12">
                         <a id="submitbt" class="waves-effect waves-light btn red darken-3 center" onclick="login();">Entrar</a>
-                        <div id="loadingbar" class="preloader-wrapper big active">
+                        <div id="loadingbar" class="preloader-wrapper active">
                           <div class="spinner-layer spinner-red-only">
                             <div class="circle-clipper left">
                               <div class="circle"></div>
@@ -205,7 +204,7 @@
 
         </div>
     </div>
-
+    <!-- Side-nav Slider -->
     <ul id="slide-out" class="side-nav">
         <li>
             <div class="userView">
@@ -227,6 +226,16 @@
         <li><a id="sidenav-usersettingsbutton" class="waves-effect" href="#!" data-target:="user-modal"><i class="material-icons">settings</i>Configurações</a></li>
         <li><a id="logoffbutton" href="#!" class="waves-effect waves-light" onclick="feedit.signOut();"><i class="material-icons">power_settings_new</i>Encerrar sessão</a></li>
     </ul>
+
+    <div id="allownotifications-modal" class="modal modal-fixed-footer" style="max-width:700px;">
+      <div class="modal-content">
+        <h5 style="color:gray">Para ser notificado sobre novas avaliações, habilite as notificações automáticas como mostra a imagem abaixo</h4>
+        <div class="row center" style="padding-top:15px;"><img class="z-depth-2" height="330px" src="img/allow-desktop.png"></div>
+      </div>
+      <div class="modal-footer">
+        <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat">Fechar</a>
+      </div>
+  </div>
 
 
 

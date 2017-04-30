@@ -12,6 +12,7 @@ html{
 }
 
 body {
+  position: static;
   display: flex;
   min-height: 100vh;
   flex-direction: column;
@@ -105,8 +106,13 @@ main {
 }
 
 .tooltipster-base{
+  padding-bottom: 80px;
   height: inherit !important;
   z-index: 999 !important;
+}
+
+.tooltipster-arrow{
+  padding-bottom: 86px;
 }
 
 .collapsible-body {
@@ -133,7 +139,10 @@ main {
   }
   .grid-item {
     width:100%;
-    padding: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-top: 0px;
+    padding-bottom:5px;
   }
   .circular-badge{
     border-radius: 50% !important;
@@ -310,9 +319,13 @@ nav a.button-collapse, nav a.button-collapse i{
     line-height: inherit !important;
 }
 
-  @media only screen and (min-width: 601px){
-
+@media only screen and (min-width: 1250px){
+  .grid-item {
+    width:33%;
+    padding: 8px;
+    max-height: 370px;
   }
+}
 
 @media only screen and (max-width : 992px) {
   .parallax-container .section {

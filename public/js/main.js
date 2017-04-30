@@ -33,7 +33,6 @@ function dataBlock(value){
   this.increaseCounter = function(counter){
     this.counters[counter] ++;
   }
-
 }
 
 
@@ -73,7 +72,6 @@ Feedit.prototype.onDataLoaded = function(){
 
   $("#slide-button").css("display","block");
   $('.collapsible').collapsible();
-  console.log("Initial collapsible started");
 
 
   for(i=0;i<Object.keys(locales).length;i++){
@@ -91,7 +89,6 @@ Feedit.prototype.onDataLoaded = function(){
     }
   }
 
-
   fixheaders();
 
   $("#data-counter").html("Você possui "+currentUser.count+" avaliações no total. Mostrando as últimas "+limit);
@@ -106,7 +103,14 @@ Feedit.prototype.onDataLoaded = function(){
     $('.button-collapse').sideNav('hide');
     feedit.userSettings();
     $('#user-modal').modal('open');
+  });
 
+  $('.grid').masonry({
+  // options
+  itemSelector: '.grid-item',
+  transitionDuration: '0.3s',
+  percentPosition: true,
+  // horizontalOrder : true
   });
 
   // Calculates the differences between last session and current, appending new badges respectively
@@ -124,10 +128,9 @@ Feedit.prototype.onDataLoaded = function(){
       }
 
       for(i=0;i < Object.keys(counterMemory).length;i++){
-        if (counterMemory[Object.keys(counterMemory)[i]] != 0){
+        if (counterMemory[Object.keys(counterMemory)[i]] != 0 && isNaN(counterMemory[Object.keys(counterMemory)[i]]) == false){
           console.log("Existe uma diferenca no local "+Object.keys(counterMemory)[i]);
           var localid_header = '#header-'+Object.keys(counterMemory)[i];
-
           $(localid_header).append(
           '<span class="new badge cyan" data-badge-caption="'+counterMemory[Object.keys(counterMemory)[i]]+' Novas"></span>');
 
@@ -135,6 +138,15 @@ Feedit.prototype.onDataLoaded = function(){
       }
     }
 
+  }
+
+  // Requests permission for showing Notification
+  if (Notification.permission !== "granted"){
+    $("#allownotifications-modal").modal('open');
+    Notification.requestPermission();
+  Notification.permission.onchange = function() {
+    console.log("Permission changed!");
+  }
   }
 
 }
@@ -273,7 +285,7 @@ Feedit.prototype.displayData = function(data){
         '<div class="grid-item">'+
             '<ul id="'+col_label+'" class="collapsible" style="margin:0px;" data-collapsible="expandable">'+
                 '<li id="'+Key.local+'"">'+ //style="max-height:300px;overflow-y:auto;
-                    '<div class="collapsible-header waves-effect waves-subtle" hasflag="0" id="header-'+Key.local+'"><i class="tiny material-icons" style="margin-right:7px !important;">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
+                    '<div class="collapsible-header waves-effect waves-subtle" hasflag="0" id="header-'+Key.local+'"><i class="tiny material-icons" style="display:none;margin-right:7px !important;">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
                     '<div id="data-'+Key.local+'" class="collapsible-body" style="padding:0px;overflow-y:auto;max-height:300px;">'+ // DIV CONTAINING KEYS
                         '<div class="collapsible-body row datarow" id="'+datacounter+'">'+
                             '<span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
@@ -288,8 +300,6 @@ Feedit.prototype.displayData = function(data){
       colorString(datacounter);
 
       $(localid_header).click(function(){
-        // console.log("refreshing grid");
-        // refreshgrid();
         setTimeout(function(){ refreshgrid(); }, 150);
         setTimeout(function(){ refreshgrid(); }, 250);
 
@@ -346,7 +356,7 @@ Feedit.prototype.displayData = function(data){
         $(col_to_open).collapsible('open',0);
       }
 
-      refreshgrid();
+      // refreshgrid();
 
     } // CLOSES INITIALISLODADED = TRUE
 
@@ -356,13 +366,12 @@ Feedit.prototype.displayData = function(data){
 }
 
 Feedit.prototype.showNotification = function(key){
-  var nota = key.nota;
-  var nota_img = '<img style="padding-top:10px;display: block;margin: 0 auto;" src="img/'+nota+'.png">'
-  var notification_text = "<div class='row center' style='padding-top:4px;'>Nova avaliação<br><b>"+nota.capitalize()+"</b> no local <b>"+key.local.capitalize()+"</b></div>";
+  var nota_img = '<img style="padding-top:10px;display: block;margin: 0 auto;" src="img/'+key.nota+'.png">'
+  var notification_text = "<div class='row center' style='padding-top:4px;'>Nova avaliação<br><b>"+key.nota.capitalize()+"</b> no local <b>"+key.local.capitalize()+"</b></div>";
   $('.tooltip').tooltipster('content',nota_img+notification_text);
   $('.tooltip').tooltipster('open');
   notification_sound.play();
-
+  showDesktopNotification(key);
 }
 
 // Fetches and calls displayData of the data
@@ -453,6 +462,7 @@ Feedit.prototype.signIn = function() {
 };
 
 Feedit.prototype.signOut = function() {
+  saveCounterMemory();
   this.auth.signOut();
   location.reload();
 };
@@ -574,8 +584,6 @@ Feedit.prototype.userSettings = function(){
 }
 
 Feedit.prototype.onAuthStateChanged = function(user) {
-  console.log("Current user auth-state:");
-  console.log(user);
   currentUser = user;
   $('#initloading').remove();
 
@@ -588,17 +596,17 @@ Feedit.prototype.onAuthStateChanged = function(user) {
 
     if (user.photoURL != null){
       console.log("User has a profile pic.");
-      userimg = user.photoURL;
-      $("#sidebar-thumb").attr("src",user.photoURL);
+      userimg = currentUser.photoURL;
+      $("#sidebar-thumb").attr("src",currentUser.photoURL);
     } else {
       console.log("User doesnt have a profile pic. Setting default");
     }
 
     document.getElementById("topuserdisplay").innerHTML = '<img style="margin-top:10px;" class="circle user-img" width="30px" height="30px" src="'+userimg+'">';
-    $("#imgshow").prepend('<img style="margin-top:10px;" class="circle user-img" width="30px" height="30px" src="'+userimg+'">');
+    $("#imgshow").html('<img style="margin-top:10px;" class="circle user-img" width="30px" height="30px" src="'+userimg+'">');
 
-    document.getElementById("nameshow").innerHTML = user.email;
-    document.getElementById("user-email").innerHTML = user.email;
+    document.getElementById("nameshow").innerHTML = currentUser.email;
+    document.getElementById("user-email").innerHTML = currentUser.email;
 
     if (initialstate == 0){
       feedit.displayGui(initialstate);
@@ -713,6 +721,30 @@ function colorString(counter){
 
 }
 
+function showDesktopNotification(key){
+  if (!Notification) {
+    alert('Notificações não estão disponíveis nesse navegador. Experimente um navegador mais moderno como o Google Chrome');
+    return;
+  }
+
+  if (Notification.permission !== "granted"){
+    Notification.requestPermission();
+  } else {
+    var notification = new Notification('Feedit - Nova avaliação!', {
+      icon: 'img/'+key.nota+'.png',
+      body: 'Alguem avaliou o local '+key.local.capitalize()+' como '+key.nota,
+      requireInteraction : false,
+      vibrate: [200, 100, 200]
+    });
+
+    notification.onclick = function () {
+      window.focus();
+    };
+
+    setTimeout(function() { notification.close() }, 2500);
+
+  }
+}
 
 function fixheaders(){
   for(i=0;i < places.removeDuplicates().length;i++){
@@ -720,7 +752,7 @@ function fixheaders(){
       $("#header-"+place).click();
       $(".collapsible").collapsible('close',i);
   }
-  refreshgrid()
+  // refreshgrid()
   // for(i=0;i < places.removeDuplicates().length;i++){
   //     place = places.removeDuplicates()[i];
   //     $("#header-"+place).click();
@@ -728,14 +760,7 @@ function fixheaders(){
 }
 
 function refreshgrid(){
-  $('.grid').masonry({
-  // options
-  itemSelector: '.grid-item',
-  transitionDuration: '0.2s'
-  // columnWidth: 400,
-  // percentPosition: true,
-  // horizontalOrder : true,
-  });
+  $(".grid").masonry('layout');
 }
 
 // $('.dropdown-button').dropdown('open');
