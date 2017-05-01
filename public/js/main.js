@@ -7,6 +7,7 @@ var config = {
   messagingSenderId: "301542026521"
 };
 
+navigator.serviceWorker.register('sw.js');
 var locales = {};
 var places = [];
 var updatecounter = 0;
@@ -20,6 +21,7 @@ var limit = 0;
 var userimg = "img/default-icon-user.png";
 var notification_sound = new Audio('assets/pop.mp3');
 var counterMemory = {}
+var notificationslist = [];
 
 function dataBlock(value){
   this.data = {};
@@ -144,11 +146,7 @@ Feedit.prototype.onDataLoaded = function(){
   if (Notification.permission !== "granted"){
     $("#allownotifications-modal").modal('open');
     Notification.requestPermission();
-  Notification.permission.onchange = function() {
-    console.log("Permission changed!");
   }
-  }
-
 }
 
 // Initialize mainapp
@@ -730,19 +728,38 @@ function showDesktopNotification(key){
   if (Notification.permission !== "granted"){
     Notification.requestPermission();
   } else {
-    var notification = new Notification('Feedit - Nova avaliação!', {
-      icon: 'img/'+key.nota+'.png',
-      body: 'Alguem avaliou o local '+key.local.capitalize()+' como '+key.nota,
-      requireInteraction : false,
-      vibrate: [200, 100, 200]
+    // var notification = new Notification('Feedit - Nova avaliação!', {
+    //   icon: 'img/'+key.nota+'.png',
+    //   body: 'Alguem avaliou o local '+key.local.capitalize()+' como '+key.nota,
+    //   requireInteraction : false,
+    //   vibrate: [200, 100, 200]
+    // });
+    //
+    // notification.onclick = function () {
+    //   window.focus();
+    // };
+    //
+    // setTimeout(function() { notification.close() }, 2500);
+    var options = { tag : 'feedit-notification' };
+
+    navigator.serviceWorker.ready.then(function(registration) {
+      registration.getNotifications(options).then(function(notifications) {
+        console.log(notifications);
+        if (notifications.length != 0){
+          notifications[0].close();
+        }
+
+      setTimeout(function(){
+        registration.showNotification('Feedit - Nova avaliação!', {
+          actions: [{action: 'open',title: "Abrir o Aplicativo",icon: 'img/grid.png'},{action: 'mute',title: "Silenciar",icon: 'img/bell_crossed_inv.png'}],
+          icon: 'img/'+key.nota+'.png',
+          body: 'Um cliente avaliou o local '+key.local.capitalize()+' como '+key.nota.capitalize(),
+          tag: 'feedit-notification',
+          vibrate: [300,100,100]
+        });})}, 500);
+
+
     });
-
-    notification.onclick = function () {
-      window.focus();
-    };
-
-    setTimeout(function() { notification.close() }, 2500);
-
   }
 }
 
