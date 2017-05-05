@@ -17,7 +17,9 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="js/materialize.min.js"></script>
     <script type="text/javascript" src="js/masonry.pkgd.min.js"></script>
+    <script type="text/javascript" src="js/Chart.bundle.min.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/charts.js"></script>
     <script type="application/javascript" src="sw.js"></script>
     <script type="text/javascript" src="js/jquery.scrollbar.min.js"></script>
     <script type="text/javascript" src="js/jquery.color-2.1.2.min.js"></script>
@@ -58,7 +60,7 @@
     <div id="mainshow" class="mainbg Site-content">
 
         <!--   NavBar  -->
-      <div class="navbar-fixed  ">
+      <div class="navbar-fixed" style="height:50px;">
         <nav class="nav">
             <div id="navbar" class="nav-wrapper navcolor sticky" style="z-index:2;">
                 <a href="#" class="brand-logo center" style="color:white;">feedit</a>
@@ -89,7 +91,7 @@
 
         <!-- Content Section -->
       <div id="main-content" class="Site-content" style="padding-bottom:50px;">
-      </div>
+
 
       <div id="initloading" class="preloader-wrapper active">
         <div class="spinner-layer spinner-yellow-only">
@@ -146,7 +148,11 @@
         </div>
 
     </div>
+
+
+
   </div>
+
     <!--  LOGIN MODAL  -->
     <div id="modal1" class="modal" style="margin:auto; max-width:500px;">
         <div class="modal-content" style="padding-top:5px;">
@@ -238,26 +244,29 @@
       </div>
   </div>
 
+  <footer class="page-footer gradient z-depth-3">
+      <div class="container" style="display:none">
+          <div class="row">
+              <div class="col l6 s12">
+                  <p class="grey-text text-lighten-4"></p>
+              </div>
+              <div class="col l4 offset-l2 s12">
+                  <ul>
+                  </ul>
+              </div>
+          </div>
+      </div>
+      <div class="footer-copyright">
+          <div class="container" style="margin-left:10px;">
+              © Feedit - pre-alpha v0.1
+          </div>
+      </div>
+  </footer>
 
 
-    <footer class="page-footer gradient">
-        <div class="container">
-            <div class="row">
-                <div class="col l6 s12">
-                    <p class="grey-text text-lighten-4"></p>
-                </div>
-                <div class="col l4 offset-l2 s12">
-                    <ul>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="footer-copyright">
-            <div class="container">
-                © Feedit - pre-alpha v0.1
-            </div>
-        </div>
-    </footer>
+
+
+
 
 
 </body>

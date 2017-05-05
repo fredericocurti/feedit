@@ -22,6 +22,8 @@ var userimg = "img/default-icon-user.png";
 var notification_sound = new Audio('assets/pop.mp3');
 var counterMemory = {}
 var notificationslist = [];
+var newDataStack = [];
+var userIsWatching = true;
 
 function dataBlock(value){
   this.data = {};
@@ -110,7 +112,7 @@ Feedit.prototype.onDataLoaded = function(){
   $('.grid').masonry({
   // options
   itemSelector: '.grid-item',
-  transitionDuration: '0.3s',
+  transitionDuration: '0.25s',
   percentPosition: true,
   // horizontalOrder : true
   });
@@ -125,7 +127,6 @@ Feedit.prototype.onDataLoaded = function(){
       for(i=0;i < Object.keys(locales).length;i++){
         var currentcounter = locales[Object.keys(locales)[i]].counters.total;
         var parsedcounter = parsed_lastuserCount[Object.keys(locales)[i]];
-        console.log(currentcounter + " " + parsedcounter);
         counterMemory[Object.keys(locales)[i]] = currentcounter - parsedcounter;
       }
 
@@ -156,7 +157,7 @@ Feedit.prototype.displayGui = function(){
     $("#header").remove();
     $("#iconsection").remove();
     $("#mainshow").removeClass("mainbg");
-    $( "#main-content" ).append(
+    $( "#main-content" ).prepend(
     '<a id="notifications-button" status="on" class="fixed-action-btn toprightcorner btn-floating btn-large waves-effect waves-light red accent-2 tooltip" data-tooltip-content="#tooltip_content"><img id="notifications-button-img" src="img/bell.png" width="28px"></a>'+
 
     '<div class="tooltip_templates">'+
@@ -206,7 +207,11 @@ Feedit.prototype.displayGui = function(){
       trigger : 'custom',
       timer : 2000,
       contentAsHTML: true,
-      contentCloning: true
+      contentCloning: true,
+      functionPosition: function(instance, helper, position){
+      position.coord.left -= 30;
+      return position;
+  }
     });
     // Draws container for key values
     $("#maindata").append(
@@ -249,13 +254,18 @@ Feedit.prototype.displayData = function(data){
         // adds data
         datacounter_id = "#"+datacounter
         $(localchild_data).before(
-        '<div class="collapsible-body row datarow" id="'+datacounter+'" style="background-color:#b0e0e2;">'+
+        '<div class="collapsible-body row datarow" id="'+datacounter+'" style="background-color:#d5f6f7;">'+
         '   <span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
         '</div>'
         );
 
-        // animates newly added dade background color
-        $(datacounter_id).animate({backgroundColor: '#F7F7F7'}, 2000);
+        // animates newly added background color
+        if (userIsWatching == true && $(datacounter_id).closest("li").attr("class") == "active"){
+          $(datacounter_id).animate({backgroundColor: '#F7F7F7'}, 2000);
+        } else {
+          newDataStack.push(datacounter_id);
+        }
+
         $("#data-counter").html("Você possui "+datacounter+" avaliações");
 
         colorString(datacounter); // colors the string
@@ -300,7 +310,7 @@ Feedit.prototype.displayData = function(data){
       $(localid_header).click(function(){
         setTimeout(function(){ refreshgrid(); }, 150);
         setTimeout(function(){ refreshgrid(); }, 250);
-
+        setTimeout(function(){ checkStack(); }, 1000);
 
       });
 
@@ -325,8 +335,10 @@ Feedit.prototype.displayData = function(data){
         $(localid_header).click(function(){
           $(localid_header).attr('hasflag',0);
           $(localid_header).attr('counter',0);
-          $(this).children().eq(5).remove();
-          $(this).children().eq(6).remove();
+        $(localid_header).children().eq(5).animate({opacity: '0'}, 1000);
+          setTimeout( function() {
+            $(localid_header).children().eq(5).remove();
+          }, 1000);
           // $(this).children().eq(2).fadeOut(2000, function(){
           //   $(this).children().eq(2).remove();
           // });
@@ -354,8 +366,6 @@ Feedit.prototype.displayData = function(data){
         $(col_to_open).collapsible('open',0);
       }
 
-      // refreshgrid();
-
     } // CLOSES INITIALISLODADED = TRUE
 
     places.push(Key.local);
@@ -367,7 +377,9 @@ Feedit.prototype.showNotification = function(key){
   var nota_img = '<img style="padding-top:10px;display: block;margin: 0 auto;" src="img/'+key.nota+'.png">'
   var notification_text = "<div class='row center' style='padding-top:4px;'>Nova avaliação<br><b>"+key.nota.capitalize()+"</b> no local <b>"+key.local.capitalize()+"</b></div>";
   $('.tooltip').tooltipster('content',nota_img+notification_text);
+  setTimeout(function(){
   $('.tooltip').tooltipster('open');
+}, 750);
   notification_sound.play();
   showDesktopNotification(key);
 }
@@ -744,7 +756,6 @@ function showDesktopNotification(key){
 
     navigator.serviceWorker.ready.then(function(registration) {
       registration.getNotifications(options).then(function(notifications) {
-        console.log(notifications);
         if (notifications.length != 0){
           notifications[0].close();
         }
@@ -757,8 +768,6 @@ function showDesktopNotification(key){
           tag: 'feedit-notification',
           vibrate: [300,100,100]
         });})}, 500);
-
-
     });
   }
 }
@@ -769,11 +778,19 @@ function fixheaders(){
       $("#header-"+place).click();
       $(".collapsible").collapsible('close',i);
   }
-  // refreshgrid()
+  h = $(".grid-item");
+  console.log("Headers fixed, showing headers");
+  setTimeout(function(){ animateInsert(); }, 500);
   // for(i=0;i < places.removeDuplicates().length;i++){
   //     place = places.removeDuplicates()[i];
   //     $("#header-"+place).click();
   // }
+}
+
+function animateInsert(){
+  for(j=0; j <= h.length-1;j++ ){
+    $(h[j]).addClass("loaded");
+  }
 }
 
 function refreshgrid(){
@@ -787,24 +804,64 @@ Array.prototype.removeDuplicates = function () {
     });
 };
 
+window.onfocus=function() {
+  userIsWatching = true;
+  checkStack();
+
+};
+
+window.onblur=function(){
+  userIsWatching = false;
+}
+
+function checkStack() {
+  if (newDataStack.length != 0){
+    for (i = newDataStack.length-1; i+1 != 0;i--){
+        if ($(newDataStack[i]).parent().parent().attr("class") == "active"){
+          $(newDataStack[i]).animate({backgroundColor: '#F7F7F7'}, 3000);
+          newDataStack.splice(i, 1);
+        }
+    }
+  }
+}
+
 function readURL(input) {
     if (input.files && input.files[0]) {
         var reader = new FileReader();
-
         reader.onload = function (e) {
-            $('#blah').attr('src', e.target.result);
-            currentUser.updateProfile({
-            photoURL: e.target.result
-            }).then(function() {
-            // Materialize.toast("Imagem do usuário atualizada com sucesso",1000);
-            $("#sidebar-thumb").attr("src",currentUser.photoURL);
-
-          }, function(error) {
-            Materialize.toast("Ocorreu um erro");
-            });
+          render(e.target.result);
         }
-
-
         reader.readAsDataURL(input.files[0]);
     }
+}
+
+var MAX_HEIGHT = 100;
+function render(src){
+  var image = new Image();
+  image.onload = function(){
+    var canvas = document.createElement("canvas");
+    if(image.height > MAX_HEIGHT) {
+      image.width *= MAX_HEIGHT / image.height;
+      image.height = MAX_HEIGHT;
+    }
+    var ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.width = image.width;
+    canvas.height = image.height;
+    ctx.drawImage(image, 0, 0, image.width, image.height);
+    resizedimgUrl = canvas.toDataURL();
+
+    $('#blah').attr('src', resizedimgUrl);
+    currentUser.updateProfile({
+    photoURL: resizedimgUrl
+    }).then(function() {
+    // Materialize.toast("Imagem do usuário atualizada com sucesso",1000);
+    $("#sidebar-thumb").attr("src",currentUser.photoURL);
+    $("#imgshow > img").attr("src",currentUser.photoURL);
+    $("#topuserdisplay > img").attr("src",currentUser.photoURL)
+  }, function(error) {
+    Materialize.toast("Ocorreu um erro",1000);
+    });
+  };
+  image.src = src;
 }
