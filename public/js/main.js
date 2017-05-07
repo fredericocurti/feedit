@@ -27,13 +27,13 @@ var userIsWatching = true;
 
 function dataBlock(value){
   this.data = {};
+  this.hiddenIDs = [];
   this.place = value.local;
   this.counters = {}
   this.counters["total"] = 0;
   this.counters["ruim"] = 0;
   this.counters["bom"] = 0;
   this.counters["excelente"] = 0;
-
   this.increaseCounter = function(counter){
     this.counters[counter] ++;
   }
@@ -58,10 +58,10 @@ Feedit.prototype.initFirebase = function() {
 Feedit.prototype.startHandler = function(){
   var ref = this.database.ref(currentUser.uid);
   ref.once("value", function(snap) {
-    currentUser.count = snap.numChildren();
+    currentUser.count = snap.numChildren() - 1;
     console.log("INITIAL DATA COUNT:", currentUser.count);
     console.log("Setting limit to: "+currentUser.count);
-    limit = currentUser.count;
+    limit = currentUser.count
 
     if(currentUser.count == 0){
       $("#maindata").append(
@@ -70,26 +70,31 @@ Feedit.prototype.startHandler = function(){
 
     feedit.getData();
   });
+  $("#slide-button").css("display","block");
 }
 
 Feedit.prototype.onDataLoaded = function(){
-
-  $("#slide-button").css("display","block");
   $('.collapsible').collapsible();
-
 
   for(i=0;i<Object.keys(locales).length;i++){
     header_id = "#header-"+Object.keys(locales)[i];
     local = locales[Object.keys(locales)[i]];
     badge_ruim = '<span id="badge-ruim" class="new badge circular-badge" style="background-color:#dd2c00;" data-badge-caption="'+local.counters.ruim+'"></span>'
-    badge_bom = '<span id="badge-bom" class="new badge circular-badge" style="background-color:#ccff90;" data-badge-caption="'+local.counters.bom+'"></span>'
-    badge_excelente = '<span id="badge-excelente" class="new badge circular-badge" style="background-color:#c6ff00;" data-badge-caption="'+local.counters.excelente+'"></span>'
+    badge_bom = '<span id="badge-bom" class="new badge circular-badge" style="background-color:#ff9800;" data-badge-caption="'+local.counters.bom+'"></span>'
+    badge_excelente = '<span id="badge-excelente" class="new badge circular-badge" style="background-color:#67e200;" data-badge-caption="'+local.counters.excelente+'"></span>'
 
     $(header_id).append(badge_ruim,badge_bom,badge_excelente);
     for(j=3;j<=5;j++){
       if ($(header_id)[0].childNodes[j].getAttribute("data-badge-caption") == 0){
         $(header_id).children().eq(j-1).css("display","none");
       }
+    }
+    // show first 50 data
+    initlen = local.hiddenIDs.length;
+    for(k=initlen-1;k != initlen - 50;k--){
+      $("#"+local.hiddenIDs[k]).css("display","block");
+      $("#"+local.hiddenIDs[k]).css("opacity","1");
+      local.hiddenIDs.splice(k,1);
     }
   }
 
@@ -100,13 +105,17 @@ Feedit.prototype.onDataLoaded = function(){
 
   $('#usersettingsbutton').click(function(){
     feedit.userSettings();
-    $('#user-modal').modal('open');
+    setTimeout(function(){
+      $('#user-modal').modal('open');
+    },500);
   });
 
   $('#sidenav-usersettingsbutton').click(function(){
     $('.button-collapse').sideNav('hide');
     feedit.userSettings();
-    $('#user-modal').modal('open');
+    setTimeout(function(){
+      $('#user-modal').modal('open');
+    },500);
   });
 
   $('.grid').masonry({
@@ -118,30 +127,6 @@ Feedit.prototype.onDataLoaded = function(){
   });
 
   // Calculates the differences between last session and current, appending new badges respectively
-  if (localStorage.lastuserCount){
-    parsed_lastuserCount = JSON.parse(localStorage.lastuserCount);
-
-    if (parsed_lastuserCount.uid == currentUser.uid){
-      console.log("There is a last user Count avaiable!, attempting to calculate differences");
-
-      for(i=0;i < Object.keys(locales).length;i++){
-        var currentcounter = locales[Object.keys(locales)[i]].counters.total;
-        var parsedcounter = parsed_lastuserCount[Object.keys(locales)[i]];
-        counterMemory[Object.keys(locales)[i]] = currentcounter - parsedcounter;
-      }
-
-      for(i=0;i < Object.keys(counterMemory).length;i++){
-        if (counterMemory[Object.keys(counterMemory)[i]] != 0 && isNaN(counterMemory[Object.keys(counterMemory)[i]]) == false){
-          console.log("Existe uma diferenca no local "+Object.keys(counterMemory)[i]);
-          var localid_header = '#header-'+Object.keys(counterMemory)[i];
-          $(localid_header).append(
-          '<span class="new badge cyan" data-badge-caption="'+counterMemory[Object.keys(counterMemory)[i]]+' Novas"></span>');
-
-        }
-      }
-    }
-
-  }
 
   // Requests permission for showing Notification
   if (Notification.permission !== "granted"){
@@ -192,9 +177,6 @@ Feedit.prototype.displayGui = function(){
         $("#notifications-button-img").attr('src','img/bell.png');
       }
     });
-    //   $(localid_header).attr('counter',0);
-    //   $(this).children().eq(2).remove();
-    // });
 
     loading = document.getElementById("loadingbar");
     $("#maindata").append(loading);
@@ -229,6 +211,7 @@ Feedit.prototype.displayGui = function(){
 
 Feedit.prototype.displayData = function(data){
   Key = data;
+  datacounter_id = "#"+datacounter
 
     if(places.includes(Key.local) == true){ // PREPENDS TO THE LATEST ITEM LIST
       // console.log("locale "+Key.local+" already exists. Appending to the correct place")
@@ -241,18 +224,19 @@ Feedit.prototype.displayData = function(data){
       var localchild_id = '#'+Key.local+'>:nth-child(2)';
 
       if(initialislodaded == false){
-        // adds initial data
+
         $(localchild_data).before(
-        '<div class="collapsible-body row datarow" id="'+datacounter+'">'+
+        '<div class="collapsible-body row datarow" style="display:none;opacity:0" id="'+datacounter+'">'+
         '   <span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
         '</div>'
         );
+        locales[Key.local].hiddenIDs.push(datacounter);
+
         colorString(datacounter);
 
       }
       else if(initialislodaded == true){
         // adds data
-        datacounter_id = "#"+datacounter
         $(localchild_data).before(
         '<div class="collapsible-body row datarow" id="'+datacounter+'" style="background-color:#d5f6f7;">'+
         '   <span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
@@ -283,7 +267,7 @@ Feedit.prototype.displayData = function(data){
 
       }
 
-      $(localid_counter_ref).html($(localchild_dataref)[0].childElementCount);
+      $(localid_counter_ref).html($(localchild_dataref)[0].childElementCount - 1);
 
     } else {  // APPENDS FOR THE FIRST TIME, CREATING THE HEADER
       var col_label = "col-"+Key.local;
@@ -293,25 +277,32 @@ Feedit.prototype.displayData = function(data){
         '<div class="grid-item">'+
             '<ul id="'+col_label+'" class="collapsible" style="margin:0px;" data-collapsible="expandable">'+
                 '<li id="'+Key.local+'"">'+ //style="max-height:300px;overflow-y:auto;
-                    '<div class="collapsible-header waves-effect waves-subtle" hasflag="0" id="header-'+Key.local+'"><i class="tiny material-icons" style="display:none;margin-right:7px !important;">label_outline</i><span id="counter-'+Key.local+'"class="badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
+                    '<div class="collapsible-header waves-effect waves-subtle" hasflag="0" id="header-'+Key.local+'"><i class="tiny material-icons" style="display:none;margin-right:7px !important;">label_outline</i><span id="counter-'+Key.local+'"class="badge counter-badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
                     '<div id="data-'+Key.local+'" class="collapsible-body" style="padding:0px;overflow-y:auto;max-height:300px;">'+ // DIV CONTAINING KEYS
-                        '<div class="collapsible-body row datarow" id="'+datacounter+'">'+
+                        '<div class="collapsible-body row datarow" id="'+datacounter+'" style="opacity:0;display:none">'+
                             '<span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
+                        '</div>'+
+                        '<div class="collapsible-body row center" id="'+datacounter+'" style="margin-bottom:0px;padding:0px;">'+
+                            '<a id="showmorebt-'+Key.local+'" class="btn-flat waves-effect waves-light center-align" style="display:none;color:gray"><i class="material-icons">add</i>Mostrar mais</a>'+
                         '</div>'+
                     '</div>'+
                 '</li>'+
             '</ul>'+
         '</div>'
       );
-      // $(localid).click();
 
       colorString(datacounter);
+      locales[Key.local].hiddenIDs.push(datacounter);
+
+      button_refid = "#showmorebt-"+Key.local;
+      $(button_refid).click(function(){
+        showMoreData(this.id);
+      });
 
       $(localid_header).click(function(){
         setTimeout(function(){ refreshgrid(); }, 150);
         setTimeout(function(){ refreshgrid(); }, 250);
         setTimeout(function(){ checkStack(); }, 1000);
-
       });
 
     }
@@ -339,14 +330,11 @@ Feedit.prototype.displayData = function(data){
           setTimeout( function() {
             $(localid_header).children().eq(5).remove();
           }, 1000);
-          // $(this).children().eq(2).fadeOut(2000, function(){
-          //   $(this).children().eq(2).remove();
-          // });
 
         });
       }
 
-      placesdeduped = places.removeDuplicates();
+      placesdeduped = Object.keys(locales);
       var mustopen = [];
 
       // Checks for the cards that are open
@@ -368,6 +356,11 @@ Feedit.prototype.displayData = function(data){
 
     } // CLOSES INITIALISLODADED = TRUE
 
+    if (locales[Key.local].counters.total == 50){
+      button_refid = "#showmorebt-"+Key.local;
+      $(button_refid).css("display","inline-flex");
+    }
+
     places.push(Key.local);
     $("#loadingbar").remove();
 
@@ -377,9 +370,7 @@ Feedit.prototype.showNotification = function(key){
   var nota_img = '<img style="padding-top:10px;display: block;margin: 0 auto;" src="img/'+key.nota+'.png">'
   var notification_text = "<div class='row center' style='padding-top:4px;'>Nova avaliação<br><b>"+key.nota.capitalize()+"</b> no local <b>"+key.local.capitalize()+"</b></div>";
   $('.tooltip').tooltipster('content',nota_img+notification_text);
-  setTimeout(function(){
   $('.tooltip').tooltipster('open');
-}, 750);
   notification_sound.play();
   showDesktopNotification(key);
 }
@@ -396,7 +387,6 @@ Feedit.prototype.getData = function(){
     // db[this.key] = this.val;
     datacounter++;
     //
-
     // Deals with the locale objects when data is recieved
     local = this.val.local
     if (locales[local] != undefined){
@@ -405,21 +395,25 @@ Feedit.prototype.getData = function(){
       locales[local].increaseCounter(this.val.nota);
 
     } else {
-      locales[local] = new dataBlock(this.val);
-      locales[local].data[this.key] = this.val;
-      locales[local].increaseCounter("total");
-      locales[local].increaseCounter(this.val.nota);
+      if (this.key != "metadata"){
+        locales[local] = new dataBlock(this.val);
+        locales[local].data[this.key] = this.val;
+        locales[local].increaseCounter("total");
+        locales[local].increaseCounter(this.val.nota);
+      }
     }
 
-
-    // console.log(locales[this.val.local]);
-
-
-
     // displays data as soon as it is obtained
-    feedit.displayData(this.val);
+    if (this.key != "metadata"){
+      feedit.displayData(this.val);
+    } else {
+      console.log("Metadata obtained");
+      currentUser.metadata = {};
+      currentUser.metadata["counterMemory"] = JSON.parse(this.val.counterMemory);
+      showCounterMemory();
+    }
 
-    if( initialislodaded == true && $("#notifications-button").attr("status") == 'on'){
+    if(initialislodaded == true && $("#notifications-button").attr("status") == 'on' && this.key != "metadata"){
       feedit.showNotification(this.val);
     }
 
@@ -427,7 +421,6 @@ Feedit.prototype.getData = function(){
     if(datacounter === limit){
       console.log("Initial data loading complete - launching initialislodaded as True");
       initialislodaded = true;
-
       feedit.onDataLoaded();
       // Materialize.showStaggeredList('#main-data');// run display animation;
     }
@@ -586,12 +579,11 @@ Feedit.prototype.userSettings = function(){
       readURL(this);
   });
 
-
-
   $("#username").attr("placeholder",currentUser.displayName);
   $("#email").attr("placeholder",currentUser.email);
   $('.modal').modal();
 }
+
 
 Feedit.prototype.onAuthStateChanged = function(user) {
   currentUser = user;
@@ -603,7 +595,6 @@ Feedit.prototype.onAuthStateChanged = function(user) {
     $('#modal1').modal('close');
     $("#topuserdisplay-off").remove();
     $('#topuserdisplay').css("display","block");
-
     if (user.photoURL != null){
       console.log("User has a profile pic.");
       userimg = currentUser.photoURL;
@@ -619,12 +610,13 @@ Feedit.prototype.onAuthStateChanged = function(user) {
     document.getElementById("user-email").innerHTML = currentUser.email;
 
     if (initialstate == 0){
+      Materialize.toast("Usuário autenticado com sucesso!",4000);
       feedit.displayGui(initialstate);
       feedit.startHandler(initialstate);
     }
 
     initialstate=1
-    Materialize.toast("Usuário autenticado com sucesso!",4000);
+
 
   } else { // User is signed out!
     $("#intro-content").css("display","block");
@@ -632,11 +624,7 @@ Feedit.prototype.onAuthStateChanged = function(user) {
     console.log("User has/is signed out!");
     initialstate = 0;
   }
-
-
-
 };
-
 
 function login(){
   var valemail = $('#useremail').attr('class');
@@ -688,14 +676,17 @@ $('.dropdown-button').dropdown({
 );
 
 function saveCounterMemory(){
-  counterMemory["uid"] = currentUser.uid;
   for(i=0;i < Object.keys(locales).length;i++){
     counterMemory[Object.keys(locales)[i]] = locales[Object.keys(locales)[i]].counters.total;
   }
   counterMemoryString = JSON.stringify(counterMemory);
-  localStorage.setItem("lastuserCount",counterMemoryString);
-  return counterMemory;
+  feedit.database.ref(currentUser.uid+"/metadata").set({
+  counterMemory : counterMemoryString
+}).then(function(){
+  console.log("counter memory saved");
+});
 }
+
 
 jQuery.fn.center = function () {
     this.css("position","absolute");
@@ -728,7 +719,6 @@ function colorString(counter){
   else if ($("#"+counter).children()[0].innerHTML == "Ruim"){
     $("#"+counter).children()[0].outerHTML = '<span class="col s4 left-align nota-ruim">Ruim</span>'
   }
-
 }
 
 function showDesktopNotification(key){
@@ -740,20 +730,7 @@ function showDesktopNotification(key){
   if (Notification.permission !== "granted"){
     Notification.requestPermission();
   } else {
-    // var notification = new Notification('Feedit - Nova avaliação!', {
-    //   icon: 'img/'+key.nota+'.png',
-    //   body: 'Alguem avaliou o local '+key.local.capitalize()+' como '+key.nota,
-    //   requireInteraction : false,
-    //   vibrate: [200, 100, 200]
-    // });
-    //
-    // notification.onclick = function () {
-    //   window.focus();
-    // };
-    //
-    // setTimeout(function() { notification.close() }, 2500);
     var options = { tag : 'feedit-notification' };
-
     navigator.serviceWorker.ready.then(function(registration) {
       registration.getNotifications(options).then(function(notifications) {
         if (notifications.length != 0){
@@ -772,9 +749,32 @@ function showDesktopNotification(key){
   }
 }
 
+function showCounterMemory(){
+  var parsed_lastuserCount = currentUser.metadata.counterMemory;
+  console.log("There is a last user Count avaiable");
+
+  for(i=0;i < Object.keys(locales).length;i++){
+    var currentcounter = locales[Object.keys(locales)[i]].counters.total;
+    var parsedcounter = parsed_lastuserCount[Object.keys(locales)[i]];
+    counterMemory[Object.keys(locales)[i]] = currentcounter - parsedcounter;
+  }
+
+  for(i=0;i < Object.keys(counterMemory).length;i++){
+    if (counterMemory[Object.keys(counterMemory)[i]] != 0 && isNaN(counterMemory[Object.keys(counterMemory)[i]]) == false){
+      console.log("Existe uma diferenca no local "+Object.keys(counterMemory)[i]);
+      var localid_header = '#header-'+Object.keys(counterMemory)[i];
+      $(localid_header).append(
+      '<span class="new badge cyan" data-badge-caption="'+counterMemory[Object.keys(counterMemory)[i]]+' Novas"></span>');
+    }
+  }
+
+
+}
+
 function fixheaders(){
-  for(i=0;i < places.removeDuplicates().length;i++){
-      place = places.removeDuplicates()[i];
+  places = Object.keys(locales);
+  for(i=0;i < places.length;i++){
+      place = places[i];
       $("#header-"+place).click();
       $(".collapsible").collapsible('close',i);
   }
@@ -807,7 +807,6 @@ Array.prototype.removeDuplicates = function () {
 window.onfocus=function() {
   userIsWatching = true;
   checkStack();
-
 };
 
 window.onblur=function(){
@@ -822,6 +821,23 @@ function checkStack() {
           newDataStack.splice(i, 1);
         }
     }
+  }
+}
+
+function showMoreData(local){
+  place = local.slice(11, local.length);
+  console.log("show more data @" + place);
+  hiddenIDs = locales[place].hiddenIDs;
+  initlen = locales[place].hiddenIDs.length;
+  if (hiddenIDs.length != 0){
+    for(i=initlen-1; i != initlen - 51;i--){
+      $("#"+hiddenIDs[i]).css("display","block");
+      $("#"+hiddenIDs[i]).animate({opacity: '1'}, 2000);
+      locales[place].hiddenIDs.splice(i,1);
+    }
+  }
+  if (locales[place].hiddenIDs.length == 0){
+    $("#"+local).remove();
   }
 }
 

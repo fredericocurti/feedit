@@ -51,11 +51,11 @@ main {
 }
 
 .nota-excelente{
-  color:#b6e808;
+  color:#67e200;
 }
 
 .nota-bom{
-  color:#a3d965;
+  color:#ff9800;
 }
 
 .nota-ruim{
@@ -103,8 +103,12 @@ main {
   padding: 0 2px !important;
   line-height: 26px !important;
   margin-top: 9px !important;
-  margin-left: 7px !important;
-  /*text-shadow: 1px 1px 15px #000000;*/
+  margin-left: 5px !important;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
+}
+
+.counter-badge{
+  margin-left: 0px !important;
 }
 
 .toprightcorner{
@@ -127,7 +131,7 @@ main {
 .data-container{
   margin-left:5% !important;
   margin-right:5% !important;
-  margin-bottom: 20%;
+  margin-bottom: 12%;
 }
 
 .tooltipster-base{
