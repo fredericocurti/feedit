@@ -14,7 +14,6 @@ var updatecounter = 0;
 var initialstate = 0;
 var newEval = null;
 var datacounter = 0;
-var db = {};
 var initialislodaded = false;
 var userSettingsnotLoaded = true;
 var limit = 0;
@@ -36,8 +35,19 @@ function dataBlock(value){
   this.counters["excelente"] = 0;
   this.increaseCounter = function(counter){
     this.counters[counter] ++;
+    general.counters[counter] ++;
   }
 }
+
+function generalBlock(){
+  this.counters = {};
+  this.counters["ruim"] = 0;
+  this.counters["bom"] = 0;
+  this.counters["excelente"] = 0;
+  this.counters["total"] = 0;
+}
+
+general = new generalBlock()
 
 
 function Feedit() {
@@ -133,6 +143,8 @@ Feedit.prototype.onDataLoaded = function(){
     $("#allownotifications-modal").modal('open');
     Notification.requestPermission();
   }
+
+  general.counters["total"] = datacounter;
 }
 
 // Initialize mainapp
@@ -207,7 +219,6 @@ Feedit.prototype.displayGui = function(){
       '</ul>'+
       '</div>');
 }
-
 
 Feedit.prototype.displayData = function(data){
   Key = data;
@@ -625,6 +636,43 @@ Feedit.prototype.onAuthStateChanged = function(user) {
     initialstate = 0;
   }
 };
+
+Feedit.prototype.loadChart = function(){
+  $("#data-wrapper").before(
+  '<canvas id="chart" width="400" height="400"></canvas>');
+  var ctx = $("#chart");
+  var myChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: [
+          "Excelente",
+          "Bom",
+          "Ruim"
+      ],
+      datasets: [
+          {
+              data: [general.counters.excelente, general.counters.bom, general.counters.ruim],
+              backgroundColor: [
+                  "#67e200",
+                  "#ff9800",
+                  "#dd2c00"
+              ],
+              hoverBackgroundColor: [
+                  "#67e200",
+                  "#ff9800",
+                  "#dd2c00"
+              ]
+          }]
+    },
+      options: {
+              animation:{
+                  animateScale:true
+              }
+          }
+});
+
+};
+
 
 function login(){
   var valemail = $('#useremail').attr('class');
