@@ -14,7 +14,8 @@ var updatecounter = 0;
 var initialstate = 0;
 var newEval = null;
 var datacounter = 0;
-var initialislodaded = false;
+var db = {};
+var initialisloaded = false;
 var userSettingsnotLoaded = true;
 var limit = 0;
 var userimg = "img/default-icon-user.png";
@@ -35,19 +36,8 @@ function dataBlock(value){
   this.counters["excelente"] = 0;
   this.increaseCounter = function(counter){
     this.counters[counter] ++;
-    general.counters[counter] ++;
   }
 }
-
-function generalBlock(){
-  this.counters = {};
-  this.counters["ruim"] = 0;
-  this.counters["bom"] = 0;
-  this.counters["excelente"] = 0;
-  this.counters["total"] = 0;
-}
-
-general = new generalBlock()
 
 
 function Feedit() {
@@ -68,7 +58,7 @@ Feedit.prototype.initFirebase = function() {
 Feedit.prototype.startHandler = function(){
   var ref = this.database.ref(currentUser.uid);
   ref.once("value", function(snap) {
-    currentUser.count = snap.numChildren() - 1;
+    currentUser.count = snap.numChildren();
     console.log("INITIAL DATA COUNT:", currentUser.count);
     console.log("Setting limit to: "+currentUser.count);
     limit = currentUser.count
@@ -143,8 +133,6 @@ Feedit.prototype.onDataLoaded = function(){
     $("#allownotifications-modal").modal('open');
     Notification.requestPermission();
   }
-
-  general.counters["total"] = datacounter;
 }
 
 // Initialize mainapp
@@ -220,6 +208,7 @@ Feedit.prototype.displayGui = function(){
       '</div>');
 }
 
+
 Feedit.prototype.displayData = function(data){
   Key = data;
   datacounter_id = "#"+datacounter
@@ -234,7 +223,7 @@ Feedit.prototype.displayData = function(data){
       var localid_counter_ref = '#counter-'+Key.local;
       var localchild_id = '#'+Key.local+'>:nth-child(2)';
 
-      if(initialislodaded == false){
+      if(initialisloaded == false){
 
         $(localchild_data).before(
         '<div class="collapsible-body row datarow" style="display:none;opacity:0" id="'+datacounter+'">'+
@@ -246,7 +235,7 @@ Feedit.prototype.displayData = function(data){
         colorString(datacounter);
 
       }
-      else if(initialislodaded == true){
+      else if(initialisloaded == true){
         // adds data
         $(localchild_data).before(
         '<div class="collapsible-body row datarow" id="'+datacounter+'" style="background-color:#d5f6f7;">'+
@@ -293,7 +282,7 @@ Feedit.prototype.displayData = function(data){
                         '<div class="collapsible-body row datarow" id="'+datacounter+'" style="opacity:0;display:none">'+
                             '<span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
                         '</div>'+
-                        '<div class="collapsible-body row center" id="'+datacounter+'" style="margin-bottom:0px;padding:0px;">'+
+                        '<div class="collapsible-body row center" style="margin-bottom:0px;padding:0px;">'+
                             '<a id="showmorebt-'+Key.local+'" class="btn-flat waves-effect waves-light center-align" style="display:none;color:gray"><i class="material-icons">add</i>Mostrar mais</a>'+
                         '</div>'+
                     '</div>'+
@@ -302,7 +291,7 @@ Feedit.prototype.displayData = function(data){
         '</div>'
       );
 
-      colorString(datacounter);
+      // colorString(datacounter);
       locales[Key.local].hiddenIDs.push(datacounter);
 
       button_refid = "#showmorebt-"+Key.local;
@@ -319,7 +308,7 @@ Feedit.prototype.displayData = function(data){
     }
 
 //  THIS PORTION WILL ONLY RUN ON NEW VALUES ARE ADDED TO THE DB WHILE THE APP IS RUNNING
-    if (initialislodaded == true){ // adds and counts new badges only if it added after initload is complete
+    if (initialisloaded == true){ // adds and counts new badges only if it added after initload is complete
       newBadge = '<span id="badge-'+Key.local+'" class="new badge green" data-badge-caption="Nova"></span>'
       var localid_header = '#header-'+Key.local;
       var localid_badge = '#badge-'+Key.local;
@@ -365,7 +354,7 @@ Feedit.prototype.displayData = function(data){
         $(col_to_open).collapsible('open',0);
       }
 
-    } // CLOSES INITIALISLODADED = TRUE
+    } // CLOSES initialisloaded = TRUE
 
     if (locales[Key.local].counters.total == 50){
       button_refid = "#showmorebt-"+Key.local;
@@ -374,7 +363,6 @@ Feedit.prototype.displayData = function(data){
 
     places.push(Key.local);
     $("#loadingbar").remove();
-
 }
 
 Feedit.prototype.showNotification = function(key){
@@ -394,10 +382,10 @@ Feedit.prototype.getData = function(){
   ref.limitToLast(limit).on("child_added", function(snapshot) {
     this.key = snapshot.key;
     this.val = snapshot.val();
+    console.log(snapshot.key);
     //
     // db[this.key] = this.val;
-    datacounter++;
-    //
+
     // Deals with the locale objects when data is recieved
     local = this.val.local
     if (locales[local] != undefined){
@@ -416,6 +404,7 @@ Feedit.prototype.getData = function(){
 
     // displays data as soon as it is obtained
     if (this.key != "metadata"){
+      datacounter++;
       feedit.displayData(this.val);
     } else {
       console.log("Metadata obtained");
@@ -424,14 +413,18 @@ Feedit.prototype.getData = function(){
       showCounterMemory();
     }
 
-    if(initialislodaded == true && $("#notifications-button").attr("status") == 'on' && this.key != "metadata"){
+    if(initialisloaded == true && $("#notifications-button").attr("status") == 'on' && this.key != "metadata"){
       feedit.showNotification(this.val);
     }
 
     // Check if initial data has been loaded fully;
-    if(datacounter === limit){
-      console.log("Initial data loading complete - launching initialislodaded as True");
-      initialislodaded = true;
+
+    console.log(datacounter);
+    console.log(currentUser.count);
+
+    if(datacounter == currentUser.count - 1 && initialisloaded == false){
+      console.log("Initial data loading complete - launching initialisloaded as True");
+      initialisloaded = true;
       feedit.onDataLoaded();
       // Materialize.showStaggeredList('#main-data');// run display animation;
     }
@@ -637,43 +630,6 @@ Feedit.prototype.onAuthStateChanged = function(user) {
   }
 };
 
-Feedit.prototype.loadChart = function(){
-  $("#data-wrapper").before(
-  '<canvas id="chart" width="400" height="400"></canvas>');
-  var ctx = $("#chart");
-  var myChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: [
-          "Excelente",
-          "Bom",
-          "Ruim"
-      ],
-      datasets: [
-          {
-              data: [general.counters.excelente, general.counters.bom, general.counters.ruim],
-              backgroundColor: [
-                  "#67e200",
-                  "#ff9800",
-                  "#dd2c00"
-              ],
-              hoverBackgroundColor: [
-                  "#67e200",
-                  "#ff9800",
-                  "#dd2c00"
-              ]
-          }]
-    },
-      options: {
-              animation:{
-                  animateScale:true
-              }
-          }
-});
-
-};
-
-
 function login(){
   var valemail = $('#useremail').attr('class');
   var varpass = $("#userpassword").attr('class');
@@ -758,15 +714,18 @@ String.prototype.capitalize = function() {
 }
 
 function colorString(counter){
-  if ($("#"+counter).children()[0].innerHTML == "Excelente"){
-    $("#"+counter).children()[0].outerHTML = '<span class="col s4 left-align nota-excelente">Excelente</span>'
-  }
-  else if ($("#"+counter).children()[0].innerHTML == "Bom"){
-    $("#"+counter).children()[0].outerHTML = '<span class="col s4 left-align nota-bom">Bom</span>'
-  }
-  else if ($("#"+counter).children()[0].innerHTML == "Ruim"){
-    $("#"+counter).children()[0].outerHTML = '<span class="col s4 left-align nota-ruim">Ruim</span>'
-  }
+
+  console.log($("#"+counter));
+
+  // if ($("#"+counter).childNodes[1].innerHTML == "Excelente"){
+  //   $("#"+counter).childNodes[1].outerHTML = '<span class="col s4 left-align nota-excelente">Excelente</span>'
+  // }
+  // else if ($("#"+counter).childNodes[1].innerHTML == "Bom"){
+  //   $("#"+counter).childNodes[1].outerHTML = '<span class="col s4 left-align nota-bom">Bom</span>'
+  // }
+  // else if ($("#"+counter).childNodes[1].innerHTML == "Ruim"){
+  //   $("#"+counter).childNodes[1].outerHTML = '<span class="col s4 left-align nota-ruim">Ruim</span>'
+  // }
 }
 
 function showDesktopNotification(key){
