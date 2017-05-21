@@ -69,7 +69,8 @@ main {
 #main-content{
   height: 100%;
   width: 100%;
-  overflow-y: scroll;
+  max-height: calc(100% - 100px);
+  overflow: auto;
 }
 
 #notifications-button{
