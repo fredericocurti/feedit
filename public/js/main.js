@@ -16,7 +16,6 @@ var newEval = null;
 var datacounter = 0;
 var db = {};
 var initialisloaded = false;
-var userSettingsnotLoaded = true;
 var limit = 0;
 var userimg = "img/default-icon-user.png";
 var notification_sound = new Audio('assets/pop.mp3');
@@ -36,8 +35,19 @@ function dataBlock(value){
   this.counters["excelente"] = 0;
   this.increaseCounter = function(counter){
     this.counters[counter] ++;
+    general.counters[counter] ++;
   }
 }
+
+function generalBlock(){
+  this.counters = {};
+  this.counters["ruim"] = 0;
+  this.counters["bom"] = 0;
+  this.counters["excelente"] = 0;
+  this.counters["total"] = 0;
+}
+
+general = new generalBlock()
 
 
 function Feedit() {
@@ -75,10 +85,13 @@ Feedit.prototype.startHandler = function(){
 
 Feedit.prototype.onDataLoaded = function(){
   $('.collapsible').collapsible();
+  this.loadChart();
 
-  for(i=0;i<Object.keys(locales).length;i++){
-    header_id = "#header-"+Object.keys(locales)[i];
-    local = locales[Object.keys(locales)[i]];
+  keys = Object.keys(locales);
+
+  for(i=0;i<keys.length;i++){
+    header_id = "#header-"+keys[i];
+    local = locales[keys[i]];
     badge_ruim = '<span id="badge-ruim" class="new badge circular-badge" style="background-color:#dd2c00;" data-badge-caption="'+local.counters.ruim+'"></span>'
     badge_bom = '<span id="badge-bom" class="new badge circular-badge" style="background-color:#ff9800;" data-badge-caption="'+local.counters.bom+'"></span>'
     badge_excelente = '<span id="badge-excelente" class="new badge circular-badge" style="background-color:#67e200;" data-badge-caption="'+local.counters.excelente+'"></span>'
@@ -91,6 +104,7 @@ Feedit.prototype.onDataLoaded = function(){
     }
     // show first 50 data
     initlen = local.hiddenIDs.length;
+
     for(k=initlen-1;k != initlen - 50;k--){
       $("#"+local.hiddenIDs[k]).css("display","block");
       $("#"+local.hiddenIDs[k]).css("opacity","1");
@@ -100,22 +114,16 @@ Feedit.prototype.onDataLoaded = function(){
 
   fixheaders();
 
-  $("#data-counter").html("Você possui "+currentUser.count+" avaliações no total. Mostrando as últimas "+limit);
+  $("#data-counter-view").html("Você possui "+currentUser.count+" avaliações");
   // $('.scrollbar-outer').scrollbar();
 
   $('#usersettingsbutton').click(function(){
-    feedit.userSettings();
-    setTimeout(function(){
-      $('#user-modal').modal('open');
-    },500);
+    feedit.handleUserSettings();
   });
 
   $('#sidenav-usersettingsbutton').click(function(){
     $('.button-collapse').sideNav('hide');
-    feedit.userSettings();
-    setTimeout(function(){
-      $('#user-modal').modal('open');
-    },500);
+    feedit.handleUserSettings();
   });
 
   $('.grid').masonry({
@@ -134,14 +142,15 @@ Feedit.prototype.onDataLoaded = function(){
     Notification.requestPermission();
   }
 }
-
+  
 // Initialize mainapp
 Feedit.prototype.displayGui = function(){
+    $("#main-content").css("display","block");
     $("#loadingbar").attr("style","");
     $("#loadingbar").center();
     $("#header").remove();
     $("#iconsection").remove();
-    $("#mainshow").removeClass("mainbg");
+    $("#mainview").removeClass("mainbg");
     $( "#main-content" ).prepend(
     '<a id="notifications-button" status="on" class="fixed-action-btn toprightcorner btn-floating btn-large waves-effect waves-light red accent-2 tooltip" data-tooltip-content="#tooltip_content"><img id="notifications-button-img" src="img/bell.png" width="28px"></a>'+
 
@@ -152,29 +161,28 @@ Feedit.prototype.displayGui = function(){
     '</div>'+
 
     '<div class="data-container">'+
-    '<div class="row">'+
       '<div class="col s12 m12">'+
       "<div id='maindata' class='Site-content'></div>"+
       '</div>'+
       // '<div class="col s6 m6">'+
       // '<h4>HUEAHUEA</h4>'+
       // '</div>'+
-    '</div'+
     '</div>'
   );
 
   // Deals with the notification button state = on/off
-    $("#notifications-button").click(function(){
-      if ($("#notifications-button").attr("status") == 'on'){
-        $("#notifications-button").attr('status','off');
-        $("#notifications-button").removeClass('red darken-4');
-        $("#notifications-button").addClass('grey');
-        $("#notifications-button-img").attr('src','img/bell_crossed.png');
+   const nb = $("#notifications-button");
+    nb.click(function(){
+      if (nb.attr("status") == 'on'){
+        nb.attr('status','off');
+        nb.removeClass('red darken-4');
+        nb.addClass('grey');
+        nb.children()[0].src = 'img/bell_crossed.png';
       } else {
-        $("#notifications-button").attr("status",'on');
-        $("#notifications-button").removeClass('grey');
-        $("#notifications-button").addClass('red darken-4');
-        $("#notifications-button-img").attr('src','img/bell.png');
+        nb.attr("status",'on');
+        nb.removeClass('grey');
+        nb.addClass('red darken-4');
+        nb.children()[0].src = 'img/bell.png';
       }
     });
 
@@ -195,18 +203,37 @@ Feedit.prototype.displayGui = function(){
       return position;
   }
     });
+
     // Draws container for key values
     $("#maindata").append(
-      '<div>'+
-      '<h5 style="color:gray">Visão Geral</h5>'+
-      '<div class="divider"></div>'+
-      '<h6 id="data-counter" style="padding:10px;"></h6>'+
+      '<h4 style="color:gray;">Visão Geral</h4>'+
+      '<div class="row">'+
+      '<div class="col s12 m6 l4" style="opacity:0">'+
+          '<div class="card-panel white" style="max-height:400px">'+
+            '<span class="gray-text" style="font-size:20px;" id="data-counter-view"></span>'+
+          '</div>'+
+      '</div>'+
+      
+      '<div class="col s12 m6 l4" style="opacity:0">'+
+          '<div class="card-panel white" style="max-height:400px">'+
+            '<span class="gray-text" style="font-size:20px;"></span>'+
+          '</div>'+
+      '</div>'+
+
+      '<div class="col s12 m6 l4" style="opacity:0">'+
+          '<div class="card-panel white" style="max-height:400px">'+
+            '<span class="gray-text" style="font-size:20px;"></span>'+
+          '</div>'+
+      '</div>'+
+
       '</div>'+
       '<div id="data-wrapper" class="grid" style="containerStyle: null;">'+
       // '<ul id="main-values" class="collapsible" data-collapsible="expandable">'+
-      '</ul>'+
-      '</div>');
+      '</ul>');
+      loadUserSettings();
 }
+
+
 
 
 Feedit.prototype.displayData = function(data){
@@ -227,41 +254,40 @@ Feedit.prototype.displayData = function(data){
 
         $(localchild_data).before(
         '<div class="collapsible-body row datarow" style="display:none;opacity:0" id="'+datacounter+'">'+
-        '   <span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
+            '<span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
         '</div>'
         );
         locales[Key.local].hiddenIDs.push(datacounter);
-
-        colorString(datacounter);
-
       }
+
       else if(initialisloaded == true){
         // adds data
         $(localchild_data).before(
         '<div class="collapsible-body row datarow" id="'+datacounter+'" style="background-color:#d5f6f7;">'+
-        '   <span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
+            '<span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
         '</div>'
         );
 
         // animates newly added background color
         if (userIsWatching == true && $(datacounter_id).closest("li").attr("class") == "active"){
-          $(datacounter_id).animate({backgroundColor: '#F7F7F7'}, 2000);
+          $(datacounter_id).animate({backgroundColor: '#fdfdfd'}, 2000);
         } else {
           newDataStack.push(datacounter_id);
         }
 
-        $("#data-counter").html("Você possui "+datacounter+" avaliações");
-
-        colorString(datacounter); // colors the string
+        $("#data-counter-view").html("Você possui "+datacounter+" avaliações");
+  
+         // colors the string
 
         // Sets the counter for each grading
-        $(localid_header)[0].childNodes[3].setAttribute("data-badge-caption",locales[Key.local].counters.ruim);
-        $(localid_header)[0].childNodes[4].setAttribute("data-badge-caption",locales[Key.local].counters.bom);
-        $(localid_header)[0].childNodes[5].setAttribute("data-badge-caption",locales[Key.local].counters.excelente);
+        var header =  $(localid_header)
+        header[0].childNodes[3].setAttribute("data-badge-caption",locales[Key.local].counters.ruim);
+        header[0].childNodes[4].setAttribute("data-badge-caption",locales[Key.local].counters.bom);
+        header[0].childNodes[5].setAttribute("data-badge-caption",locales[Key.local].counters.excelente);
 
         for (k=3;k<=5;k++){
-          if ($(localid_header)[0].childNodes[k].getAttribute("data-badge-caption") != 0 ){
-              $(localid_header).children().eq(k-1).css("display","block");
+          if (header[0].childNodes[k].getAttribute("data-badge-caption") != 0 ){
+              header.children().eq(k-1).css("display","block");
           }
         }
 
@@ -291,7 +317,6 @@ Feedit.prototype.displayData = function(data){
         '</div>'
       );
 
-      // colorString(datacounter);
       locales[Key.local].hiddenIDs.push(datacounter);
 
       button_refid = "#showmorebt-"+Key.local;
@@ -307,10 +332,14 @@ Feedit.prototype.displayData = function(data){
 
     }
 
+    colorString(datacounter);
+
 //  THIS PORTION WILL ONLY RUN ON NEW VALUES ARE ADDED TO THE DB WHILE THE APP IS RUNNING
     if (initialisloaded == true){ // adds and counts new badges only if it added after initload is complete
       newBadge = '<span id="badge-'+Key.local+'" class="new badge green" data-badge-caption="Nova"></span>'
       var localid_header = '#header-'+Key.local;
+      var header = $(localid_header)
+
       var localid_badge = '#badge-'+Key.local;
       var flag = $(localid_header).attr('hasflag');
       $(localid_header).attr('counter',parseInt($(localid_header).attr('counter'))+1);
@@ -318,17 +347,17 @@ Feedit.prototype.displayData = function(data){
       $(localid_badge).attr("data-badge-caption","Novas");
 
       if(flag == "0"){ // adds badge for the first time
-        $(localid_header).append(newBadge);
-        $(localid_header).attr('hasflag','1');
-        $(localid_header).attr('counter','1');
+        header.append(newBadge);
+        header.attr('hasflag','1');
+        header.attr('counter','1');
 
         // adds click listener
-        $(localid_header).click(function(){
-          $(localid_header).attr('hasflag',0);
-          $(localid_header).attr('counter',0);
-        $(localid_header).children().eq(5).animate({opacity: '0'}, 1000);
+        header.click(function(){
+          header.attr('hasflag',0);
+          header.attr('counter',0);
+          header.children().eq(5).animate({opacity: '0'}, 1000);
           setTimeout( function() {
-            $(localid_header).children().eq(5).remove();
+            header.children().eq(5).remove();
           }, 1000);
 
         });
@@ -382,7 +411,6 @@ Feedit.prototype.getData = function(){
   ref.limitToLast(limit).on("child_added", function(snapshot) {
     this.key = snapshot.key;
     this.val = snapshot.val();
-    console.log(snapshot.key);
     //
     // db[this.key] = this.val;
 
@@ -418,9 +446,6 @@ Feedit.prototype.getData = function(){
     }
 
     // Check if initial data has been loaded fully;
-
-    console.log(datacounter);
-    console.log(currentUser.count);
 
     if(datacounter == currentUser.count - 1 && initialisloaded == false){
       console.log("Initial data loading complete - launching initialisloaded as True");
@@ -494,98 +519,14 @@ Feedit.prototype.registerNewUser = function(){
   }
 }
 
-Feedit.prototype.userSettings = function(){
-  if (userSettingsnotLoaded == true){
-    $("#mainshow").append(
-      '<div id="user-modal" class="modal bottom-sheet">'+
-          '<div class="modal-content">'+
-          '<div class="container">'+
-          '<div class="row">'+
-              '<h4 style="color:grey">Configurações da Conta</h4>'+
-              '<h6 style="color:grey" class="left-align"><b>ID :</b> '+currentUser.uid+'</h6>'+
-          '</div>'+
-            '<div class="row center">'+
-            '<form id="form1" runat="server">'+
-                '<div class="image-upload">'+
-                '<label for="file-input">'+
-                '<img id="blah" height="100px" width="100px" class="circle" src="'+userimg+'">'+
-                '</label>'+
-                '<input id="file-input" type="file">'+
-                '</div>'+
-            '</form>'+
-            // '<a href="#!user"><img class="circle" width="100px" src="img/default-icon-user.png"></a>'+
-            '</div>'+
-            // '<div id="slider">'+
-            // 	'<form action="#">'+
-            //       '<p class="range-field">'+
-            //           '<input type="range" min="50" max="'+currentUser.count+'" step="5" />'+
-            //       '</p>'+
-            //   '</form>'+
-            // '</div>'+
-                    '<div class="row">'+
-                        '<div class="input-field col s6">'+
-                            '<input disabled placeholder="" id="username" type="text" class="validate">'+
-                            '<label class="active" for="username">Nome do usuário/empresa</label>'+
-                        '</div>'+
-                        '<div class="input-field col s6">'+
-                            '<input disabled placeholder="" id="email" type="text" class="validate">'+
-                            '<label class="active" for="email">Email</label>'+
-                        '</div>'+
-                    '</div>'+
-                    '<div class="row center">'+
-                        '<div class="col m4 s12">'+
-                          '<a class="userbt center waves-effect waves-light btn blue lighten-2"><i class="material-icons left">mode_edit</i>Editar</a>'+
-                        '</div>'+
-                        '<div class="col m4 s12">'+
-                          '<a class="userbt center waves-effect waves-light btn green lighten-2"><i class="material-icons left">play_for_work</i>Baixar dados</a>'+
-                        '</div>'+
-                        '<div class="col m4 s12">'+
-                          '<a class="userbt center waves-effect waves-light btn red lighten-2"><i class="material-icons left">lock</i>Redefinir senha</a>'+
-                        '</div>'+
-
-                    '</div>'+
-
-                                    // '<div class="row">'+
-                    // 		'<div class="input-field col s6">'+
-                    // 				'<input id="password" type="password" class="validate">'+
-                    // 				'<label for="password">Password</label>'+
-                    // 		'</div>'+
-                    // '</div>'+
-                    // '<div class="row">'+
-                    // 		'<div class="input-field col s12">'+
-                    // 				'<input id="email" type="email" class="validate">'+
-                    // 				'<label class="active" for="email">Email</label>'+
-                    // 		'</div>'+
-                    // '</div>'+
-                    // '<div class="row">'+
-                    // 		'<div class="col s12">'+
-                    // 				'This is an inline input field:'+
-                    // 				'<div class="input-field inline">'+
-                    // 						'<input id="email" type="email" class="validate">'+
-                    // 						'<label class="active" for="email" data-error="wrong" data-success="right">Email</label>'+
-                    // 				'</div>'+
-                    // 		'</div>'+
-                    // '</div>'+
-                '</form>'+
-          '</div>'+
-        '</div>'+
-          '<div class="modal-footer">'+
-              '<a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Fechar</a>'+
-          '</div>'+
-      '</div>'
-    );
-
-  userSettingsnotLoaded = false;
-
-  }
-
+Feedit.prototype.handleUserSettings = function(){
+  $('#user-modal').modal("open");
   $("#file-input").change(function(){
       readURL(this);
   });
 
   $("#username").attr("placeholder",currentUser.displayName);
   $("#email").attr("placeholder",currentUser.email);
-  $('.modal').modal();
 }
 
 
@@ -629,6 +570,44 @@ Feedit.prototype.onAuthStateChanged = function(user) {
     initialstate = 0;
   }
 };
+
+Feedit.prototype.loadChart = function(){
+  $(".card-panel").parent().animate({opacity: '1'}, 1000);
+  $(".card-panel").first().append(
+  '<canvas id="chart" width="400" class="row center" height="400"></canvas>');
+  var ctx = $("#chart");
+  var myChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: [
+          "Excelente",
+          "Bom",
+          "Ruim"
+      ],
+      datasets: [
+          {
+              data: [general.counters.excelente, general.counters.bom, general.counters.ruim],
+              backgroundColor: [
+                  "#67e200",
+                  "#ff9800",
+                  "#dd2c00"
+              ],
+              hoverBackgroundColor: [
+                  "#67e200",
+                  "#ff9800",
+                  "#dd2c00"
+              ]
+          }]
+    },
+      options: {
+              animation:{
+                  animateScale:true
+              }
+          }
+});
+
+};
+
 
 function login(){
   var valemail = $('#useremail').attr('class');
@@ -714,18 +693,15 @@ String.prototype.capitalize = function() {
 }
 
 function colorString(counter){
-
-  console.log($("#"+counter));
-
-  // if ($("#"+counter).childNodes[1].innerHTML == "Excelente"){
-  //   $("#"+counter).childNodes[1].outerHTML = '<span class="col s4 left-align nota-excelente">Excelente</span>'
-  // }
-  // else if ($("#"+counter).childNodes[1].innerHTML == "Bom"){
-  //   $("#"+counter).childNodes[1].outerHTML = '<span class="col s4 left-align nota-bom">Bom</span>'
-  // }
-  // else if ($("#"+counter).childNodes[1].innerHTML == "Ruim"){
-  //   $("#"+counter).childNodes[1].outerHTML = '<span class="col s4 left-align nota-ruim">Ruim</span>'
-  // }
+  if ($("#"+counter)[0].childNodes[0].innerHTML == "Excelente"){
+    $("#"+counter)[0].childNodes[0].outerHTML = '<span class="col s4 left-align nota-excelente">Excelente</span>';
+  }
+  else if ($("#"+counter)[0].childNodes[0].innerHTML == "Bom"){
+    $("#"+counter)[0].childNodes[0].outerHTML = '<span class="col s4 left-align nota-bom">Bom</span>';
+  }
+  else if ($("#"+counter)[0].childNodes[0].innerHTML == "Ruim"){
+    $("#"+counter)[0].childNodes[0].outerHTML = '<span class="col s4 left-align nota-ruim">Ruim</span>';
+  }
 }
 
 function showDesktopNotification(key){
@@ -824,7 +800,7 @@ function checkStack() {
   if (newDataStack.length != 0){
     for (i = newDataStack.length-1; i+1 != 0;i--){
         if ($(newDataStack[i]).parent().parent().attr("class") == "active"){
-          $(newDataStack[i]).animate({backgroundColor: '#F7F7F7'}, 3000);
+          $(newDataStack[i]).animate({backgroundColor: '#fdfdfd'}, 3000);
           newDataStack.splice(i, 1);
         }
     }
@@ -887,4 +863,87 @@ function render(src){
     });
   };
   image.src = src;
+}
+
+function loadUserSettings(){
+  $("#mainview").append(
+  '<div id="user-modal" class="modal bottom-sheet">'+
+      '<div class="modal-content">'+
+      '<div class="container">'+
+      '<div class="row">'+
+          '<h4 style="color:grey">Configurações da Conta</h4>'+
+          '<h6 style="color:grey" class="left-align"><b>ID :</b> '+currentUser.uid+'</h6>'+
+      '</div>'+
+        '<div class="row center">'+
+        '<form id="form1" runat="server">'+
+            '<div class="image-upload">'+
+            '<label for="file-input">'+
+            '<img id="blah" height="100px" width="100px" class="circle" src="'+userimg+'">'+
+            '</label>'+
+            '<input id="file-input" type="file">'+
+            '</div>'+
+        '</form>'+
+        // '<a href="#!user"><img class="circle" width="100px" src="img/default-icon-user.png"></a>'+
+        '</div>'+
+        // '<div id="slider">'+
+        // 	'<form action="#">'+
+        //       '<p class="range-field">'+
+        //           '<input type="range" min="50" max="'+currentUser.count+'" step="5" />'+
+        //       '</p>'+
+        //   '</form>'+
+        // '</div>'+
+                '<div class="row">'+
+                    '<div class="input-field col s6">'+
+                        '<input disabled placeholder="" id="username" type="text" class="validate">'+
+                        '<label class="active" for="username">Nome do usuário/empresa</label>'+
+                    '</div>'+
+                    '<div class="input-field col s6">'+
+                        '<input disabled placeholder="" id="email" type="text" class="validate">'+
+                        '<label class="active" for="email">Email</label>'+
+                    '</div>'+
+                '</div>'+
+                '<div class="row center">'+
+                    '<div class="col m4 s12">'+
+                      '<a class="userbt center waves-effect waves-light btn blue lighten-2"><i class="material-icons left">mode_edit</i>Editar</a>'+
+                    '</div>'+
+                    '<div class="col m4 s12">'+
+                      '<a class="userbt center waves-effect waves-light btn green lighten-2"><i class="material-icons left">play_for_work</i>Baixar dados</a>'+
+                    '</div>'+
+                    '<div class="col m4 s12">'+
+                      '<a class="userbt center waves-effect waves-light btn red lighten-2"><i class="material-icons left">lock</i>Redefinir senha</a>'+
+                    '</div>'+
+
+                '</div>'+
+
+                                // '<div class="row">'+
+                // 		'<div class="input-field col s6">'+
+                // 				'<input id="password" type="password" class="validate">'+
+                // 				'<label for="password">Password</label>'+
+                // 		'</div>'+
+                // '</div>'+
+                // '<div class="row">'+
+                // 		'<div class="input-field col s12">'+
+                // 				'<input id="email" type="email" class="validate">'+
+                // 				'<label class="active" for="email">Email</label>'+
+                // 		'</div>'+
+                // '</div>'+
+                // '<div class="row">'+
+                // 		'<div class="col s12">'+
+                // 				'This is an inline input field:'+
+                // 				'<div class="input-field inline">'+
+                // 						'<input id="email" type="email" class="validate">'+
+                // 						'<label class="active" for="email" data-error="wrong" data-success="right">Email</label>'+
+                // 				'</div>'+
+                // 		'</div>'+
+                // '</div>'+
+            '</form>'+
+      '</div>'+
+    '</div>'+
+      '<div class="modal-footer">'+
+          '<a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Fechar</a>'+
+      '</div>'+
+  '</div>'
+);
+
+  $('#user-modal').modal();
 }

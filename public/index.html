@@ -20,6 +20,7 @@
     <script type="text/javascript" src="js/Chart.bundle.min.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
     <script type="text/javascript" src="js/charts.js"></script>
+    <script type="text/javascript" src="js/us.js"></script>
     <script type="application/javascript" src="sw.js"></script>
     <script type="text/javascript" src="js/jquery.scrollbar.min.js"></script>
     <script type="text/javascript" src="js/jquery.color-2.1.2.min.js"></script>
@@ -57,7 +58,7 @@
 
         // Initialize Firebase
     </script>
-    <div id="mainshow" class="mainbg Site-content">
+    <div id="mainview" class="mainbg Site-content">
 
         <!--   NavBar  -->
       <div class="navbar-fixed" style="height:50px;">
@@ -67,7 +68,7 @@
                 <ul class="left">
                   <li>
                     <div id="slide-button" class="row" style="display:none">
-                    <a href="#" data-activates="slide-out" class="button-collapse show-on-large" style="color:white;width:130px;margin-left:0px;"><i style="display:inline-block" class="material-icons">menu</i><div style="position:relative;top:-7px;margin-left:10px;color:white;display:inline-block">Opções</div></a>
+                    <a href="#" data-activates="slide-out" class="button-collapse show-on-large" style="color:rgb(238, 71, 58);width:130px;margin-left:0px;"><i style="display:inline-block" class="material-icons">menu</i><div style="position:relative;top:-7px;margin-left:10px;color:white;display:inline-block"></div></a>
                     </div>
                   <li>
                 </ul>
@@ -90,7 +91,7 @@
       </ul>
 
         <!-- Content Section -->
-      <div id="main-content" class="Site-content" style="padding-bottom:50px;">
+      <div id="main-content" class="Site-content" style="display:none"></div>
 
 
       <div id="initloading" class="preloader-wrapper active">
@@ -258,7 +259,7 @@
           </div>
       </div>
       <div class="footer-copyright">
-          <div class="container" style="margin-left:10px;">
+          <div class="container" style="margin-left:10px; font-size:11px;">
               © Feedit - pre-alpha v0.1
           </div>
       </div>
