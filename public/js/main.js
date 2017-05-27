@@ -85,7 +85,26 @@ Feedit.prototype.startHandler = function(){
 
 Feedit.prototype.onDataLoaded = function(){
   $('.collapsible').collapsible();
-  this.loadChart();
+
+  window.addEventListener('beforeinstallprompt', function(e) {
+  // beforeinstallprompt Event fired
+
+  // e.userChoice will return a Promise. 
+  // For more details read: https://developers.google.com/web/fundamentals/getting-started/primers/promises
+  e.userChoice.then(function(choiceResult) {
+
+    console.log(choiceResult.outcome);
+
+    if(choiceResult.outcome == 'dismissed') {
+      console.log('User cancelled home screen install');
+    }
+    else {
+      console.log('User added to home screen');
+    }
+  });
+});
+  
+  // this.loadChart();
 
   keys = Object.keys(locales);
 
@@ -325,8 +344,7 @@ Feedit.prototype.displayData = function(data){
       });
 
       $(localid_header).click(function(){
-        setTimeout(function(){ refreshgrid(); }, 150);
-        setTimeout(function(){ refreshgrid(); }, 250);
+        setTimeout(function(){ refreshgrid(); }, 300);
         setTimeout(function(){ checkStack(); }, 1000);
       });
 
@@ -556,8 +574,8 @@ Feedit.prototype.onAuthStateChanged = function(user) {
 
     if (initialstate == 0){
       Materialize.toast("Usuário autenticado com sucesso!",4000);
-      feedit.displayGui(initialstate);
-      feedit.startHandler(initialstate);
+      feedit.displayGui();
+      feedit.startHandler();
     }
 
     initialstate=1
