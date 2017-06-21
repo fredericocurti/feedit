@@ -272,8 +272,8 @@ Feedit.prototype.displayData = function(data){
       if(initialisloaded == false){
 
         $(localchild_data).before(
-        '<div class="collapsible-body row datarow" style="display:none;opacity:0" id="'+datacounter+'">'+
-            '<span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
+        '<div class="collapsible-body row datarow" style="display:none;" id="'+datacounter+'">'+
+            '<span>'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
         '</div>'
         );
         locales[Key.local].hiddenIDs.push(datacounter);
@@ -283,7 +283,7 @@ Feedit.prototype.displayData = function(data){
         // adds data
         $(localchild_data).before(
         '<div class="collapsible-body row datarow" id="'+datacounter+'" style="background-color:#d5f6f7;">'+
-            '<span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
+            '<span>'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
         '</div>'
         );
 
@@ -324,8 +324,8 @@ Feedit.prototype.displayData = function(data){
                 '<li id="'+Key.local+'"">'+ //style="max-height:300px;overflow-y:auto;
                     '<div class="collapsible-header waves-effect waves-subtle" hasflag="0" id="header-'+Key.local+'"><i class="tiny material-icons" style="display:none;margin-right:7px !important;">label_outline</i><span id="counter-'+Key.local+'"class="badge counter-badge">'+1+'</span>'+ Key.local.capitalize() + '</div>'+
                     '<div id="data-'+Key.local+'" class="collapsible-body" style="padding:0px;overflow-y:auto;max-height:300px;">'+ // DIV CONTAINING KEYS
-                        '<div class="collapsible-body row datarow" id="'+datacounter+'" style="opacity:0;display:none">'+
-                            '<span class="col s4 left-align">'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
+                        '<div class="collapsible-body row datarow" id="'+datacounter+'" style="display:none">'+
+                            '<span>'+ Key.nota.capitalize() +'</span><span class="col s4 center-align">' + Key.hora + '</span><span class="col s4 right-align">' + Key.data +'</span>'+
                         '</div>'+
                         '<div class="collapsible-body row center" style="margin-bottom:0px;padding:0px;">'+
                             '<a id="showmorebt-'+Key.local+'" class="btn-flat waves-effect waves-light center-align" style="display:none;color:gray"><i class="material-icons">add</i>Mostrar mais</a>'+
@@ -382,24 +382,24 @@ Feedit.prototype.displayData = function(data){
       }
 
       placesdeduped = Object.keys(locales);
-      var mustopen = [];
+      // var mustopen = [];
 
-      // Checks for the cards that are open
-      for(i=0;i<placesdeduped.length;i++){
-        var currentplace = "#"+placesdeduped[i];
-        if ($(currentplace).attr("class") == 'active'){
-          mustopen.push(placesdeduped[i]);
-        }
-      }
+      // // Checks for the cards that are open
+      // for(i=0;i<placesdeduped.length;i++){
+      //   var currentplace = "#"+placesdeduped[i];
+      //   if ($(currentplace).attr("class") == 'active'){
+      //     mustopen.push(placesdeduped[i]);
+      //   }
+      // }
 
-      $('.collapsible').collapsible(); // reloads collapsible, closes all
+      // $('.collapsible').collapsible(); // reloads collapsible, closes all
 
-      // opens the ones that should stay open
-      for(j=0;j<mustopen.length;j++){
-        place_toopen = mustopen[j];
-        col_to_open = "#col-"+place_toopen;
-        $(col_to_open).collapsible('open',0);
-      }
+      // // opens the ones that should stay open
+      // for(j=0;j<mustopen.length;j++){
+      //   place_toopen = mustopen[j];
+      //   col_to_open = "#col-"+place_toopen;
+      //   $(col_to_open).collapsible('open',0);
+      // }
 
     } // CLOSES initialisloaded = TRUE
 
@@ -777,8 +777,9 @@ function fixheaders(){
   for(i=0;i < places.length;i++){
       place = places[i];
       $("#header-"+place).click();
-      $(".collapsible").collapsible('close',i);
+      $("#col-"+place).collapsible('close',i);
   }
+
   h = $(".grid-item");
   console.log("Headers fixed, showing headers");
   setTimeout(function(){ animateInsert(); }, 500);
@@ -833,7 +834,7 @@ function showMoreData(local){
   if (hiddenIDs.length != 0){
     for(i=initlen-1; i != initlen - 51;i--){
       $("#"+hiddenIDs[i]).css("display","block");
-      $("#"+hiddenIDs[i]).animate({opacity: '1'}, 2000);
+      // $("#"+hiddenIDs[i]).animate({opacity: '1'}, 2000);
       locales[place].hiddenIDs.splice(i,1);
     }
   }

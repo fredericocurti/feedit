@@ -1,0 +1,41 @@
+{
+  "name": "feedit",
+  "version": "1.0.0",
+  "description": "Realtime feedback management and monitoring",
+  "main": "index.js",
+  "dependencies": {
+    "browserify": "^14.3.0",
+    "firebase-admin": "^4.1.2",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4"
+  },
+  "babel": {
+    "plugins": [
+      "transform-react-jsx",
+      "babel-preset-react",
+      "babel-preset-es2015"
+    ]
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fredericocurti/feedit.git"
+  },
+  "author": "Frederico Curti",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fredericocurti/feedit/issues"
+  },
+  "homepage": "https://github.com/fredericocurti/feedit#readme",
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "bundle-collapser": "^1.2.1",
+    "envify": "^4.0.0",
+    "uglify-js": "^3.0.12",
+    "uglifyify": "^3.0.4"
+  }
+}

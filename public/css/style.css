@@ -130,9 +130,9 @@ main {
   color:gray;
 }
 
-.collapsible-header.active{
+/*.collapsible-header.active{
   box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.09);
-}
+}*/
 
 .user-img{
   pointer-events: none;
