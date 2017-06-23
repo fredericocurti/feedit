@@ -36,14 +36,17 @@ export default class App extends Component {
     authed: false,
     loading: true,
   }
+
   componentDidMount () {
     this.removeListener = firebaseAuth().onAuthStateChanged((user) => {
       if (user) {
+        console.log(user)
         this.setState({
           authed: true,
           loading: false,
         })
       } else {
+        console.log("User is not logged in")
         this.setState({
           authed: false,
           loading: false
@@ -51,14 +54,16 @@ export default class App extends Component {
       }
     })
   }
+
   componentWillUnmount () {
     this.removeListener()
   }
+
   render() {
     return this.state.loading === true ? <h1>Loading</h1> : (
       <BrowserRouter>
         <div>
-        <Navbar brand='feedit' right className='center' style={{backgroundColor:"#FFFFFF"}}>
+        <Navbar brand='feedit' href={null} right className='center' style={{backgroundColor:"#FFFFFF"}}>
           <ul>
             <li>
               {this.state.authed
@@ -77,7 +82,7 @@ export default class App extends Component {
           <div className="container">
             <div className="row">
               <Switch>
-                <Route path='/' exact component={Dashboard} />
+                <Route path='/' exact component={Login} />
                 <PublicRoute authed={this.state.authed} path='/login' component={Login} />
                 <PrivateRoute authed={this.state.authed} path='/dashboard' component={Dashboard} />
                 <Route render={() => <h3>No Match</h3>} />

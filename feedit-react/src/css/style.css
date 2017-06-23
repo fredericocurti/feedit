@@ -43,6 +43,25 @@ main {
 .datarow{
   margin:0px !important;
   padding:4px !important;
+  border-bottom: 1px solid #ddd;
+}
+
+.masonry{
+  width: 100%;
+  min-height: 500px;
+}
+
+.collapsible.popout {
+  width:47%;
+  padding: 8px;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 12px !important;
+  min-height: 20px;
+  max-height: 380px;
+  transition: opacity 1s ease-out;
+  opacity: 1;
+  overflow: hidden;
 }
 
 .Site {
@@ -86,14 +105,22 @@ main {
   box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 1px 5px 0 rgba(0,0,0,0.12), 0 3px 1px -2px rgba(0,0,0,0.2);
 }
 
-.grid-item {
+/*.grid-item {
   width:50%;
   padding: 8px;
   max-height: 370px;
   transition: opacity 1s ease-out;
   opacity: 0;
   overflow: hidden;
-}
+}*/
+
+/*.grid-sizer,
+.grid-item { width: 50%; }
+
+.gutter-sizer { width: 20%; }
+
+.grid-item--width2 { width: 48%; }*/
+
 
 .grid-item.loaded {
     opacity: 1;
@@ -174,8 +201,10 @@ main {
     display:block;
     border-bottom: 1px solid #ddd;
     box-sizing: border-box;
-    padding: 0.5rem;
+    padding: 0rem;
     color:black;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 .waves-effect.waves-subtle .waves-ripple {

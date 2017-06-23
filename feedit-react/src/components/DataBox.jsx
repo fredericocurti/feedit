@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {Collapsible,CollapsibleItem} from 'react-materialize'
+import DataRow from './DataRow.jsx'
 import firebase from 'firebase'
 
 class DataBox extends React.Component {
@@ -8,26 +9,37 @@ class DataBox extends React.Component {
 		this.state = { data: [] };
 	}
 
-	// componentWillMount(){
-    // /* Create reference to messages in Firebase Database */
-    // let messagesRef = firebase.database().ref(firebase.auth().currentUser.uid + '/data/feedbacks/banheiro').orderByKey().limitToLast(100);
-    // messagesRef.on('child_added', snapshot => {
-    //   /* Update React state when message is added at Firebase Database */
-    //   let message = { text: snapshot.val(), id: snapshot.key };
-    //   this.setState({ data: [message].concat(this.state.messages) });
-    // })
-  	// }
+	componentWillMount(){
+    /* Create reference to messages in Firebase Database */
+    let messagesRef = firebase.database().ref(firebase.auth().currentUser.uid + '/data/feedbacks/' + this.props.boxname ).orderByKey().limitToLast(100);
+    messagesRef.on('child_added', snapshot => {
+       /* Update React state when message is added at Firebase Database */
 
+       let review = { 
+		   key : snapshot.key,
+		   score: snapshot.val().score,
+		   date: snapshot.val().date };
+		
+	   var datas = this.state.data
+	   datas.unshift(review)
+       this.setState({ data: datas });
+     })
+  	}
 
 	render () {
 		return (
 			<Collapsible popout>
-				<CollapsibleItem header='First' icon='filter_drama'>
-					Lorem ipsum dolor sit amet.
+				{/*<CollapsibleItem header={this.props.boxname.replace(/\b\w/g, l => l.toUpperCase())}>*/}
+				<CollapsibleItem header={[
+				this.props.boxname.replace(/\b\w/g, l => l.toUpperCase()),
+				<span className="new badge circular-badge" style={{backgroundColor:'#67e200'}} data-badge-caption="0"></span>,
+				<span className="new badge circular-badge" style={{backgroundColor:'red'}} data-badge-caption="0"></span>,
+				<span className="new badge circular-badge" style={{backgroundColor:'lightblue'}} data-badge-caption="0"></span>,
+				
+				]}>
+					{this.state.data.map( review => <DataRow key={review.key} score={review.score} date={review.date} />)}
 				</CollapsibleItem>
-				{
-					this.state.data.map( message => <CollapsibleItem key={message.id}> {message.text} </CollapsibleItem>)
-				}
+
 			</Collapsible>
 		);
 		}
