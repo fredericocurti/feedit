@@ -39,9 +39,15 @@ class DataBoxContainer extends React.Component {
 
     renderDataBoxes(){
         var boxarray = []
-        for (var i = 0; i < Object.keys(this.state.boxes).length; i ++){
-            boxarray.push(<DataBox key={Object.keys(this.state.boxes)[i]} boxname={Object.keys(this.state.boxes)[i]}/>)
+        if (this.state.boxes != null){
+            for (var i = 0; i < Object.keys(this.state.boxes).length; i ++){
+                boxarray.push(<DataBox key={Object.keys(this.state.boxes)[i]} boxname={Object.keys(this.state.boxes)[i]}/>)
+            }
+        } else {
+            return <h4> Ainda não existe nenhum feedback para esse usuário, por favor configure
+                        os aparelhos corretamente </h4>
         }
+
         return boxarray
     }
 
@@ -62,7 +68,7 @@ onItemClick(event) {
         }
 
 		return (
-            <div>
+            <div className='col s12'>
             <Masonry
                 enableResizableChildren={true}
                 className={'masonry'} // default ''

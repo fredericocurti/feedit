@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Route, BrowserRouter, Link, Redirect, Switch } from 'react-router-dom'
-import {Navbar,NavItem} from 'react-materialize'
+import {Navbar,NavItem,Col,Preloader} from 'react-materialize'
 import Login from './Login'
 import Register from './Register'
 import Dashboard from './protected/Dashboard.jsx'
@@ -60,7 +60,7 @@ export default class App extends Component {
   }
 
   render() {
-    return this.state.loading === true ? <h1>Loading</h1> : (
+    return this.state.loading === true ? <div className='row center' style={{marginTop: 25 + '%'}}><Preloader color='red' size='big'/></div> : (
       <BrowserRouter>
         <div>
         <Navbar brand='feedit' href={null} right className='center' style={{backgroundColor:"#FFFFFF"}}>
@@ -79,15 +79,13 @@ export default class App extends Component {
             </li>
           </ul>
         </Navbar>
-          <div className="container">
-            <div className="row">
+          <div className="container" style={{width : 100 + '%'}}>
               <Switch>
                 <Route path='/' exact component={Login} />
                 <PublicRoute authed={this.state.authed} path='/login' component={Login} />
                 <PrivateRoute authed={this.state.authed} path='/dashboard' component={Dashboard} />
                 <Route render={() => <h3>No Match</h3>} />
               </Switch>
-            </div>
           </div>
         </div>
       </BrowserRouter>
