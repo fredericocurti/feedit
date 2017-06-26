@@ -42,7 +42,7 @@ main {
 }
 
 .datarow {
-  transition: background-color 0.5s ease;
+  transition: background-color 2s ease;
   background-color: #fdfdfd;
   margin:0px !important;
   padding:4px !important;

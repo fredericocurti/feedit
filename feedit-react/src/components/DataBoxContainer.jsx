@@ -10,8 +10,6 @@ class DataBoxContainer extends React.Component {
         this.state = {
             boxes : []
         }
-        
-
 	}
 
     fetchData(){

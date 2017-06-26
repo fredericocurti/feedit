@@ -10,9 +10,11 @@ class DataBox extends React.Component {
 		super(props);
 		this.resetNewBadge = this.resetNewBadge.bind(this)
 		this.updateChildren = this.updateChildren.bind(this)
+		this.col = this.col.bind(this)
 		this.state = {
 			initialHasLoaded: false,
 			newUnseen: 0,
+			isOpen : false,
 			data: [],
 			counters: {
 				initial : 0,
@@ -116,7 +118,7 @@ class DataBox extends React.Component {
   	}
 
 	rowVisibilityManager(){
-		if (this.state.initialHasLoaded == false){
+		if (this.state.initialHasLoaded == true){
 			return true
 		} else {
 			return false
@@ -132,8 +134,36 @@ class DataBox extends React.Component {
 		this.collapsible.updateChildren(this.collapsible.state.children)
 	}
 
+	setOpen(){
+		console.log(this.props.boxname + ' is open')
+		this.setState(
+			{ isOpen : true}
+		)
+	}
+
+	setClosed(){
+		console.log(this.props.boxname + ' is closed')
+		this.setState(
+			{ isOpen : false}
+		)
+	}
+
+	col(){
+		console.log('teste')
+	}
+
 
 	render () {
+
+		var triggerarray = [
+					this.props.boxname.replace(/\b\w/g, l => l.toUpperCase()),
+					<span key={this.props.boxname + '-total-counter'} className="badge counter-badge" data-badge-caption={this.state.data.length}></span>,
+					this.showNewBadge(),
+					this.showRuimBadge(),
+					this.showBomBadge(),
+					this.showExcelenteBadge()
+				]
+
 		return (
 			/*<Collapsible popout>
 				<CollapsibleItem header={[
@@ -144,14 +174,19 @@ class DataBox extends React.Component {
 				ref = {(CollapsibleItem) => {this.collapsible = CollapsibleItem}}/>
 			</Collapsible>*/
 			
-			<Collapsible openedClassName='Collapsible open' triggerClassName='Collapsible__trigger waves-effect waves-subtle' 
-			triggerOpenedClassName='Collapsible__trigger waves-effect waves-subtle open' 
-			trigger={[
-					this.props.boxname.replace(/\b\w/g, l => l.toUpperCase()),
-					<span key={this.props.boxname + '-total-counter'} className="badge counter-badge" data-badge-caption={this.state.data.length}></span>,
-					this.showNewBadge(),this.showRuimBadge(),this.showBomBadge(),this.showExcelenteBadge()
-				]} transitionTime={220} easing='ease-out'>
-				{this.state.data.map( review => <DataRow key={review.key} new={this.rowVisibilityManager()} score={review.score} date={review.date} uc={this.updateChildren}/>)}
+			<Collapsible 
+				onOpen={this.col} 
+				openedClassName='Collapsible open' 
+				triggerClassName='Collapsible__trigger waves-effect waves-subtle' 
+				triggerOpenedClassName='Collapsible__trigger waves-effect waves-subtle open'
+				transitionTime={220} 
+				easing='ease-out'
+				trigger = { this.props.boxname } 
+				>
+
+					{ this.state.data.map( review => <DataRow key={review.key} isNew={this.rowVisibilityManager()} 
+					score={review.score} date={review.date} uc={this.updateChildren}/>) }
+
 			</Collapsible>
 		);
 	}

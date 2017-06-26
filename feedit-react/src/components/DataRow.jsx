@@ -1,17 +1,30 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 
-class DataRow extends React.Component {
+class DataRow extends Component {
 	constructor(props){
 		super(props);
         this.onRowClick = this.onRowClick.bind(this)
         this.state = {
-            color: false
+            isNew: this.props.isNew
         }
 	}
 
-	componentWillMount(){
+	componentWillMount(){  
   	}
+
+    componentDidMount(){
+        this.refresh = setTimeout( 
+        () => this.setSeen(),
+        500 );
+    }
+
+    setSeen(){
+        this.setState(
+            { isNew : false }
+        )
+    }
+
 
     coloredGrade(grade){
         return ( 
@@ -28,10 +41,10 @@ class DataRow extends React.Component {
     }
 
 	render () {
-        if (this.state.color){
+        if (this.state.isNew){
             var stylebg = { backgroundColor : 'lightblue' }
         } else {
-            var stylebg = {}
+            var stylebg = { backgroundColor: '#f8f8f8'}
         }
 		return (
             <div className={'datarow row'} onClick={this.onRowClick} style={stylebg}>
