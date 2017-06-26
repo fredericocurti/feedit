@@ -4,27 +4,21 @@ import moment from 'moment';
 class DataRow extends Component {
 	constructor(props){
 		super(props);
-        this.onRowClick = this.onRowClick.bind(this)
         this.state = {
             isNew: this.props.isNew
         }
 	}
 
-	componentWillMount(){  
+	componentWillMount(){
   	}
 
     componentDidMount(){
-        this.refresh = setTimeout( 
-        () => this.setSeen(),
-        500 );
     }
+
 
     setSeen(){
-        this.setState(
-            { isNew : false }
-        )
-    }
-
+        this.setState({ isNew : false })
+        }
 
     coloredGrade(grade){
         return ( 
@@ -32,19 +26,27 @@ class DataRow extends Component {
         )
     }
 
-    onRowClick() {
-        console.log("row clicked")
-        var current = this.state.color
-        this.setState({
-            color: !current
-        })
+    // onRowClick() {
+    //     console.log("row clicked")
+    //     var current = this.state.color
+    //     this.setState({
+    //         color: !current
+    //     })
+    // }
+
+    componentDidUpdate(){
+        if (this.state.isNew && this.props.boxstate){
+            this.refresh = setTimeout( 
+            () => this.setSeen(),
+            500 );
+        }
     }
 
 	render () {
         if (this.state.isNew){
             var stylebg = { backgroundColor : 'lightblue' }
         } else {
-            var stylebg = { backgroundColor: '#f8f8f8'}
+            var stylebg = { backgroundColor: '#f9f9f9'}
         }
 		return (
             <div className={'datarow row'} onClick={this.onRowClick} style={stylebg}>

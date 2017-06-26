@@ -3,14 +3,13 @@ import React, { Component } from 'react';
 import NewBadge from './NewBadge.jsx'
 import DataRow from './DataRow.jsx'
 import firebase from 'firebase'
-import Collapsible from 'react-collapsible'
+import Collapsible from 'react-collapsible-mine'
 
 class DataBox extends React.Component {
 	constructor(props){
 		super(props);
 		this.resetNewBadge = this.resetNewBadge.bind(this)
-		this.updateChildren = this.updateChildren.bind(this)
-		this.col = this.col.bind(this)
+		this.handleCollapsibleClick = this.handleCollapsibleClick.bind(this)
 		this.state = {
 			initialHasLoaded: false,
 			newUnseen: 0,
@@ -74,7 +73,6 @@ class DataBox extends React.Component {
 	}
 
 	componentWillUpdate(){
-		this.showNewBadge()
 	}
 
 	componentWillMount(){
@@ -117,6 +115,24 @@ class DataBox extends React.Component {
 
   	}
 
+	componentDidMount(){
+	}
+
+	handleCollapsibleClick(){
+		if (this.state.isOpen){
+			this.collapsible.closeCollapsible()
+			this.setState(
+				{ isOpen : false }
+			)
+		} else {
+			this.collapsible.openCollapsible()
+			this.setState(
+				{ isOpen : true }
+			)
+		}
+		// console.log( React.Children.toArray( this.collapsible.props.children ) ) 
+	}
+
 	rowVisibilityManager(){
 		if (this.state.initialHasLoaded == true){
 			return true
@@ -125,43 +141,16 @@ class DataBox extends React.Component {
 		}
 	}
 
-	componentDidMount(){
-		console.log(this.collapsible)
-	}
-
-	updateChildren(){
-		console.log('updating children')
-		this.collapsible.updateChildren(this.collapsible.state.children)
-	}
-
-	setOpen(){
-		console.log(this.props.boxname + ' is open')
-		this.setState(
-			{ isOpen : true}
-		)
-	}
-
-	setClosed(){
-		console.log(this.props.boxname + ' is closed')
-		this.setState(
-			{ isOpen : false}
-		)
-	}
-
-	col(){
-		console.log('teste')
-	}
-
 
 	render () {
 
 		var triggerarray = [
 					this.props.boxname.replace(/\b\w/g, l => l.toUpperCase()),
 					<span key={this.props.boxname + '-total-counter'} className="badge counter-badge" data-badge-caption={this.state.data.length}></span>,
-					this.showNewBadge(),
 					this.showRuimBadge(),
 					this.showBomBadge(),
-					this.showExcelenteBadge()
+					this.showExcelenteBadge(),
+					this.showNewBadge()
 				]
 
 		return (
@@ -175,17 +164,20 @@ class DataBox extends React.Component {
 			</Collapsible>*/
 			
 			<Collapsible 
-				onOpen={this.col} 
-				openedClassName='Collapsible open' 
+				ref = { (Collapsible) => { this.collapsible = Collapsible }}
+				handleTriggerClick = { this.handleCollapsibleClick }
+				openedClassName='open' 
 				triggerClassName='Collapsible__trigger waves-effect waves-subtle' 
 				triggerOpenedClassName='Collapsible__trigger waves-effect waves-subtle open'
-				transitionTime={220} 
-				easing='ease-out'
-				trigger = { this.props.boxname } 
+				transitionTime={150} 
+				easing='ease'
+				trigger = { triggerarray }
 				>
 
-					{ this.state.data.map( review => <DataRow key={review.key} isNew={this.rowVisibilityManager()} 
-					score={review.score} date={review.date} uc={this.updateChildren}/>) }
+					{ this.state.data.map( review => 
+						<DataRow key={review.key} isNew={this.rowVisibilityManager() } 
+						score={review.score} date={review.date} boxstate={this.state.isOpen} /> )
+					}
 
 			</Collapsible>
 		);

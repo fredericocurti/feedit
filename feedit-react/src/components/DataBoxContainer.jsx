@@ -36,17 +36,18 @@ class DataBoxContainer extends React.Component {
     
 
     renderDataBoxes(){
-        var boxarray = []
+        var boxArray = []
+        var boxKeys = Object.keys(this.state.boxes)
         if (this.state.boxes != null){
-            for (var i = 0; i < Object.keys(this.state.boxes).length; i ++){
-                boxarray.push(<DataBox key={Object.keys(this.state.boxes)[i]} boxname={Object.keys(this.state.boxes)[i]}/>)
+            for (var i = 0; i < boxKeys.length; i ++){
+                boxArray.push(<DataBox key={boxKeys[i]} boxname={boxKeys[i]}/>)
             }
         } else {
             return <h4> Ainda não existe nenhum feedback para esse usuário, por favor configure
                         os aparelhos corretamente </h4>
         }
 
-        return boxarray
+        return boxArray
     }
 
 
@@ -59,8 +60,10 @@ onItemClick(event) {
 
 	render () {
         const masonryOptions = {
-            transitionDuration: 200,
-            enableResizableChildren: true
+            transitionDuration: 250,
+            enableResizableChildren: true,
+            gutter: 40,
+            // columnWidth:{ width : 20 + '%' }
         }
             const masonryStyle = {
         }
@@ -74,7 +77,7 @@ onItemClick(event) {
                 style={masonryStyle}
                 options={masonryOptions} // default {}
                 disableImagesLoaded={false} // default false
-                updateOnEachImageLoad={false} // default false and works only if disableImagesLoaded is false
+                updateOnEachImageLoad={false}  // default false and works only if disableImagesLoaded is false
 
             >
                 { this.renderDataBoxes() }

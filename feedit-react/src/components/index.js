@@ -60,7 +60,7 @@ export default class App extends Component {
   }
 
   render() {
-    return this.state.loading === true ? <div className='row center' style={{marginTop: 25 + '%'}}><Preloader color='red' size='big'/></div> : (
+    return this.state.loading === true ? <div className='row center' style={{marginTop: 25 + '%'}}><Preloader color='red'/></div> : (
       <BrowserRouter>
         <div>
         <Navbar brand='feedit' href={null} right className='center' style={{backgroundColor:"#FFFFFF"}}>

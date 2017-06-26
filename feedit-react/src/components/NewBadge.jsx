@@ -9,12 +9,6 @@ class NewBadge extends React.Component {
 	componentWillMount(){
   	}
 
-    coloredGrade(grade){
-        return ( 
-            <div className={"col s4 left-align nota-"+ grade}> {grade.replace(/\b\w/g, l => l.toUpperCase())} </div>
-        )
-    }
-
     checkGrammar(){
         if (this.props.count != 1){
             return 'Novas'
@@ -22,12 +16,6 @@ class NewBadge extends React.Component {
             return 'Nova'
         }
     }
-
-    
-    // onBadgeClick() {
-    //     this.props.resetFunction()
-    //     // event.currentTarget.style.backgroundColor = '#ccc';
-    // }
 
 	render () {
 		return (
