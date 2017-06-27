@@ -13,7 +13,8 @@ class DataBoxContainer extends React.Component {
 	}
 
     fetchData(){
-        const url = 'https://febee-2b942.firebaseio.com/'+firebase.auth().currentUser.uid+'/data/feedbacks.json?shallow=true'
+        const url = 'https://febee-2b942.firebaseio.com/'+
+        firebase.auth().currentUser.uid+'/data/machines.json?shallow=true'
         fetch(url).then(response => {
             response.json().then(response2 => 
             this.setResponse(response2))
@@ -60,7 +61,7 @@ onItemClick(event) {
 
 	render () {
         const masonryOptions = {
-            transitionDuration: 250,
+            transitionDuration: 200,
             enableResizableChildren: true,
             gutter: 40,
             // columnWidth:{ width : 20 + '%' }
@@ -73,7 +74,7 @@ onItemClick(event) {
             <Masonry
                 enableResizableChildren={true}
                 className={'masonry'} // default ''
-                elementType={'ul'} // default 'div'
+                elementType={'div'} // default 'div'
                 style={masonryStyle}
                 options={masonryOptions} // default {}
                 disableImagesLoaded={false} // default false

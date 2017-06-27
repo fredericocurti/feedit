@@ -17,9 +17,24 @@ class NewBadge extends React.Component {
         }
     }
 
+    checkType(){
+        if (this.props.type == 'new'){
+            return 'green'
+        } else {
+            return 'cyan lighten-2'
+        }
+    }
+
 	render () {
 		return (
-          <span onClick={this.props.resetFunction} key={'badge-new-' + this.props.badgetype} className="new badge green" data-badge-caption={this.checkGrammar()}>{this.props.count}</span>
+          <span 
+            onClick={this.props.resetFunction} 
+            key={'badge-new-' + this.props.badgetype} 
+            className={"new badge " + this.checkType()} 
+            data-badge-caption={this.checkGrammar()}
+          >
+            {this.props.count}
+          </span>
         )
 	}
 }

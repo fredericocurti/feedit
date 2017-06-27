@@ -4,33 +4,50 @@ import NewBadge from './NewBadge.jsx'
 import DataRow from './DataRow.jsx'
 import firebase from 'firebase'
 import Collapsible from 'react-collapsible-mine'
+import {getMemory, setMemory} from '../helpers/memory'
 
 class DataBox extends React.Component {
 	constructor(props){
 		super(props);
 		this.resetNewBadge = this.resetNewBadge.bind(this)
+		this.resetMemoryBadge = this.resetMemoryBadge.bind(this)
+		this.resetCounters = this.resetCounters.bind(this)
 		this.handleCollapsibleClick = this.handleCollapsibleClick.bind(this)
+		this.requestData = this.requestData.bind(this)
+		this.badgeColors = {
+			excelente: '#67e200',
+			bom: '#ff9800',
+			ruim: 'red'
+		}
+
 		this.state = {
 			initialHasLoaded: false,
+			uid : firebase.auth().currentUser.uid,
 			newUnseen: 0,
 			isOpen : false,
+			memoryDifference : 0,
+			requested: 50,
+			requestOffset: 0,
+			total: 0,
 			data: [],
 			counters: {
-				initial : 0,
+				initial : 50,
 				excelente: 0,
 				bom: 0,
 				ruim : 0
 			},
-			badgeColors: {
-				excelente: '#67e200',
-				bom: '#ff9800',
-				ruim: 'red'
-			}
 		};
 	}
 
 	increaseCounters(score){
 		this.state.counters[score] ++
+	}
+	
+	resetCounters(){
+		var counters = this.state.counters
+		counters.excelente = 0
+		counters.bom = 0
+		counters.ruim = 0
 	}
 
 	// Static badges
@@ -38,7 +55,7 @@ class DataBox extends React.Component {
 		if (this.state.counters.excelente > 0){
 		return (
 			<span key={this.props.boxname + '-excelente-counter'}
-			className='new badge circular-badge' style={{backgroundColor:this.state.badgeColors['excelente']}} data-badge-caption={this.state.counters.excelente}></span>
+			className='new badge circular-badge' style={{backgroundColor:this.badgeColors['excelente']}} data-badge-caption={this.state.counters.excelente}></span>
 			);
 		}
 	}
@@ -46,15 +63,16 @@ class DataBox extends React.Component {
 		if (this.state.counters.bom > 0){
 			return (
 				<span key={this.props.boxname + '-bom-counter'}
-				className='new badge circular-badge' style={{backgroundColor:this.state.badgeColors['bom']}} data-badge-caption={this.state.counters.bom}></span>
+				className='new badge circular-badge' style={{backgroundColor:this.badgeColors['bom']}} data-badge-caption={this.state.counters.bom}></span>
 			);
 		}
 	}
+
 	showRuimBadge(){
 		if (this.state.counters.ruim > 0){
 			return (
 				<span key={this.props.boxname + '-ruim-counter'}
-				className='new badge circular-badge' style={{backgroundColor:this.state.badgeColors['ruim']}} data-badge-caption={this.state.counters.ruim}></span>
+				className='new badge circular-badge' style={{backgroundColor:this.badgeColors['ruim']}} data-badge-caption={this.state.counters.ruim}></span>
 			);
 		}
 	}
@@ -63,23 +81,53 @@ class DataBox extends React.Component {
 	showNewBadge(){
 		if (this.state.newUnseen > 0){
 			return(
-				<NewBadge key={this.props.boxname + '-new-badge'} count={this.state.newUnseen} resetFunction={this.resetNewBadge}/> 
+				<NewBadge 
+					type ='new'
+					key={this.props.boxname + '-new-badge'} 
+					count={this.state.newUnseen} 
+					resetFunction={this.resetNewBadge}
+				/> 
 			)
 		}
 	}
-
+	
 	resetNewBadge(){
 		this.setState({ newUnseen : 0 })
 	}
 
+	showMemoryBadge(){
+		if (this.state.memoryDifference > 0) {
+			return ( 
+				<NewBadge 
+					type='memory'
+					key={this.props.boxname + '-memory-badge'}
+					count={this.state.memoryDifference} 
+					resetFunction={this.resetMemoryBadge}
+				/>
+			)
+		}
+	}
+
+	resetMemoryBadge(){
+		this.setState({ memoryDifference : 0 })
+	}
+
+	// -------------------------------
+
+
 	componentWillUpdate(){
 	}
+	
 
 	componentWillMount(){
     /* Create reference to messages in Firebase Database */
-    let feedbacksRef = firebase.database().ref(firebase.auth().currentUser.uid + '/data/feedbacks/' + this.props.boxname ).orderByKey().limitToLast(100);
+    this.feedbacksRef = firebase.database()
+		.ref(this.state.uid +'/data/machines/' + this.props.boxname + '/entries')
 
-    feedbacksRef.on('child_added', snapshot => {
+    this.feedbacksRef
+		.orderByChild('date')
+		.limitToLast(50)
+		.on('child_added', snapshot => {
        /* Update React state when message is added at Firebase Database */
     	let review = { 
 			key : snapshot.key,
@@ -87,54 +135,111 @@ class DataBox extends React.Component {
 			date: snapshot.val().date 
 		};
 
-		this.increaseCounters(review.score)
 		var datas = this.state.data
 		datas.unshift(review)
-    	this.setState({ data: datas });
+
+		var total = this.state.total
+		total ++
+		this.setState( { 
+			total : total,
+			data: datas
+			} )
 
 		// Handles live added data
 		if(this.state.initialHasLoaded){
 			console.log("New data added to box " + this.props.boxname)
-			var localnewUnseen = this.state.newUnseen
-			localnewUnseen ++
+			this.increaseCounters(review.score)
 			this.setState({
-				newUnseen : localnewUnseen
+				newUnseen : this.state.newUnseen + 1,
+				requestOffset : this.state.requestOffset + 1
 			})
 		}
-
-
      })
-	 	feedbacksRef.once('value', snapshot => {
-			this.state.counters.initial = snapshot.numChildren()
-			if (this.state.counters.initial == this.state.data.length){
-				console.log("Initial data loaded @ " + this.props.boxname)
-				this.state.initialHasLoaded = true;
-				// this.collapsible.updateChildren()
-			}
-	 })
 
+	// counts db total and handles data after initial loading is complete
+	this.feedbacksRef.once('value', snapshot => {
+		this.setState( { total : snapshot.numChildren()})
+		snapshot.forEach( (child) => {
+			this.increaseCounters(child.val().score)
+		})
+		if (this.state.total == this.state.data.length || this.state.requested == this.state.data.length){
+			console.log(' requested initial data loaded @ ' + this.props.boxname + ', total: ' + this.state.total)
+			this.setState ( { initialHasLoaded : true } )
+			// checks for a counter difference
+			this.checkMemory()
+		}
+	})
+
+	window.addEventListener("beforeunload", (ev) => {  
+		ev.preventDefault();
+		setMemory(this.state.uid,this.props.boxname,this.state.total)
+	});
   	}
 
-	componentDidMount(){
+	requestData(){
+		if (this.state.initialHasLoaded){
+			let newData = []
+
+			this.setState(
+				{ requested: this.state.requested + 50,
+				initialHasLoaded: false 
+				}, () => {
+				this.feedbacksRef
+				.orderByChild('date')
+				.limitToLast( this.state.requested + this.state.requestOffset )
+				.once('value', snapshot => {
+					console.log('requested more data')
+					snapshot.forEach( (snapshot) => {
+
+						let review = { 
+							key : snapshot.key,
+							score: snapshot.val().score,	
+							date: snapshot.val().date 
+						};
+
+						newData.unshift(review)
+					})
+					
+					newData = newData.slice( this.state.requested - 50 + this.state.requestOffset, newData.length)
+					this.setState({initialHasLoaded : true})
+					this.setState({ data: this.state.data.concat(newData) });
+					
+				})
+			})  
+
+		}
+	}
+
+	checkMemory(){
+		const currentLength = this.state.total
+		var memoryPromise = getMemory(this.props.boxname)
+		memoryPromise.then(snapshot => {
+			let memoryLength = snapshot.val()
+			if (memoryLength != currentLength){
+				console.log('there is a dif @ ' + this.props.boxname)
+				const difference = currentLength - memoryLength
+				this.setState( { memoryDifference : difference } )
+			}
+		})
+	}
+
+	componentWillUnmount(){
+		setMemory(this.state.uid,this.props.boxname,this.state.total)
+		this.setState( { initialHasLoaded : false })
 	}
 
 	handleCollapsibleClick(){
 		if (this.state.isOpen){
 			this.collapsible.closeCollapsible()
-			this.setState(
-				{ isOpen : false }
-			)
+			this.setState({ isOpen : false })
 		} else {
 			this.collapsible.openCollapsible()
-			this.setState(
-				{ isOpen : true }
-			)
+			this.setState({ isOpen : true })
 		}
-		// console.log( React.Children.toArray( this.collapsible.props.children ) ) 
 	}
 
-	rowVisibilityManager(){
-		if (this.state.initialHasLoaded == true){
+	isNew(){
+		if (this.state.initialHasLoaded){
 			return true
 		} else {
 			return false
@@ -143,15 +248,30 @@ class DataBox extends React.Component {
 
 
 	render () {
-
 		var triggerarray = [
 					this.props.boxname.replace(/\b\w/g, l => l.toUpperCase()),
-					<span key={this.props.boxname + '-total-counter'} className="badge counter-badge" data-badge-caption={this.state.data.length}></span>,
+					<span key={this.props.boxname + '-total-counter'} className="badge counter-badge" data-badge-caption={this.state.total}></span>,
 					this.showRuimBadge(),
 					this.showBomBadge(),
 					this.showExcelenteBadge(),
-					this.showNewBadge()
+					this.showNewBadge(),
+					this.showMemoryBadge()
 				]
+
+		var showMoreBtn = () => {
+			if (this.state.total > this.state.requested){
+				return (
+					<div>
+						<a className='btn btn-flat' 
+						style={{ margin: 'auto',display:'block'}}
+						onClick={this.requestData}
+						>
+							<b>+</b> Mostrar mais 
+						</a>
+					</div>
+				)
+			}
+		};
 
 		return (
 			/*<Collapsible popout>
@@ -167,17 +287,20 @@ class DataBox extends React.Component {
 				ref = { (Collapsible) => { this.collapsible = Collapsible }}
 				handleTriggerClick = { this.handleCollapsibleClick }
 				openedClassName='open' 
-				triggerClassName='Collapsible__trigger waves-effect waves-subtle' 
-				triggerOpenedClassName='Collapsible__trigger waves-effect waves-subtle open'
+				triggerClassName='waves-effect waves-subtle' 
+				triggerOpenedClassName='waves-effect waves-subtle open'
 				transitionTime={150} 
 				easing='ease'
 				trigger = { triggerarray }
 				>
 
 					{ this.state.data.map( review => 
-						<DataRow key={review.key} isNew={this.rowVisibilityManager() } 
+						<DataRow key={review.key} isNew={this.isNew() } 
 						score={review.score} date={review.date} boxstate={this.state.isOpen} /> )
 					}
+					
+					{ showMoreBtn() }
+
 
 			</Collapsible>
 		);

@@ -13,6 +13,11 @@ class DataRow extends Component {
   	}
 
     componentDidMount(){
+        if (this.state.isNew && this.props.boxstate){
+            this.refresh = setTimeout( 
+            () => this.setSeen(),
+            500 );
+        }
     }
 
 
@@ -44,12 +49,12 @@ class DataRow extends Component {
 
 	render () {
         if (this.state.isNew){
-            var stylebg = { backgroundColor : 'lightblue' }
+            var stylebg = { backgroundColor : '#d5f6ff' }
         } else {
             var stylebg = { backgroundColor: '#f9f9f9'}
         }
 		return (
-            <div className={'datarow row'} onClick={this.onRowClick} style={stylebg}>
+            <div className={'datarow row'} style={stylebg}>
                 {this.coloredGrade(this.props.score)}
                 <div className='col s4 center-align'> {moment(this.props.date).format('LTS')} </div>
                 <div className='col s4 right-align'> {moment(this.props.date).format('L')} </div>
