@@ -16,18 +16,18 @@ class DataBoxContainer extends React.Component {
         const url = 'https://febee-2b942.firebaseio.com/'+
         firebase.auth().currentUser.uid+'/data/machines.json?shallow=true'
         fetch(url).then(response => {
-            response.json().then(response2 => 
-            this.setResponse(response2))
+            response.json().then( (responseJSON) => {
+                this.setResponse(responseJSON)
+            })
         });
     }
 
     setResponse(response){
-    this.setState( {boxes : response })
+        this.setState( { boxes : response })
+        this.renderDataBoxes()
 }
 
     componentDidUpdate(){
-        console.log("DataBoxContainer updated")
-        this.renderDataBoxes()
     }
 
 	componentWillMount(){
@@ -35,11 +35,10 @@ class DataBoxContainer extends React.Component {
   	}
 
     
-
     renderDataBoxes(){
         var boxArray = []
-        var boxKeys = Object.keys(this.state.boxes)
         if (this.state.boxes != null){
+            var boxKeys = Object.keys(this.state.boxes)
             for (var i = 0; i < boxKeys.length; i ++){
                 boxArray.push(<DataBox key={boxKeys[i]} boxname={boxKeys[i]}/>)
             }
@@ -61,9 +60,9 @@ onItemClick(event) {
 
 	render () {
         const masonryOptions = {
-            transitionDuration: 200,
+            transitionDuration: 175,
             enableResizableChildren: true,
-            gutter: 40,
+            // gutter: 40,
             // columnWidth:{ width : 20 + '%' }
         }
             const masonryStyle = {

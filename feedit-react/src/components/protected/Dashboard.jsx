@@ -9,7 +9,9 @@ class Dashboard extends Component {
 
   render() {
     return (
-      <div id="Dashboard" style={{width : 100 + '%'}}>
+      <div id="Dashboard"
+        className='dashboard data-container'
+        >
         <Clock />
         <DataBoxContainer/>
       </div>

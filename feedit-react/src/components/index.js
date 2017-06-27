@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Route, BrowserRouter, Link, Redirect, Switch } from 'react-router-dom'
-import {Navbar,NavItem,Col,Preloader} from 'react-materialize'
+import {Col,Preloader} from 'react-materialize'
+import Navbar from './NavBar'
 import Login from './Login'
 import Register from './Register'
 import Dashboard from './protected/Dashboard.jsx'
@@ -79,7 +80,7 @@ export default class App extends Component {
             </li>
           </ul>
         </Navbar>
-          <div className="container" style={{width : 100 + '%'}}>
+          <div>
               <Switch>
                 <Route path='/' exact component={Login} />
                 <PublicRoute authed={this.state.authed} path='/login' component={Login} />

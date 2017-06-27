@@ -50,8 +50,6 @@ class DataRow extends Component {
 	render () {
         if (this.state.isNew){
             var stylebg = { backgroundColor : '#d5f6ff' }
-        } else {
-            var stylebg = { backgroundColor: '#f9f9f9'}
         }
 		return (
             <div className={'datarow row'} style={stylebg}>

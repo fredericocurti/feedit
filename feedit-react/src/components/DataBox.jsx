@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-// import {Collapsible,CollapsibleItem} from 'react-materialize'
+import {Preloader} from 'react-materialize'
 import NewBadge from './NewBadge.jsx'
 import DataRow from './DataRow.jsx'
 import firebase from 'firebase'
@@ -255,8 +255,18 @@ class DataBox extends React.Component {
 					this.showBomBadge(),
 					this.showExcelenteBadge(),
 					this.showNewBadge(),
-					this.showMemoryBadge()
-				]
+					this.showMemoryBadge(),
+		]
+
+		var triggerLoader = () => {
+			if (this.state.initialHasLoaded){
+				return (triggerarray)
+			} else {
+				let triggerarrayMod = triggerarray
+				triggerarrayMod[1] = <Preloader key='box-preloader' size='small' color='red' />
+				return (triggerarrayMod)
+			}	
+		}
 
 		var showMoreBtn = () => {
 			if (this.state.total > this.state.requested){
@@ -273,6 +283,12 @@ class DataBox extends React.Component {
 			}
 		};
 
+		const isLoaded = () => {
+			if ( this.state.initialHasLoaded ){
+				return 'loaded'
+			}
+		}
+
 		return (
 			/*<Collapsible popout>
 				<CollapsibleItem header={[
@@ -282,27 +298,26 @@ class DataBox extends React.Component {
 				]} children={this.state.data.map( review => <DataRow key={review.key} new={this.rowVisibilityManager()} score={review.score} date={review.date} uc={this.updateChildren}/>)}
 				ref = {(CollapsibleItem) => {this.collapsible = CollapsibleItem}}/>
 			</Collapsible>*/
-			
-			<Collapsible 
-				ref = { (Collapsible) => { this.collapsible = Collapsible }}
-				handleTriggerClick = { this.handleCollapsibleClick }
-				openedClassName='open' 
-				triggerClassName='waves-effect waves-subtle' 
-				triggerOpenedClassName='waves-effect waves-subtle open'
-				transitionTime={150} 
-				easing='ease'
-				trigger = { triggerarray }
-				>
+			<div className='grid-item'>
+				<Collapsible 
+					ref = { (Collapsible) => { this.collapsible = Collapsible }}
+					handleTriggerClick = { this.handleCollapsibleClick }
+					openedClassName='open'
+					triggerClassName='waves-effect waves-subtle' 
+					triggerOpenedClassName='waves-effect waves-subtle open'
+					transitionTime={300} 
+					easing='ease'
+					trigger = { triggerLoader() }
+					>
 
-					{ this.state.data.map( review => 
-						<DataRow key={review.key} isNew={this.isNew() } 
-						score={review.score} date={review.date} boxstate={this.state.isOpen} /> )
-					}
-					
-					{ showMoreBtn() }
-
-
-			</Collapsible>
+						{ this.state.data.map( review => 
+							<DataRow key={review.key} isNew={this.isNew() } 
+							score={review.score} date={review.date} boxstate={this.state.isOpen} /> )
+						}
+						
+						{ showMoreBtn() }
+				</Collapsible>
+			</div>
 		);
 	}
 }
