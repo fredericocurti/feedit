@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import {Preloader} from 'react-materialize'
-import NewBadge from './NewBadge.jsx'
+import Badge from './Badge.jsx'
 import DataRow from './DataRow.jsx'
 import firebase from 'firebase'
-import Collapsible from 'react-collapsible-mine'
+import Collapsible from 'react-collapsible'
 import {getMemory, setMemory} from '../helpers/memory'
 
 class DataBox extends React.Component {
@@ -21,12 +21,14 @@ class DataBox extends React.Component {
 		}
 
 		this.state = {
-			initialHasLoaded: false,
+			dataHasLoaded: false,
 			uid : firebase.auth().currentUser.uid,
 			newUnseen: 0,
 			isOpen : false,
+			isFocused: true,
 			memoryDifference : 0,
 			requested: 50,
+			requestInc: 25,
 			requestOffset: 0,
 			total: 0,
 			data: [],
@@ -37,6 +39,76 @@ class DataBox extends React.Component {
 				ruim : 0
 			},
 		};
+	}
+
+	componentWillUpdate(){
+	}
+	
+
+	componentWillMount(){
+		/* Create reference to messages in Firebase Database */
+		this.feedbacksRef = firebase.database()
+			.ref(this.state.uid +'/data/machines/' + this.props.boxname + '/entries')
+
+		this.feedbacksRef
+			.orderByChild('date')
+			.limitToLast(50)
+			.on('child_added', snapshot => {
+		/* Update React state when message is added at Firebase Database */
+			let review = { 
+				key : snapshot.key,
+				score: snapshot.val().score,
+				date: snapshot.val().date 
+			}
+
+			var datas = this.state.data
+			datas.unshift(review)
+
+			var total = this.state.total
+			total ++
+			this.setState( { 
+				total : total,
+				data: datas
+				} )
+
+			// Handles live added data
+			if(this.state.dataHasLoaded){
+				console.log("New data added to box " + this.props.boxname)
+				this.increaseCounters(review.score)
+				this.setState({
+					newUnseen : this.state.newUnseen + 1,
+					requestOffset : this.state.requestOffset + 1
+				})
+			}
+		})
+
+		// counts db total and handles data after initial loading is complete
+		this.feedbacksRef
+			.once('value', snapshot => {
+				this.setState( { total : snapshot.numChildren()})
+				snapshot.forEach( (child) => {
+				this.increaseCounters(child.val().score)
+			})
+			
+		if (this.state.total == this.state.data.length || this.state.requested == this.state.data.length){
+			console.log(' requested initial data loaded @ ' + this.props.boxname + ', total: ' + this.state.total)
+			this.setState ( { dataHasLoaded : true } )
+			// checks for a counter difference
+			this.checkMemory()
+		}
+	})
+
+		window.addEventListener("beforeunload", (ev) => {  
+			ev.preventDefault();
+			setMemory(this.state.uid,this.props.boxname,this.state.total)
+		})
+
+	}
+	
+
+	componentWillUnmount(){
+		setMemory(this.state.uid,this.props.boxname,this.state.total)
+		this.setState( { dataHasLoaded : false })
 	}
 
 	increaseCounters(score){
@@ -81,7 +153,7 @@ class DataBox extends React.Component {
 	showNewBadge(){
 		if (this.state.newUnseen > 0){
 			return(
-				<NewBadge 
+				<Badge 
 					type ='new'
 					key={this.props.boxname + '-new-badge'} 
 					count={this.state.newUnseen} 
@@ -98,7 +170,7 @@ class DataBox extends React.Component {
 	showMemoryBadge(){
 		if (this.state.memoryDifference > 0) {
 			return ( 
-				<NewBadge 
+				<Badge 
 					type='memory'
 					key={this.props.boxname + '-memory-badge'}
 					count={this.state.memoryDifference} 
@@ -114,75 +186,13 @@ class DataBox extends React.Component {
 
 	// -------------------------------
 
-
-	componentWillUpdate(){
-	}
-	
-
-	componentWillMount(){
-    /* Create reference to messages in Firebase Database */
-    this.feedbacksRef = firebase.database()
-		.ref(this.state.uid +'/data/machines/' + this.props.boxname + '/entries')
-
-    this.feedbacksRef
-		.orderByChild('date')
-		.limitToLast(50)
-		.on('child_added', snapshot => {
-       /* Update React state when message is added at Firebase Database */
-    	let review = { 
-			key : snapshot.key,
-			score: snapshot.val().score,
-			date: snapshot.val().date 
-		};
-
-		var datas = this.state.data
-		datas.unshift(review)
-
-		var total = this.state.total
-		total ++
-		this.setState( { 
-			total : total,
-			data: datas
-			} )
-
-		// Handles live added data
-		if(this.state.initialHasLoaded){
-			console.log("New data added to box " + this.props.boxname)
-			this.increaseCounters(review.score)
-			this.setState({
-				newUnseen : this.state.newUnseen + 1,
-				requestOffset : this.state.requestOffset + 1
-			})
-		}
-     })
-
-	// counts db total and handles data after initial loading is complete
-	this.feedbacksRef.once('value', snapshot => {
-		this.setState( { total : snapshot.numChildren()})
-		snapshot.forEach( (child) => {
-			this.increaseCounters(child.val().score)
-		})
-		if (this.state.total == this.state.data.length || this.state.requested == this.state.data.length){
-			console.log(' requested initial data loaded @ ' + this.props.boxname + ', total: ' + this.state.total)
-			this.setState ( { initialHasLoaded : true } )
-			// checks for a counter difference
-			this.checkMemory()
-		}
-	})
-
-	window.addEventListener("beforeunload", (ev) => {  
-		ev.preventDefault();
-		setMemory(this.state.uid,this.props.boxname,this.state.total)
-	});
-  	}
-
 	requestData(){
-		if (this.state.initialHasLoaded){
+		if (this.state.dataHasLoaded){
 			let newData = []
 
 			this.setState(
-				{ requested: this.state.requested + 50,
-				initialHasLoaded: false 
+				{ requested: this.state.requested + this.state.requestInc,
+				dataHasLoaded: false 
 				}, () => {
 				this.feedbacksRef
 				.orderByChild('date')
@@ -200,8 +210,11 @@ class DataBox extends React.Component {
 						newData.unshift(review)
 					})
 					
-					newData = newData.slice( this.state.requested - 50 + this.state.requestOffset, newData.length)
-					this.setState({initialHasLoaded : true})
+					newData = newData
+						.slice(
+						this.state.requested - this.state.requestInc + this.state.requestOffset,
+						newData.length)
+					this.setState({dataHasLoaded : true})
 					this.setState({ data: this.state.data.concat(newData) });
 					
 				})
@@ -223,10 +236,6 @@ class DataBox extends React.Component {
 		})
 	}
 
-	componentWillUnmount(){
-		setMemory(this.state.uid,this.props.boxname,this.state.total)
-		this.setState( { initialHasLoaded : false })
-	}
 
 	handleCollapsibleClick(){
 		if (this.state.isOpen){
@@ -239,7 +248,7 @@ class DataBox extends React.Component {
 	}
 
 	isNew(){
-		if (this.state.initialHasLoaded){
+		if (this.state.dataHasLoaded){
 			return true
 		} else {
 			return false
@@ -259,7 +268,7 @@ class DataBox extends React.Component {
 		]
 
 		var triggerLoader = () => {
-			if (this.state.initialHasLoaded){
+			if (this.state.dataHasLoaded){
 				return (triggerarray)
 			} else {
 				let triggerarrayMod = triggerarray
@@ -284,7 +293,7 @@ class DataBox extends React.Component {
 		};
 
 		const isLoaded = () => {
-			if ( this.state.initialHasLoaded ){
+			if ( this.state.dataHasLoaded ){
 				return 'loaded'
 			}
 		}
@@ -305,16 +314,20 @@ class DataBox extends React.Component {
 					openedClassName='open'
 					triggerClassName='waves-effect waves-subtle' 
 					triggerOpenedClassName='waves-effect waves-subtle open'
-					transitionTime={300} 
+					transitionTime={200} 
 					easing='ease'
 					trigger = { triggerLoader() }
 					>
 
 						{ this.state.data.map( review => 
-							<DataRow key={review.key} isNew={this.isNew() } 
-							score={review.score} date={review.date} boxstate={this.state.isOpen} /> )
+							<DataRow 
+								key={review.key} 
+								isNew={this.isNew()} 
+								score={review.score}
+								date={review.date}
+								boxstate={this.state.isOpen}
+								windowstate={this.props.isFocused} /> )
 						}
-						
 						{ showMoreBtn() }
 				</Collapsible>
 			</div>

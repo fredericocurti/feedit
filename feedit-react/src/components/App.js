@@ -10,6 +10,9 @@ import { firebaseAuth } from '../config/constants'
 
 import '../css/materialize.css'
 
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+
+
 function PrivateRoute ({component: Component, authed, ...rest}) {
   return (
     <Route
@@ -36,21 +39,25 @@ export default class App extends Component {
   state = {
     authed: false,
     loading: true,
+    user: null,
   }
+
 
   componentDidMount () {
     this.removeListener = firebaseAuth().onAuthStateChanged((user) => {
       if (user) {
-        console.log(user)
+        console.log('User signed in',user)
         this.setState({
           authed: true,
           loading: false,
+          user: user,
         })
       } else {
-        console.log("User is not logged in")
+        console.log("User is not logged in/signed out")
         this.setState({
           authed: false,
-          loading: false
+          loading: false,
+          user : null
         })
       }
     })
@@ -61,15 +68,11 @@ export default class App extends Component {
   }
 
   render() {
-    return this.state.loading === true ? <div className='row center' style={{marginTop: 25 + '%'}}><Preloader color='red'/></div> : (
-      <BrowserRouter>
-        <div>
-        <Navbar brand='feedit' href={null} right className='center' style={{backgroundColor:"#FFFFFF"}}>
-          <ul>
-            <li>
+    var navChildren = [
+            <div>
               {this.state.authed
                 ? <button
-                    style={{border: 'none', background: 'transparent', color: '#000000'}}
+                    style={{border: 'none', background: 'white', color: '#000000'}}
                     onClick={() => {
                       logout()
                     }}
@@ -77,9 +80,16 @@ export default class App extends Component {
                 : <span>
                     <Link to="/login"></Link>
                   </span>}
-            </li>
-          </ul>
-        </Navbar>
+            </div> ]
+
+    return this.state.loading === true ? <div className='row center' style={{marginTop: 25 + '%'}}><Preloader color='red'/></div> : (
+      <BrowserRouter>
+        <MuiThemeProvider>
+        <div>
+          { this.state.authed 
+            ?  <Navbar href={null} user={this.state.user} children={navChildren}/> 
+          : null}
+
           <div>
               <Switch>
                 <Route path='/' exact component={Login} />
@@ -89,6 +99,7 @@ export default class App extends Component {
               </Switch>
           </div>
         </div>
+        </MuiThemeProvider>
       </BrowserRouter>
     );
   }

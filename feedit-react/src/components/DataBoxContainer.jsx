@@ -8,7 +8,8 @@ class DataBoxContainer extends React.Component {
 	constructor(props){
 		super(props);
         this.state = {
-            boxes : []
+            boxes : [],
+            isFocused: false
         }
 	}
 
@@ -32,6 +33,14 @@ class DataBoxContainer extends React.Component {
 
 	componentWillMount(){
         this.fetchData()
+        window.onfocus = () => {
+			console.log('focused')
+			this.setState( { isFocused : true })
+		}
+		window.onblur = () => {
+			console.log('unfocused')
+			this.setState( { isFocused : false })
+		}
   	}
 
     
@@ -40,7 +49,7 @@ class DataBoxContainer extends React.Component {
         if (this.state.boxes != null){
             var boxKeys = Object.keys(this.state.boxes)
             for (var i = 0; i < boxKeys.length; i ++){
-                boxArray.push(<DataBox key={boxKeys[i]} boxname={boxKeys[i]}/>)
+                boxArray.push(<DataBox key={boxKeys[i]} boxname={boxKeys[i]} isFocused={this.state.isFocused}/>)
             }
         } else {
             return <h4> Ainda não existe nenhum feedback para esse usuário, por favor configure
@@ -56,8 +65,6 @@ onItemClick(event) {
     console.log("btn clicked")
 }
 
-
-
 	render () {
         const masonryOptions = {
             transitionDuration: 175,
@@ -72,7 +79,7 @@ onItemClick(event) {
             <div className='col s12'>
             <Masonry
                 enableResizableChildren={true}
-                className={'masonry'} // default ''
+                className={'masonry'} // default '' 
                 elementType={'div'} // default 'div'
                 style={masonryStyle}
                 options={masonryOptions} // default {}

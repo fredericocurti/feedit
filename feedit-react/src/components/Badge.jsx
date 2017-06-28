@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 
-class NewBadge extends React.Component {
+class Badge extends React.Component {
 	constructor(props){
 		super(props);
 	}
@@ -39,4 +39,4 @@ class NewBadge extends React.Component {
 	}
 }
 
-export default NewBadge;
+export default Badge;

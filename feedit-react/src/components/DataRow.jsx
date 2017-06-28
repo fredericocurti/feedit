@@ -13,13 +13,12 @@ class DataRow extends Component {
   	}
 
     componentDidMount(){
-        if (this.state.isNew && this.props.boxstate){
+        if (this.state.isNew && this.props.boxstate && this.props.windowstate){
             this.refresh = setTimeout( 
             () => this.setSeen(),
             500 );
         }
     }
-
 
     setSeen(){
         this.setState({ isNew : false })
@@ -40,7 +39,7 @@ class DataRow extends Component {
     // }
 
     componentDidUpdate(){
-        if (this.state.isNew && this.props.boxstate){
+        if (this.state.isNew && this.props.boxstate && this.props.windowstate){
             this.refresh = setTimeout( 
             () => this.setSeen(),
             500 );
