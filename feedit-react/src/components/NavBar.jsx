@@ -53,11 +53,11 @@ handleTouchTap = (event) => {
 render () {
     if (this.props.user){
         return(
-        <div className="navbar-fixed" style={{ height:60 }}>
+        <div className="navbar-fixed" style={{ height: 50 }}>
             <nav className="nav">
                 <div id="navbar" className="nav-wrapper navcolor sticky" style={{ zIndex : 2 }}>
                     <ul>
-                        <div className="centered text-align center" >feedit</div>
+                        <div className="centered text-align center logo" >feedit</div>
                     </ul>
                     <ul className="left">
                     <li>

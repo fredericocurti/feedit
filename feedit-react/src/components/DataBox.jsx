@@ -28,7 +28,7 @@ class DataBox extends React.Component {
 			isFocused: true,
 			memoryDifference : 0,
 			requested: 50,
-			requestInc: 25,
+			requestInc: 50,
 			requestOffset: 0,
 			total: 0,
 			data: [],
@@ -187,6 +187,7 @@ class DataBox extends React.Component {
 	// -------------------------------
 
 	requestData(){
+		console.log(this.state.isOpen,this.state.isFocused,this.isNew())
 		if (this.state.dataHasLoaded){
 			let newData = []
 

@@ -1,6 +1,18 @@
 {
   "rules": {
     ".read": "auth != null",
-    ".write": "auth != null"
+    ".write": "auth != null",
+    "$uid":{
+      "data":{
+        "machines":{
+          ".read": true,
+          "$machine_name":{
+            "entries":{
+              ".indexOn": "date",
+            }
+          }
+        }
+      }
+    }
   }
 }

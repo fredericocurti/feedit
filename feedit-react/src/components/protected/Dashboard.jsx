@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 
 import Snackbar from 'material-ui/Snackbar'
-import Drawer from 'material-ui/Drawer';
-import MenuItem from 'material-ui/MenuItem';
 import RaisedButton from 'material-ui/RaisedButton';
 
 import Clock from '../Clock.jsx'
@@ -11,6 +9,7 @@ import NavBar from '../NavBar.jsx'
 import '../../css/materialize.css'
 import '../../css/style.css'
 
+import SideBar from '../SideBar'
 import { firebaseAuth } from '../../config/constants'
 
 class Dashboard extends Component {
@@ -25,7 +24,6 @@ class Dashboard extends Component {
         docked: this.mql.matches,
         user: firebaseAuth().currentUser
     }
-      
 	}
 
   componentWillMount(){
@@ -57,12 +55,9 @@ class Dashboard extends Component {
             message="Usuário autenticado com sucesso!"
             autoHideDuration={4000}
           />
-          <Drawer
-            docked={this.state.docked}
-            containerClassName='drawer'
-          >
-              <MenuItem primaryText={ <ul className='drawer-item'> {this.state.user.email} </ul>} />
-          </Drawer>
+
+          <SideBar user={this.state.user} docked={this.state.docked}/>
+
         </div>
       </div>
     );

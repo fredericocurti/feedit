@@ -9,11 +9,11 @@ class DataBoxContainer extends React.Component {
 		super(props);
         this.state = {
             boxes : [],
-            isFocused: false
+            isFocused: true
         }
 	}
 
-    fetchData(){
+    fetchData(token){
         const url = 'https://febee-2b942.firebaseio.com/'+
         firebase.auth().currentUser.uid+'/data/machines.json?shallow=true'
         fetch(url).then(response => {
@@ -21,6 +21,7 @@ class DataBoxContainer extends React.Component {
                 this.setResponse(responseJSON)
             })
         });
+
     }
 
     setResponse(response){
@@ -32,6 +33,11 @@ class DataBoxContainer extends React.Component {
     }
 
 	componentWillMount(){
+        firebase.auth().currentUser.getIdToken().then(
+            (Token) => {
+                this.fetchData(Token)
+            }
+        )
         this.fetchData()
         window.onfocus = () => {
 			console.log('focused')
@@ -49,13 +55,14 @@ class DataBoxContainer extends React.Component {
         if (this.state.boxes != null){
             var boxKeys = Object.keys(this.state.boxes)
             for (var i = 0; i < boxKeys.length; i ++){
-                boxArray.push(<DataBox key={boxKeys[i]} boxname={boxKeys[i]} isFocused={this.state.isFocused}/>)
+                if (boxKeys[i] != 'error'){
+                    boxArray.push(<DataBox key={boxKeys[i]} boxname={boxKeys[i]} isFocused={this.state.isFocused}/>)
+                }
             }
         } else {
             return <h4> Ainda não existe nenhum feedback para esse usuário, por favor configure
                         os aparelhos corretamente </h4>
         }
-
         return boxArray
     }
 

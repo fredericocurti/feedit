@@ -37,9 +37,9 @@ function PublicRoute ({component: Component, authed, ...rest}) {
 
 export default class App extends Component {
   state = {
-    authed: false,
     loading: true,
     user: null,
+    authed: false,
   }
 
 
@@ -85,12 +85,12 @@ export default class App extends Component {
     return this.state.loading === true ? <div className='row center' style={{marginTop: 25 + '%'}}><Preloader color='red'/></div> : (
       <BrowserRouter>
         <MuiThemeProvider>
-        <div>
+        <div style={{height: 100 + '%'}}>
           { this.state.authed 
             ?  <Navbar href={null} user={this.state.user} children={navChildren}/> 
           : null}
 
-          <div>
+          <div style={{height: 100 + '%',overflowY: 'auto'}}>
               <Switch>
                 <Route path='/' exact component={Login} />
                 <PublicRoute authed={this.state.authed} path='/login' component={Login} />
