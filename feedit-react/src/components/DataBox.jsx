@@ -47,10 +47,10 @@ class DataBox extends React.Component {
 
 	componentWillMount(){
 		/* Create reference to messages in Firebase Database */
-		this.feedbacksRef = firebase.database()
-			.ref('users/'+ this.state.uid +'/data/machines/' + this.props.boxname + '/entries')
+		this.boxRef = firebase.database()
+			.ref('users/'+ this.state.uid +'/data/machines/' + this.props.boxname)
 
-		this.feedbacksRef
+		this.boxRef.child('entries')
 			.orderByChild('date')
 			.limitToLast(50)
 			.on('child_added', snapshot => {
@@ -83,12 +83,17 @@ class DataBox extends React.Component {
 		})
 
 		// counts db total and handles data after initial loading is complete
-		this.feedbacksRef
+		this.boxRef.child('counters')
 			.once('value', snapshot => {
-				this.setState( { total : snapshot.numChildren()})
-				snapshot.forEach( (child) => {
-				this.increaseCounters(child.val().score)
-			})
+				console.log(snapshot.val())
+				var total = 0
+				let counters = this.state.counters
+				snapshot.forEach( (item) => {
+					total += item.val()
+					counters[item.key] = item.val()
+					this.setState({counters:counters})
+				})
+				this.setState( { total : total })
 			
 		if (this.state.total == this.state.data.length || this.state.requested == this.state.data.length){
 			console.log(' requested initial data loaded @ ' + this.props.boxname + ', total: ' + this.state.total)
