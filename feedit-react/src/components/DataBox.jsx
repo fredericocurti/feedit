@@ -48,7 +48,7 @@ class DataBox extends React.Component {
 	componentWillMount(){
 		/* Create reference to messages in Firebase Database */
 		this.feedbacksRef = firebase.database()
-			.ref(this.state.uid +'/data/machines/' + this.props.boxname + '/entries')
+			.ref('users/'+ this.state.uid +'/data/machines/' + this.props.boxname + '/entries')
 
 		this.feedbacksRef
 			.orderByChild('date')

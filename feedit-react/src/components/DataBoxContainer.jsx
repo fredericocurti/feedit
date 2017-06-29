@@ -14,7 +14,7 @@ class DataBoxContainer extends React.Component {
 	}
 
     fetchData(token){
-        const url = 'https://febee-2b942.firebaseio.com/'+
+        const url = 'https://febee-2b942.firebaseio.com/users/'+
         firebase.auth().currentUser.uid+'/data/machines.json?shallow=true'
         fetch(url).then(response => {
             response.json().then( (responseJSON) => {
