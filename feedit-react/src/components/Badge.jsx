@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import moment from 'moment';
 
 class Badge extends React.Component {
 	constructor(props){
@@ -35,6 +34,8 @@ class Badge extends React.Component {
           >
             {this.props.count}
           </span>
+
+          
         )
 	}
 }

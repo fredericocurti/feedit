@@ -5,6 +5,9 @@ import DataRow from './DataRow.jsx'
 import firebase from 'firebase'
 import Collapsible from 'react-collapsible'
 import {getMemory, setMemory} from '../helpers/memory'
+import Avatar from 'material-ui/Avatar'
+import moment from 'moment'
+import 'moment/locale/pt-br';
 
 class DataBox extends React.Component {
 	constructor(props){
@@ -19,6 +22,7 @@ class DataBox extends React.Component {
 			bom: '#ff9800',
 			ruim: 'red'
 		}
+
 
 		this.state = {
 			dataHasLoaded: false,
@@ -46,6 +50,7 @@ class DataBox extends React.Component {
 	
 
 	componentWillMount(){
+		moment.locale('pt-BR')
 		/* Create reference to messages in Firebase Database */
 		this.boxRef = firebase.database()
 			.ref('users/'+ this.state.uid +'/data/machines/' + this.props.boxname)
@@ -58,7 +63,8 @@ class DataBox extends React.Component {
 			let review = { 
 				key : snapshot.key,
 				score: snapshot.val().score,
-				date: snapshot.val().date 
+				date: moment(snapshot.val().date).format('LTS'),
+				time: moment(snapshot.val().date).format('L')
 			}
 
 			var datas = this.state.data
@@ -85,7 +91,6 @@ class DataBox extends React.Component {
 		// counts db total and handles data after initial loading is complete
 		this.boxRef.child('counters')
 			.once('value', snapshot => {
-				console.log(snapshot.val())
 				var total = 0
 				let counters = this.state.counters
 				snapshot.forEach( (item) => {
@@ -107,10 +112,8 @@ class DataBox extends React.Component {
 			ev.preventDefault();
 			setMemory(this.state.uid,this.props.boxname,this.state.total)
 		})
-
 	}
 	
-
 	componentWillUnmount(){
 		setMemory(this.state.uid,this.props.boxname,this.state.total)
 		this.setState( { dataHasLoaded : false })
@@ -130,27 +133,49 @@ class DataBox extends React.Component {
 	// Static badges
 	showExcelenteBadge(){
 		if (this.state.counters.excelente > 0){
-		return (
-			<span key={this.props.boxname + '-excelente-counter'}
-			className='new badge circular-badge' style={{backgroundColor:this.badgeColors['excelente']}} data-badge-caption={this.state.counters.excelente}></span>
-			);
+			return (
+				<Avatar
+					color={'white'}
+					backgroundColor={this.badgeColors.excelente}
+					size={26}
+					style={{ marginLeft: 5}}
+					key={'counter-excelente-'+this.props.boxname}
+				>
+          			{this.state.counters.excelente}
+        		</Avatar>)
 		}
 	}
 	showBomBadge(){
 		if (this.state.counters.bom > 0){
-			return (
+			/*return (
 				<span key={this.props.boxname + '-bom-counter'}
 				className='new badge circular-badge' style={{backgroundColor:this.badgeColors['bom']}} data-badge-caption={this.state.counters.bom}></span>
-			);
+			);*/
+			return (
+				<Avatar
+					color={'white'}
+					backgroundColor={this.badgeColors.bom}
+					size={26}
+					style={{ marginLeft: 5}}
+					key={'counter-bom-'+this.props.boxname}
+				>
+          			{this.state.counters.bom}
+        		</Avatar>)
 		}
 	}
 
 	showRuimBadge(){
 		if (this.state.counters.ruim > 0){
 			return (
-				<span key={this.props.boxname + '-ruim-counter'}
-				className='new badge circular-badge' style={{backgroundColor:this.badgeColors['ruim']}} data-badge-caption={this.state.counters.ruim}></span>
-			);
+				<Avatar
+					color={'white'}
+					backgroundColor={this.badgeColors.ruim}
+					size={26}
+					style={{ marginLeft: 5}}
+					key={'counter-ruim-'+this.props.boxname}
+				>
+          			{this.state.counters.ruim}
+        		</Avatar>)
 		}
 	}
 
@@ -200,7 +225,7 @@ class DataBox extends React.Component {
 				{ requested: this.state.requested + this.state.requestInc,
 				dataHasLoaded: false 
 				}, () => {
-				this.feedbacksRef
+				this.boxRef.child('entries')
 				.orderByChild('date')
 				.limitToLast( this.state.requested + this.state.requestOffset )
 				.once('value', snapshot => {
@@ -209,8 +234,9 @@ class DataBox extends React.Component {
 
 						let review = { 
 							key : snapshot.key,
-							score: snapshot.val().score,	
-							date: snapshot.val().date 
+							score: snapshot.val().score,
+							date: moment(snapshot.val().date).format('LTS'),
+							time: moment(snapshot.val().date).format('L'),
 						};
 
 						newData.unshift(review)
@@ -266,11 +292,16 @@ class DataBox extends React.Component {
 		var triggerarray = [
 					this.props.boxname.replace(/\b\w/g, l => l.toUpperCase()),
 					<span key={this.props.boxname + '-total-counter'} className="badge counter-badge" data-badge-caption={this.state.total}></span>,
-					this.showRuimBadge(),
-					this.showBomBadge(),
-					this.showExcelenteBadge(),
+					<div className='counters' key={'counters-'+this.props.boxname}>
+						{[
+						this.showRuimBadge(),
+						this.showBomBadge(),
+						this.showExcelenteBadge(),
+						]}
+					</div>,
 					this.showNewBadge(),
 					this.showMemoryBadge(),
+
 		]
 
 		var triggerLoader = () => {
@@ -331,6 +362,7 @@ class DataBox extends React.Component {
 								isNew={this.isNew()} 
 								score={review.score}
 								date={review.date}
+								time={review.time}
 								boxstate={this.state.isOpen}
 								windowstate={this.props.isFocused} /> )
 						}

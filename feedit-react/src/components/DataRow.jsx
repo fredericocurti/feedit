@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import moment from 'moment';
 
 class DataRow extends Component {
 	constructor(props){
@@ -16,13 +15,13 @@ class DataRow extends Component {
         if (this.state.isNew && this.props.boxstate && this.props.windowstate){
             this.refresh = setTimeout( 
             () => this.setSeen(),
-            500 );
+            1000 );
         }
     }
 
     setSeen(){
         this.setState({ isNew : false })
-        }
+    }
 
     coloredGrade(grade){
         return ( 
@@ -42,7 +41,7 @@ class DataRow extends Component {
         if (this.state.isNew && this.props.boxstate && this.props.windowstate){
             this.refresh = setTimeout( 
             () => this.setSeen(),
-            500 );
+            1000 );
         }
     }
 
@@ -53,8 +52,8 @@ class DataRow extends Component {
 		return (
             <div className={'datarow row'} style={stylebg}>
                 {this.coloredGrade(this.props.score)}
-                <div className='col s4 center-align'> {moment(this.props.date).format('LTS')} </div>
-                <div className='col s4 right-align'> {moment(this.props.date).format('L')} </div>
+                <div className='col s4 center-align'> {this.props.date} </div>
+                <div className='col s4 right-align'> {this.props.time} </div>
             </div>
         )
 	}

@@ -132,12 +132,16 @@ nav {
     padding-top: 0px;
     top: 10px;
     float:right;
-    
 }
 
 .grid-item {
   width:50%;
   padding: 15px;
+}
+
+.counters{
+  display: inline-block;
+  float: right;
 }
 
 .Collapsible {
@@ -175,7 +179,7 @@ nav {
   cursor: pointer;
   min-height: 3rem;
   line-height: 3rem;
-  padding: 0 20px;
+  padding: 0 15px;
   background-color: #fff;
   border-bottom: 1px solid #ddd;
   color:gray;
@@ -236,7 +240,7 @@ nav {
 }
 
 .counter-badge{
-  margin-top: 10px;
+  margin-top: 12px;
   margin-left: 0px !important;
 }
 

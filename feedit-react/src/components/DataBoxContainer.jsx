@@ -40,11 +40,9 @@ class DataBoxContainer extends React.Component {
         )
         this.fetchData()
         window.onfocus = () => {
-			console.log('focused')
 			this.setState( { isFocused : true })
 		}
 		window.onblur = () => {
-			console.log('unfocused')
 			this.setState( { isFocused : false })
 		}
   	}
