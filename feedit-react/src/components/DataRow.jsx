@@ -15,7 +15,7 @@ class DataRow extends Component {
         if (this.state.isNew && this.props.boxstate && this.props.windowstate){
             this.refresh = setTimeout( 
             () => this.setSeen(),
-            1000 );
+            500 );
         }
     }
 
@@ -41,7 +41,15 @@ class DataRow extends Component {
         if (this.state.isNew && this.props.boxstate && this.props.windowstate){
             this.refresh = setTimeout( 
             () => this.setSeen(),
-            1000 );
+            500 );
+        }
+    }
+
+    shouldComponentUpdate(nextProps,nextState){
+        if (this.state.isNew === true || nextState.isNew != this.state.isNew){
+            return true
+        } else {
+            return false
         }
     }
 

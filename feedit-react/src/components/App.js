@@ -87,12 +87,16 @@ export default class App extends Component {
         <MuiThemeProvider>
         <div style={{height: 100 + '%'}}>
           { this.state.authed 
-            ?  <Navbar href={null} user={this.state.user} children={navChildren}/> 
+            ?  <Navbar href={null} user={this.state.user}/> 
           : null}
 
           <div style={{height: 100 + '%',overflowY: 'auto'}}>
               <Switch>
-                <Route path='/' exact component={Login} />
+                { this.state.authed 
+                ?
+                <Route path='/' exact component={Dashboard} /> 
+                :
+                <Route path='/' exact component={Login} />  }
                 <PublicRoute authed={this.state.authed} path='/login' component={Login} />
                 <PrivateRoute authed={this.state.authed} path='/dashboard' component={Dashboard} />
                 <Route render={() => <h3>No Match</h3>} />

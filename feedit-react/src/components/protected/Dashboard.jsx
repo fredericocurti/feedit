@@ -55,9 +55,6 @@ class Dashboard extends Component {
             message="Usuário autenticado com sucesso!"
             autoHideDuration={4000}
           />
-
-          <SideBar user={this.state.user} docked={this.state.docked}/>
-
         </div>
       </div>
     );

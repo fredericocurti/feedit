@@ -20,7 +20,9 @@ class SideBar extends React.Component {
 				containerClassName='drawer'
 				width={225}
             >
-                <MenuItem disabled primaryText={ <ul className='drawer-item'> {this.props.user.email} </ul>} />
+                <MenuItem disabled primaryText={ <ul className='drawer-item'> { (this.props.user.email) 
+					? this.props.user.email
+					: null } </ul>} />
             </Drawer>
         )
 	}

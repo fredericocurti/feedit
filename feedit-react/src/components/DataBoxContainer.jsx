@@ -72,7 +72,7 @@ onItemClick(event) {
 
 	render () {
         const masonryOptions = {
-            transitionDuration: 175,
+            transitionDuration: 150,
             enableResizableChildren: true,
             // gutter: 40,
             // columnWidth:{ width : 20 + '%' }
@@ -94,8 +94,8 @@ onItemClick(event) {
             >
                 { this.renderDataBoxes() }
             </Masonry>
-            
-                    <a onClick={this.onItemClick} className='btn waves-effect waves-light'>REFRESH</a>
+{/*            
+                    <a onClick={this.onItemClick} className='btn waves-effect waves-light'>REFRESH</a>*/}
 
             </div>
         )

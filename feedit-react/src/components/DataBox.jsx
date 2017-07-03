@@ -351,7 +351,7 @@ class DataBox extends React.Component {
 					openedClassName='open'
 					triggerClassName='waves-effect waves-subtle' 
 					triggerOpenedClassName='waves-effect waves-subtle open'
-					transitionTime={200} 
+					transitionTime={250} 
 					easing='ease'
 					trigger = { triggerLoader() }
 					>
