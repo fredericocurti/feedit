@@ -7,20 +7,23 @@ import MenuItem from 'material-ui/MenuItem'
 import FlatButton from 'material-ui/FlatButton';
 import Divider from 'material-ui/Divider';
 import SideBar from './SideBar.jsx'
+import Drawer from 'material-ui/Drawer';
 
 import { logout } from '../helpers/auth'
 
-class NavBar extends React.Component {
+class Navigator extends React.Component {
 
   constructor(props) {
     super(props);
     this.mql = window.matchMedia('(min-width: 480px)')
     this.mediaQueryChanged = this.mediaQueryChanged.bind(this)
+    this.toggleDrawer = this.toggleDrawer.bind(this)
     this.state = {
       open: false,
       anchorEl: null,
       user : this.props.user,
       show : false,
+      drawer : null
     };
   }
 
@@ -42,8 +45,13 @@ componentWillMount(){
     console.log('navbar will mount')
     this.mql.addListener(this.mediaQueryChanged)
     this.setState({mql:this.mql, docked : this.mql.matches})
+
 }
 
+toggleDrawer(){
+    console.log(this.drawer)
+    this.drawer.setState( { open : !this.drawer.state.open })
+}
 
 handleLogout = (event) => {
     event.preventDefault();
@@ -83,7 +91,7 @@ return(
                 <ul className="left">
                 <li>
                     <div id="slide-button" className="row">
-                        <a>SLIDER</a>
+                        <a onClick={this.toggleDrawer}>=</a>
                     </div>
                 </li>
                 </ul>
@@ -115,7 +123,17 @@ return(
             </div>
         </nav>
         
-        <SideBar user={this.state.user} docked={this.state.docked}/>
+        {/*<SideBar ref={ (SideBar) => { this.sidebar = SideBar } } user={this.state.user} docked={this.state.docked}/>*/}
+        <Drawer
+            docked={this.state.docked}
+            containerClassName='drawer'
+            width={225}
+            ref={ (Drawer) => { this.drawer = Drawer } }
+        >
+            <MenuItem disabled primaryText={ <ul className='drawer-item'> { (this.state.user.email) 
+                ? this.state.user.email
+                : null } </ul>} />
+        </Drawer>
     </div>
     )
     } else {
@@ -125,4 +143,4 @@ return(
     }
 }
 
-export default NavBar;
+export default Navigator;

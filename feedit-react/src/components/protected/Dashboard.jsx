@@ -5,7 +5,6 @@ import RaisedButton from 'material-ui/RaisedButton';
 
 import Clock from '../Clock.jsx'
 import DataBoxContainer from '../DataBoxContainer.jsx'
-import NavBar from '../NavBar.jsx'
 import '../../css/materialize.css'
 import '../../css/style.css'
 

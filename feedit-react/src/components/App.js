@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Route, BrowserRouter, Link, Redirect, Switch } from 'react-router-dom'
 import {Col,Preloader} from 'react-materialize'
-import Navbar from './NavBar'
+import Navigator from './Navigator'
 import Login from './Login'
 import Register from './Register'
 import Dashboard from './protected/Dashboard.jsx'
@@ -87,7 +87,7 @@ export default class App extends Component {
         <MuiThemeProvider>
         <div style={{height: 100 + '%'}}>
           { this.state.authed 
-            ?  <Navbar href={null} user={this.state.user}/> 
+            ?  <Navigator href={null} user={this.state.user}/> 
           : null}
 
           <div style={{height: 100 + '%',overflowY: 'auto'}}>
