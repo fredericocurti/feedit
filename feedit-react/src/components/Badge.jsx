@@ -1,12 +1,19 @@
 import React, { Component } from 'react';
 
 class Badge extends React.Component {
+
+// COMPONENT FUNCTIONS 
+
 	constructor(props){
 		super(props);
 	}
 
 	componentWillMount(){
   	}
+
+
+// --------------------------- //
+// AUX FUNCTIONS
 
     checkGrammar(){
         if (this.props.count != 1){
@@ -23,6 +30,10 @@ class Badge extends React.Component {
             return 'cyan lighten-2'
         }
     }
+
+
+// ----------------------- //
+// RENDER FUNCTION
 
 	render () {
 		return (

@@ -10,6 +10,9 @@ import moment from 'moment'
 import 'moment/locale/pt-br';
 
 class DataBox extends React.Component {
+
+// COMPONENT FUNCTIONS --------------------------------------------------------
+
 	constructor(props){
 		super(props);
 		this.resetNewBadge = this.resetNewBadge.bind(this)
@@ -119,6 +122,9 @@ class DataBox extends React.Component {
 		this.setState( { dataHasLoaded : false })
 	}
 
+
+	// AUX FUNCTIONS --------------------------------------------------------------------
+
 	increaseCounters(score){
 		this.state.counters[score] ++
 	}
@@ -214,8 +220,6 @@ class DataBox extends React.Component {
 		this.setState({ memoryDifference : 0 })
 	}
 
-	// -------------------------------
-
 	requestData(){
 		console.log(this.state.isOpen,this.state.isFocused,this.isNew())
 		if (this.state.dataHasLoaded){
@@ -287,6 +291,8 @@ class DataBox extends React.Component {
 		}
 	}
 
+
+// RENDER FUNCTION --------------------------------------------------------
 
 	render () {
 		var triggerarray = [

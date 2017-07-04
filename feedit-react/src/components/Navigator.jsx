@@ -8,10 +8,13 @@ import FlatButton from 'material-ui/FlatButton';
 import Divider from 'material-ui/Divider';
 import SideBar from './SideBar.jsx'
 import Drawer from 'material-ui/Drawer';
+import FontIcon from 'material-ui/FontIcon';
 
 import { logout } from '../helpers/auth'
 
 class Navigator extends React.Component {
+
+// COMPONENT FUNCTIONS
 
   constructor(props) {
     super(props);
@@ -27,19 +30,6 @@ class Navigator extends React.Component {
     };
   }
 
-///
-
-
-  handleToggle = () => this.setState({open: !this.state.open});
-
-  mediaQueryChanged() {
-    this.setState({
-      docked: this.mql.matches,
-      open: this.mql.matches
-    })
-  }
-
-  ///
 
 componentWillMount(){
     console.log('navbar will mount')
@@ -48,12 +38,16 @@ componentWillMount(){
 
 }
 
+// --------------------------------------------------------------------------- 
+// AUX FUNCTIONS
+
 toggleDrawer(){
-    console.log(this.drawer)
+    this.props.toggleDrawer(!this.drawer.state.open)
     this.drawer.setState( { open : !this.drawer.state.open })
 }
 
 handleLogout = (event) => {
+
     event.preventDefault();
     // This prevents ghost click.
     logout()
@@ -77,70 +71,112 @@ handleTouchTap = (event) => {
     });
   };
 
+  handleToggle = () => this.setState({open: !this.state.open});
+
+  mediaQueryChanged() {
+    this.setState({
+      docked: this.mql.matches,
+      open: this.mql.matches
+    })
+  }
+
+  // --------------------------------------------------------------------------
+  // RENDER FUNCTION
 
 
 render () {
-    if (this.state.user){
-return(
-    <div className="navbar-fixed" style={{ height: 50 }}>
-        <nav className="nav">
-            <div id="navbar" className="nav-wrapper navcolor sticky" style={{ zIndex : 2 }}>
-                <ul>
-                    <div className="centered text-align center logo" >feedit</div>
-                </ul>
-                <ul className="left">
-                <li>
-                    <div id="slide-button" className="row">
-                        <a onClick={this.toggleDrawer}>=</a>
+
+    let navbar = () => {
+        return(
+            <div key='navbar' className="navbar-fixed" style={{ height: 50 }}>
+                <nav className="nav">
+                    <div id="navbar" className="nav-wrapper gradient sticky" style={{ zIndex : 2 }}>
+                        <ul>
+                            <div className="centered center logo">feedit</div>
+                        </ul>
+                        <ul className="left">
+                        <li>
+                            <div className="row valign-wrapper">
+                                <a onClick={this.toggleDrawer}>
+                                    <FontIcon style={{color: 'white'}} className="material-icons" >dehaze</FontIcon>
+                                </a>
+                            </div>
+                        </li>
+                        </ul>
+                        <ul className="right">
+                            <FlatButton className='avatarBtn'
+                                onTouchTap={this.handleTouchTap}
+                                hoverColor={ 'rgba(130,130,130,0.5)' }>
+                                <Avatar src={this.props.user.photoURL} className='userImg' />
+                                <Popover
+                                    open={this.state.open}
+                                    anchorEl={this.state.anchorEl}
+                                    anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                                    targetOrigin={{horizontal: 'middle', vertical: 'top'}}
+                                    onRequestClose={this.handleRequestClose}
+                                >
+                                    <Menu>
+                                        <MenuItem 
+                                            disabled 
+                                            primaryText={ <div style={{fontSize: 14}}>{this.props.user.email}</div> }/>
+                                        <Divider/>
+                                        <MenuItem primaryText="Ajuda &amp; feedback" />
+                                        <MenuItem primaryText="Configurações" />
+                                        <MenuItem primaryText="Sair" onTouchTap={this.handleLogout}/>
+                                    </Menu>
+                                </Popover>                            
+                            </FlatButton>
+                        </ul>
                     </div>
-                </li>
-                </ul>
-                <ul className="right">
-                    <FlatButton className='avatarBtn'
-                        onTouchTap={this.handleTouchTap}
-                        hoverColor={ 'rgba(130,130,130,0.5)' }>
-                        <Avatar src={this.props.user.photoURL} className='userImg' />
-                        <Popover
-                            open={this.state.open}
-                            anchorEl={this.state.anchorEl}
-                            anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-                            targetOrigin={{horizontal: 'middle', vertical: 'top'}}
-                            onRequestClose={this.handleRequestClose}
-                        >
-                            <Menu>
-                                <MenuItem 
-                                    disabled 
-                                    primaryText={ <div style={{fontSize: 14}}>{this.props.user.email}</div> }/>
-                                <Divider/>
-                                <MenuItem primaryText="Ajuda &amp; feedback" />
-                                <MenuItem primaryText="Configurações" />
-                                <MenuItem primaryText="Sair" onTouchTap={this.handleLogout}/>
-                            </Menu>
-                        </Popover>                            
-                        {/*<a>{this.props.children}</a>*/}
-                    </FlatButton>
-                </ul>
+                </nav>
             </div>
-        </nav>
-        
-        {/*<SideBar ref={ (SideBar) => { this.sidebar = SideBar } } user={this.state.user} docked={this.state.docked}/>*/}
-        <Drawer
-            docked={this.state.docked}
-            containerClassName='drawer'
-            width={225}
-            ref={ (Drawer) => { this.drawer = Drawer } }
-        >
-            <MenuItem disabled primaryText={ <ul className='drawer-item'> { (this.state.user.email) 
-                ? this.state.user.email
-                : null } </ul>} />
-        </Drawer>
-    </div>
-    )
-    } else {
-        return null
+        )
     }
     
+    let sidebar = () => {
+        return (
+            <Drawer
+                key='sidebar'
+                docked={this.state.docked}
+                containerClassName='drawer'
+                width={225}
+                ref={ (Drawer) => { this.drawer = Drawer } } >
+
+                <MenuItem disabled
+                    primaryText={ 
+                        <ul className='drawer-item'>
+                            {this.state.user.email}
+                        </ul>
+                    }
+                />
+
+                <MenuItem
+                    leftIcon={<FontIcon style={{color: 'lightgray'}} className="material-icons" >home</FontIcon>}
+                    primaryText={ 
+                        <ul style={{color: 'lightgray'}}>
+                            Visão Geral
+                        </ul>
+                    }
+                />
+
+            </Drawer>
+        )
     }
+
+    let navigator = () => {
+        return [ navbar() , sidebar() ]
+    }
+
+    return(
+        <div id='navigator'>
+            {this.state.user 
+                ? navigator() 
+                : null
+            }
+        </div>
+    )
+}
+
 }
 
 export default Navigator;

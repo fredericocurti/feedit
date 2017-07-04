@@ -85,12 +85,7 @@ export default class App extends Component {
     return this.state.loading === true ? <div className='row center' style={{marginTop: 25 + '%'}}><Preloader color='red'/></div> : (
       <BrowserRouter>
         <MuiThemeProvider>
-        <div style={{height: 100 + '%'}}>
-          { this.state.authed 
-            ?  <Navigator href={null} user={this.state.user}/> 
-          : null}
-
-          <div style={{height: 100 + '%',overflowY: 'auto'}}>
+          <div style={{height: 100 + '%'}}>
               <Switch>
                 { this.state.authed 
                 ?
@@ -102,7 +97,6 @@ export default class App extends Component {
                 <Route render={() => <h3>No Match</h3>} />
               </Switch>
           </div>
-        </div>
         </MuiThemeProvider>
       </BrowserRouter>
     );

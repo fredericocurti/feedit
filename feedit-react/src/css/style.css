@@ -49,14 +49,26 @@ main {
     width: 90%;
 }
 
-.navcolor{
+/*.navcolor{
   background-color: lightcoral;
+}*/
+
+.logo {
+  /*background: -webkit-linear-gradient(rgb(238, 71, 58), rgb(191, 26, 108));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;;*/
+  color:white;
+  font-size: 2rem !important;
 }
 
 .gradient{
-  background: #cb2d3e;  /* fallback for old browsers */
-  background: -webkit-linear-gradient(to right, rgba(238, 71, 58, 1), rgb(191, 26, 108));  /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to right, rgba(238, 71, 58, 1), rgb(191, 26, 108));
+  /*background: #cb2d3e;
+  background: -webkit-linear-gradient(to right, rgba(238, 71, 58, 1), rgb(191, 26, 108));
+  background: linear-gradient(to right, rgba(238, 71, 58, 1), rgb(191, 26, 108));*/
+background: #ED4264;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to right, #FFEDBC, #ED4264);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to right, #FFEDBC, #ED4264); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
 }
 
 nav {
@@ -450,18 +462,6 @@ nav {
   min-height: 50px;
   top: -60px !important;
 }*/
-
-
-IMPORTS FROM TEMPLATE
-.logo {
-  /*background: -webkit-linear-gradient(rgb(238, 71, 58), rgb(191, 26, 108));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;;*/
-  color:white;
-  font-size: 2.5rem !important;
-}
-
-
 
 /*footer.page-footer {
   margin: 0;

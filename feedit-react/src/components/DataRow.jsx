@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 
 class DataRow extends Component {
+    
+    // COMPONENT FUNCTIONS
+
 	constructor(props){
 		super(props);
         this.state = {
@@ -19,6 +22,26 @@ class DataRow extends Component {
         }
     }
 
+    componentDidUpdate(){
+        console.log('row updated')
+        if (this.state.isNew && this.props.boxstate && this.props.windowstate){
+            this.refresh = setTimeout( 
+            () => this.setSeen(),
+            500 );
+        }
+    }
+
+    shouldComponentUpdate(nextProps,nextState){
+        if (this.state.isNew === true || nextState.isNew != this.state.isNew){
+            return true
+        } else {
+            return false
+        }
+    }
+
+    // ---------------------------------------------
+    // AUX FUNCTIONS
+
     setSeen(){
         this.setState({ isNew : false })
     }
@@ -36,22 +59,11 @@ class DataRow extends Component {
     //         color: !current
     //     })
     // }
+    
 
-    componentDidUpdate(){
-        if (this.state.isNew && this.props.boxstate && this.props.windowstate){
-            this.refresh = setTimeout( 
-            () => this.setSeen(),
-            500 );
-        }
-    }
+    // ---------------------------------------
+    // RENDER FUNCTION
 
-    shouldComponentUpdate(nextProps,nextState){
-        if (this.state.isNew === true || nextState.isNew != this.state.isNew){
-            return true
-        } else {
-            return false
-        }
-    }
 
 	render () {
         if (this.state.isNew){

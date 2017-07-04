@@ -13,21 +13,6 @@ class DataBoxContainer extends React.Component {
         }
 	}
 
-    fetchData(token){
-        const url = 'https://febee-2b942.firebaseio.com/users/'+
-        firebase.auth().currentUser.uid+'/data/machines.json?shallow=true'
-        fetch(url).then(response => {
-            response.json().then( (responseJSON) => {
-                this.setResponse(responseJSON)
-            })
-        });
-
-    }
-
-    setResponse(response){
-        this.setState( { boxes : response })
-        this.renderDataBoxes()
-}
 
     componentDidUpdate(){
     }
@@ -47,6 +32,23 @@ class DataBoxContainer extends React.Component {
 		}
   	}
 
+//  ---------------------------------- // 
+
+    fetchData(token){
+        const url = 'https://febee-2b942.firebaseio.com/users/'+
+        firebase.auth().currentUser.uid+'/data/machines.json?shallow=true'
+        fetch(url).then(response => {
+            response.json().then( (responseJSON) => {
+                this.setResponse(responseJSON)
+            })
+        });
+
+    }
+
+    setResponse(response){
+        this.setState( { boxes : response })
+        this.renderDataBoxes()
+    }
     
     renderDataBoxes(){
         var boxArray = []
@@ -65,10 +67,10 @@ class DataBoxContainer extends React.Component {
     }
 
 
-onItemClick(event) {
-    event.currentTarget.style.backgroundColor = '#ccc';
-    console.log("btn clicked")
-}
+    onItemClick(event) {
+        event.currentTarget.style.backgroundColor = '#ccc';
+        console.log("btn clicked")
+    }
 
 	render () {
         const masonryOptions = {

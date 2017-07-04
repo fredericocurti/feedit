@@ -7,21 +7,27 @@ import Clock from '../Clock.jsx'
 import DataBoxContainer from '../DataBoxContainer.jsx'
 import '../../css/materialize.css'
 import '../../css/style.css'
+import Navigator from '../Navigator.jsx'
 
 import SideBar from '../SideBar'
 import { firebaseAuth } from '../../config/constants'
 
 class Dashboard extends Component {
+
+// COMPONENT FUNCTIONS
+
 	constructor(props){
 		super(props)
     this.mql = window.matchMedia('(min-width: 480px)')
     this.mediaQueryChanged = this.mediaQueryChanged.bind(this)
+    this.toggleDrawer = this.toggleDrawer.bind(this)
     this.state = {
         loaded : false,
         open : false,
         mql: this.mql,
         docked: this.mql.matches,
-        user: firebaseAuth().currentUser
+        user: firebaseAuth().currentUser,
+        drawerIsOpen : true,
     }
 	}
 
@@ -31,7 +37,18 @@ class Dashboard extends Component {
   }
 
   componentDidMount(){
-    this.setState( { loaded : true } )
+    this.setState( { loaded : true, open: true } )
+  }
+
+  componentDidUpdate(){
+    console.log('dashboard updated')
+  }
+
+// AUX FUNCTIONS --------------------------------------------------------------
+
+
+  toggleDrawer(drawerStatus){
+    this.setState( {drawerIsOpen : drawerStatus} )
   }
 
   handleToggle = () => this.setState({open: !this.state.open});
@@ -43,17 +60,33 @@ class Dashboard extends Component {
     })
   }
 
+// RENDER FUNCTION ------------------------------------------------------------
+
   render() {
+    const sideMargin = () => {
+      if (this.state.drawerIsOpen){
+        return 'side-margin'
+      } else {
+        return ''
+      }
+    }
+
     return (
-      <div id="Dashboard" className='dashboard data-container'>
-        <div className='side-margin'>
-          <Clock />
-          <DataBoxContainer/>
-          <Snackbar 
-            open={this.state.loaded}
-            message="Usuário autenticado com sucesso!"
-            autoHideDuration={4000}
-          />
+      <div style={{height : 100+'%'}}>
+        <Navigator user={this.state.user} toggleDrawer={this.toggleDrawer}/>
+          <div style={{height : 100+'%',overflowY: 'auto'}}>
+            <div id="Dashboard" className='dashboard data-container'>
+              <div className={sideMargin()}>
+                <Clock />
+                <DataBoxContainer/>
+                <Snackbar 
+                  open={this.state.open}
+                  message="Usuário autenticado com sucesso!"
+                  autoHideDuration={4000}
+                  onRequestClose={this.handleToggle}
+                />
+            </div>
+          </div>
         </div>
       </div>
     );
