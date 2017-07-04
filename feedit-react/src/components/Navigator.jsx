@@ -6,7 +6,6 @@ import Menu from 'material-ui/Menu'
 import MenuItem from 'material-ui/MenuItem'
 import FlatButton from 'material-ui/FlatButton';
 import Divider from 'material-ui/Divider';
-import SideBar from './SideBar.jsx'
 import Drawer from 'material-ui/Drawer';
 import FontIcon from 'material-ui/FontIcon';
 
@@ -98,7 +97,7 @@ render () {
                         <li>
                             <div className="row valign-wrapper">
                                 <a onClick={this.toggleDrawer}>
-                                    <FontIcon style={{color: 'white'}} className="material-icons" >dehaze</FontIcon>
+                                    <FontIcon style={{color: 'white', marginTop: 12.5}} className="material-icons" >dehaze</FontIcon>
                                 </a>
                             </div>
                         </li>

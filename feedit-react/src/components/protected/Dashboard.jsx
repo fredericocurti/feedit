@@ -8,8 +8,6 @@ import DataBoxContainer from '../DataBoxContainer.jsx'
 import '../../css/materialize.css'
 import '../../css/style.css'
 import Navigator from '../Navigator.jsx'
-
-import SideBar from '../SideBar'
 import { firebaseAuth } from '../../config/constants'
 
 class Dashboard extends Component {
