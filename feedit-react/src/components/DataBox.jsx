@@ -66,8 +66,8 @@ class DataBox extends React.Component {
 			let review = { 
 				key : snapshot.key,
 				score: snapshot.val().score,
-				date: moment(snapshot.val().date).format('LTS'),
-				time: moment(snapshot.val().date).format('L')
+				date: moment(parseInt(snapshot.val().date)).format('LTS'),
+				time: moment(parseInt(snapshot.val().date)).format('L')
 			}
 
 			var datas = this.state.data
@@ -239,8 +239,8 @@ class DataBox extends React.Component {
 						let review = { 
 							key : snapshot.key,
 							score: snapshot.val().score,
-							date: moment(snapshot.val().date).format('LTS'),
-							time: moment(snapshot.val().date).format('L'),
+							date: moment(parseInt(snapshot.val().date)).format('LTS'),
+							time: moment(parseInt(snapshot.val().date)).format('L'),
 						};
 
 						newData.unshift(review)
