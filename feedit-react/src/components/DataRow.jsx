@@ -23,7 +23,7 @@ class DataRow extends Component {
     }
 
     componentDidUpdate(){
-        console.log('row updated')
+        // console.log('row updated')
         if (this.state.isNew && this.props.boxstate && this.props.windowstate){
             this.refresh = setTimeout( 
             () => this.setSeen(),
@@ -72,8 +72,8 @@ class DataRow extends Component {
 		return (
             <div className={'datarow row'} style={stylebg}>
                 {this.coloredGrade(this.props.score)}
-                <div className='col s4 center-align'> {this.props.date} </div>
-                <div className='col s4 right-align'> {this.props.time} </div>
+                <div className='col s4 center-align'> {this.props.time} </div>
+                <div className='col s4 right-align'> {this.props.date} </div>
             </div>
         )
 	}

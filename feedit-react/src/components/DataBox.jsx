@@ -9,6 +9,8 @@ import Avatar from 'material-ui/Avatar'
 import moment from 'moment'
 import 'moment/locale/pt-br';
 
+var Store = require('../helpers/store')
+
 class DataBox extends React.Component {
 
 // COMPONENT FUNCTIONS --------------------------------------------------------
@@ -25,7 +27,6 @@ class DataBox extends React.Component {
 			bom: '#ff9800',
 			ruim: 'red'
 		}
-
 
 		this.state = {
 			dataHasLoaded: false,
@@ -66,12 +67,14 @@ class DataBox extends React.Component {
 			let review = { 
 				key : snapshot.key,
 				score: snapshot.val().score,
-				date: moment(parseInt(snapshot.val().date)).format('LTS'),
-				time: moment(parseInt(snapshot.val().date)).format('L')
+				date: moment(parseInt(snapshot.val().date,10)).format('L'),
+				time: moment(parseInt(snapshot.val().date,10)).format('LTS'),
+				timestamp : snapshot.val().date
 			}
 
 			var datas = this.state.data
 			datas.unshift(review)
+			Store.add(this.props.boxname,review)
 
 			var total = this.state.total
 			total ++
@@ -84,10 +87,12 @@ class DataBox extends React.Component {
 			if(this.state.dataHasLoaded){
 				console.log("New data added to box " + this.props.boxname)
 				this.increaseCounters(review.score)
+				Store.addCounters(review.score)
 				this.setState({
 					newUnseen : this.state.newUnseen + 1,
 					requestOffset : this.state.requestOffset + 1
 				})
+
 			}
 		})
 
@@ -102,6 +107,8 @@ class DataBox extends React.Component {
 					this.setState({counters:counters})
 				})
 				this.setState( { total : total })
+				Store.addCounters(this.state.counters)
+
 			
 		if (this.state.total == this.state.data.length || this.state.requested == this.state.data.length){
 			console.log(' requested initial data loaded @ ' + this.props.boxname + ', total: ' + this.state.total)
@@ -239,11 +246,13 @@ class DataBox extends React.Component {
 						let review = { 
 							key : snapshot.key,
 							score: snapshot.val().score,
-							date: moment(parseInt(snapshot.val().date)).format('LTS'),
-							time: moment(parseInt(snapshot.val().date)).format('L'),
+							date: moment(parseInt(snapshot.val().date,10)).format('L'),
+							time: moment(parseInt(snapshot.val().date,10)).format('LTS'),
+							timestamp : snapshot.val().date
 						};
 
 						newData.unshift(review)
+						Store.add(this.props.boxname,review)
 					})
 					
 					newData = newData

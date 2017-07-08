@@ -4,11 +4,12 @@ import Snackbar from 'material-ui/Snackbar'
 import RaisedButton from 'material-ui/RaisedButton';
 
 import Clock from '../Clock.jsx'
-import DataBoxContainer from '../DataBoxContainer.jsx'
+import Home from '../Home.jsx'
 import '../../css/materialize.css'
 import '../../css/style.css'
 import Navigator from '../Navigator.jsx'
 import { firebaseAuth } from '../../config/constants'
+
 
 class Dashboard extends Component {
 
@@ -27,6 +28,7 @@ class Dashboard extends Component {
         user: firebaseAuth().currentUser,
         drawerIsOpen : true,
     }
+
 	}
 
   componentWillMount(){
@@ -75,8 +77,9 @@ class Dashboard extends Component {
           <div style={{height : 100+'%',overflowY: 'auto'}}>
             <div id="Dashboard" className='dashboard data-container'>
               <div className={sideMargin()}>
+                {/*<DoughnutExample/>*/}
                 <Clock />
-                <DataBoxContainer/>
+                <Home/>
                 <Snackbar 
                   open={this.state.open}
                   message="Usuário autenticado com sucesso!"
