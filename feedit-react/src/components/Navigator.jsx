@@ -50,6 +50,8 @@ handleLogout = (event) => {
     event.preventDefault();
     // This prevents ghost click.
     logout()
+    window.location.reload()
+
     this.setState({
       user:null,
     });

@@ -23,8 +23,8 @@ class DataBox extends React.Component {
 		this.handleCollapsibleClick = this.handleCollapsibleClick.bind(this)
 		this.requestData = this.requestData.bind(this)
 		this.badgeColors = {
-			excelente: '#67e200',
-			bom: '#ff9800',
+			excelente: '#00ff3e',
+			bom: '#3dcdff',
 			ruim: 'red'
 		}
 
@@ -35,7 +35,7 @@ class DataBox extends React.Component {
 			isOpen : false,
 			isFocused: true,
 			memoryDifference : 0,
-			requested: 50,
+			requested: 100,
 			requestInc: 50,
 			requestOffset: 0,
 			total: 0,
@@ -61,7 +61,7 @@ class DataBox extends React.Component {
 
 		this.boxRef.child('entries')
 			.orderByChild('date')
-			.limitToLast(50)
+			.limitToLast(100)
 			.on('child_added', snapshot => {
 		/* Update React state when message is added at Firebase Database */
 			let review = { 
@@ -69,13 +69,13 @@ class DataBox extends React.Component {
 				score: snapshot.val().score,
 				date: moment(parseInt(snapshot.val().date,10)).format('L'),
 				time: moment(parseInt(snapshot.val().date,10)).format('LTS'),
-				timestamp : snapshot.val().date
+				timestamp : parseInt(snapshot.val().date)
 			}
 
 			var datas = this.state.data
 			datas.unshift(review)
-			Store.add(this.props.boxname,review)
-
+			
+			
 			var total = this.state.total
 			total ++
 			this.setState( { 
@@ -87,7 +87,8 @@ class DataBox extends React.Component {
 			if(this.state.dataHasLoaded){
 				console.log("New data added to box " + this.props.boxname)
 				this.increaseCounters(review.score)
-				Store.addCounters(review.score)
+				Store.addCounters(this.props.boxname,review.score)
+				Store.add(this.props.boxname,this.state.data)
 				this.setState({
 					newUnseen : this.state.newUnseen + 1,
 					requestOffset : this.state.requestOffset + 1
@@ -107,16 +108,20 @@ class DataBox extends React.Component {
 					this.setState({counters:counters})
 				})
 				this.setState( { total : total })
-				Store.addCounters(this.state.counters)
-
+				
 			
-		if (this.state.total == this.state.data.length || this.state.requested == this.state.data.length){
-			console.log(' requested initial data loaded @ ' + this.props.boxname + ', total: ' + this.state.total)
-			this.setState ( { dataHasLoaded : true } )
-			// checks for a counter difference
-			this.checkMemory()
-		}
-	})
+				if (this.state.total == this.state.data.length || this.state.requested == this.state.data.length){
+					console.log(' requested initial data loaded @ ' + this.props.boxname + ', total: ' + this.state.total)
+					
+					Store.setLoaded()
+					Store.add(this.props.boxname,this.state.data)
+					Store.addCounters(this.props.boxname,this.state.counters)
+
+					this.setState ( { dataHasLoaded : true } )
+					// checks for a counter difference
+					this.checkMemory()
+				}
+			})
 
 		window.addEventListener("beforeunload", (ev) => {  
 			ev.preventDefault();
@@ -228,7 +233,6 @@ class DataBox extends React.Component {
 	}
 
 	requestData(){
-		console.log(this.state.isOpen,this.state.isFocused,this.isNew())
 		if (this.state.dataHasLoaded){
 			let newData = []
 
@@ -248,19 +252,25 @@ class DataBox extends React.Component {
 							score: snapshot.val().score,
 							date: moment(parseInt(snapshot.val().date,10)).format('L'),
 							time: moment(parseInt(snapshot.val().date,10)).format('LTS'),
-							timestamp : snapshot.val().date
+							timestamp : parseInt(snapshot.val().date)
 						};
 
 						newData.unshift(review)
-						Store.add(this.props.boxname,review)
+
 					})
 					
 					newData = newData
 						.slice(
 						this.state.requested - this.state.requestInc + this.state.requestOffset,
 						newData.length)
-					this.setState({dataHasLoaded : true})
-					this.setState({ data: this.state.data.concat(newData) });
+					
+					let concatData = this.state.data.concat(newData)
+
+					this.setState({
+						dataHasLoaded : true,
+						data: concatData
+					})
+					
 					
 				})
 			})  
@@ -309,9 +319,9 @@ class DataBox extends React.Component {
 					<span key={this.props.boxname + '-total-counter'} className="badge counter-badge" data-badge-caption={this.state.total}></span>,
 					<div className='counters' key={'counters-'+this.props.boxname}>
 						{[
-						this.showRuimBadge(),
-						this.showBomBadge(),
 						this.showExcelenteBadge(),
+						this.showBomBadge(),
+						this.showRuimBadge(),
 						]}
 					</div>,
 					this.showNewBadge(),

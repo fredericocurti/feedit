@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import DataBox from './DataBox'
+import DataBoxContainer from './DataBoxContainer'
+
 import firebase from 'firebase'
 
 import Paper from 'material-ui/Paper'
@@ -8,6 +10,8 @@ import Divider from 'material-ui/Divider'
 import Masonry from 'react-masonry-component'
 import Doughnut from './charts/Doughnut.jsx'
 import Gauge from './charts/Gauge.jsx'
+
+import CounterCard from './CounterCard'
 
 
 var Store = require('../helpers/store')
@@ -27,26 +31,27 @@ class Home extends React.Component {
 
 
 	componentWillMount(){
-        firebase.auth().currentUser.getIdToken().then(
-            (Token) => {
-                this.fetchData(Token)
-            }
-        )
+        // firebase.auth().currentUser.getIdToken().then(
+        //     (Token) => {
+        //         this.fetchData(Token)
+        //     }
+        // // )
 
-        this.fetchData()
-        window.onfocus = () => {
-			this.setState( { isFocused : true })
-		}
-		window.onblur = () => {
-			this.setState( { isFocused : false })
-		}
+        // this.fetchData()
+        
+        // window.onfocus = () => {
+		// 	this.setState( { isFocused : true })
+		// }
+		// window.onblur = () => {
+		// 	this.setState( { isFocused : false })
+		// }
 
   	}
 
 
 //  ---------------------------------- // 
 
-    fetchData(token){
+    /*fetchData(token){
         const url = 'https://febee-2b942.firebaseio.com/users/'+
         firebase.auth().currentUser.uid+'/data/machines.json?shallow=true'
         fetch(url).then(response => {
@@ -57,6 +62,7 @@ class Home extends React.Component {
     }
 
     setResponse(response){
+        Store.setAmount(Object.keys(response).length)
         this.setState( { boxes : response })
         this.renderDataBoxes()
     }
@@ -82,12 +88,12 @@ class Home extends React.Component {
                         os aparelhos corretamente </h4>
         }
         return boxArray
-    }
+    }*/
 
 
     onItemClick(event) {
         event.currentTarget.style.backgroundColor = '#ccc';
-        console.log(Store.getStore('reviews'))
+        console.log(Store.getStore())
         console.log("btn clicked")
     }
 
@@ -105,20 +111,38 @@ class Home extends React.Component {
             <div className='col s12'>
 
                 <div className='row'>
+
+                    <div className='chart-card col s6 m3'>
+                        <CounterCard scoreType='excelente'/>
+                    </div>
+
+                    <div className='chart-card col s6 m3'>
+                        <CounterCard scoreType='bom'/>
+                    </div>
+
+                    <div className='chart-card col s6 m3'>
+                        <CounterCard scoreType='ruim'/>
+                    </div>
+
+                    <div className='chart-card col s6 m3'>
+                        <CounterCard scoreType='total'/>
+                    </div>
+
                     <div className='chart-card col s12 m6'>
                         <Paper zDepth={2} className='chart-card-inner'>
-                            <h5 className='grey-text'> Distribuição das notas </h5>
-                            <Divider/>
                             <Doughnut/>
                         </Paper>
                     </div>
-                     <div className='chart-card col s12 m6' style={{ marginTop: 20}}>
+
+                     <div className='chart-card col s12 m6'>
                         <Paper zDepth={2} className='chart-card-inner'> <Gauge/> </Paper>
                     </div>
+
                 </div>
+            
+            <DataBoxContainer/>
 
-
-            <Masonry
+            {/*<Masonry
                 enableResizableChildren={true}
                 className={'masonry'} // default '' 
                 elementType={'div'} // default 'div'
@@ -128,7 +152,7 @@ class Home extends React.Component {
                 updateOnEachImageLoad={false}  // default false and works only if disableImagesLoaded is false
             >
                 { this.renderDataBoxes() }
-            </Masonry>
+            </Masonry>*/}
 
             
                     <a onClick={this.onItemClick} className='btn waves-effect waves-light'>Log store</a>

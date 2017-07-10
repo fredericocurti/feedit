@@ -3,10 +3,13 @@ const EventEmitter = require('events').EventEmitter
 const emitter = new EventEmitter();
 
 var store = { 
+    boxCount : 0,
+    loadedBoxCount : 0,
     counters : {
         excelente: 0,
         bom: 0,
-        ruim: 0
+        ruim: 0,
+        total : 0
     },
     reviews: {}
      
@@ -15,7 +18,11 @@ var store = {
 module.exports = {
 
     getStore : function(storeName) {
-        return store[storeName]
+        if ( arguments.length === 0){
+            return store
+        } else {
+            return store[storeName]
+        }
     },
 
     subscribe: function(storeName,callback) {
@@ -26,7 +33,8 @@ module.exports = {
         emitter.removeListener( storeName+'_update',callback)
     },
 
-    addCounters: function(count) {
+    addCounters: function(boxname,count) {
+        // console.log( 'loaded,total',store.loadedBoxCount, store.boxCount )
         if (typeof count == 'string'){
             if (count == 'excelente'){ store.counters.excelente ++}
             else if (count == 'bom'){ store.counters.bom ++}
@@ -36,17 +44,36 @@ module.exports = {
             store.counters.bom += count.bom
             store.counters.ruim += count.ruim
         }
-        emitter.emit('counters_update')
+        if (store.loadedBoxCount === store.boxCount){
+            emitter.emit('counters_update')
+        }
     },
 
-    add: function(boxname,review){
-        if ( !store.reviews[boxname] ){
-            store.reviews[boxname] = []
-            store.reviews[boxname].push(review)
-        } else { 
-            store.reviews[boxname].push(review) 
+    setLoaded : function(){
+        store.loadedBoxCount ++
+         if (store.loadedBoxCount === store.boxCount){
+            console.log('all boxes have loaded,emitting update')
+            emitter.emit('reviews_update')
         }
-        emitter.emit('reviews_update')
+    },
+
+    setAmount : function(count){
+        store.boxCount = count
+    },
+
+    add: function(boxname,data){
+        // console.log('store received new data')
+        if ( !store.reviews[boxname] ){
+            store.reviews[boxname] = data
+        } else { 
+            store.reviews[boxname] = data
+        }
+
+        if (store.loadedBoxCount === store.boxCount){
+            emitter.emit('reviews_update')
+        }
+       
+
     }
 
 }
