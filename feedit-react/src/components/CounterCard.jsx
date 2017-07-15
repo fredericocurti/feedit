@@ -173,10 +173,10 @@ export default class CounterCard extends React.Component {
                         </span>
                       </div>
                     </div>
-                      Ultima avaliação: <br/><b>{ this.state.lasthour } </b>
+                      	• Ultima avaliação: <br/><b>{ this.state.lasthour } </b>
                       no local <b> {this.state.lastplace.replace(/\b\w/g, l => l.toUpperCase())} </b> <br/>
-                      Hoje: <b> { this.state.day } </b> <br/>
-                      Últimos 7 dias: <b> { this.state.week } </b> <br/>
+                      	• Hoje: <b> { this.state.day } </b> <br/>
+                      	• Últimos 7 dias: <b> { this.state.week } </b> <br/>
               </div>
             )
           }

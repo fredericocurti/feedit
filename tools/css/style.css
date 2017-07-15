@@ -136,7 +136,7 @@ main {
 
 .user-img{
   pointer-events: none;
-  background: -webkit-linear-gradient(rgb(238, 71, 58), rgb(191, 26, 108));
+  background: navy;
   padding: 2px;
 }
 /*.raw{
@@ -281,7 +281,6 @@ main {
 
 .header{
   color: rgba(228, 42, 62, 1);
-  text-shadow: 1px 1px 10px #000000;
   padding-top:150px;
 }
 .no-boxshadow{
@@ -295,9 +294,9 @@ main {
 
 }
 .gradient{
-  background: #cb2d3e;  /* fallback for old browsers */
-  background: -webkit-linear-gradient(to right, rgba(238, 71, 58, 1), rgb(191, 26, 108));  /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to right, rgba(238, 71, 58, 1), rgb(191, 26, 108));
+  background-color: navy;  /* fallback for old browsers */
+/*  background: -webkit-linear-gradient(to right, rgba(238, 71, 58, 1), rgb(191, 26, 108));
+  background: linear-gradient(to right, rgba(238, 71, 58, 1), rgb(191, 26, 108));*/
 }
 
 nav {
@@ -354,10 +353,8 @@ nav {
 
 /*IMPORTS FROM TEMPLATE*/
 .brand-logo {
-  background: -webkit-linear-gradient(rgb(238, 71, 58), rgb(191, 26, 108));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;;
-  font-size: 2.2rem !important;
+  color: navy;
+  font-size: 1.5rem !important;
 }
 
 p {
@@ -365,7 +362,7 @@ p {
 }
 
 .button-collapse {
-  color: #26a69a;
+  color: navy;
 }
 
 .parallax-container {
