@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 
 import Snackbar from 'material-ui/Snackbar'
-import RaisedButton from 'material-ui/RaisedButton';
 
 import Clock from '../Clock.jsx'
 import Home from '../Home.jsx'
@@ -75,8 +74,9 @@ class Dashboard extends Component {
       <div style={{height : 100+'%'}}>
         <Navigator user={this.state.user} toggleDrawer={this.toggleDrawer}/>
           <div style={{height : 100+'%',overflowY: 'auto'}}>
-            <div id="Dashboard" className='dashboard data-container'>
+            <div id="Dashboard" className='data-container'>
               <div className={sideMargin()}>
+                <div className='container'>
                 {/*<DoughnutExample/>*/}
                 <Clock />
                 <Home/>
@@ -86,6 +86,7 @@ class Dashboard extends Component {
                   autoHideDuration={4000}
                   onRequestClose={this.handleToggle}
                 />
+              </div>
             </div>
           </div>
         </div>

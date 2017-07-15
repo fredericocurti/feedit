@@ -1,14 +1,11 @@
 import React, { Component } from 'react'
-import { Route, BrowserRouter, Link, Redirect, Switch } from 'react-router-dom'
-import {Col,Preloader} from 'react-materialize'
-import Navigator from './Navigator'
+import { Route, BrowserRouter, Redirect, Switch } from 'react-router-dom'
+import {Preloader} from 'react-materialize'
 import Login from './Login'
-import Register from './Register'
 import Dashboard from './protected/Dashboard.jsx'
-import { logout } from '../helpers/auth'
 import { firebaseAuth } from '../config/constants'
 
-import '../css/materialize.css'
+// import '../css/materialize.css'
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
@@ -68,20 +65,6 @@ export default class App extends Component {
   }
 
   render() {
-    var navChildren = [
-            <div>
-              {this.state.authed
-                ? <button
-                    style={{border: 'none', background: 'white', color: '#000000'}}
-                    onClick={() => {
-                      logout()
-                    }}
-                    className="btn">Logout</button>
-                : <span>
-                    <Link to="/login"></Link>
-                  </span>}
-            </div> ]
-
     return this.state.loading === true ? <div className='row center' style={{marginTop: 25 + '%'}}><Preloader color='red'/></div> : (
       <BrowserRouter>
         <MuiThemeProvider>

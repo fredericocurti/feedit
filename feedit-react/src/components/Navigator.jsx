@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Navbar,NavItem } from 'react-materialize'
 import Avatar from 'material-ui/Avatar'
 import Popover from 'material-ui/Popover'
 import Menu from 'material-ui/Menu'
@@ -11,7 +10,7 @@ import FontIcon from 'material-ui/FontIcon';
 
 import { logout } from '../helpers/auth'
 
-class Navigator extends React.Component {
+class Navigator extends Component {
 
 // COMPONENT FUNCTIONS
 
@@ -140,7 +139,7 @@ render () {
                 key='sidebar'
                 docked={this.state.docked}
                 containerClassName='drawer'
-                width={225}
+                width={200}
                 ref={ (Drawer) => { this.drawer = Drawer } } >
 
                 <MenuItem disabled

@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
 
+
+var Store = require('../helpers/store')
+let colors = Store.getStore('colors')
+
 class DataRow extends Component {
     
     // COMPONENT FUNCTIONS
@@ -46,11 +50,24 @@ class DataRow extends Component {
         this.setState({ isNew : false })
     }
 
+    getColor(){
+        switch (this.props.score){
+            case 'excelente':
+                return colors.excelente
+            case 'bom':
+                return colors.bom
+            case 'ruim':
+                return colors.ruim
+        }
+    }
+
     coloredGrade(grade){
         return ( 
-            <div className={"col s4 left-align nota-"+ grade}> {grade.replace(/\b\w/g, l => l.toUpperCase())} </div>
+            <div className={"col s4 left-align"} style={{ color: this.getColor() }}> {grade.replace(/\b\w/g, l => l.toUpperCase())} </div>
         )
     }
+
+
 
     // onRowClick() {
     //     console.log("row clicked")
@@ -68,7 +85,7 @@ class DataRow extends Component {
 	render () {
         const oldColor = '#d5f6ff'
         if (this.state.isNew){
-            var stylebg = { backgroundColor : '#ffff00'}
+            var stylebg = { backgroundColor : oldColor }
         }
 		return (
             <div className={'datarow row'} style={stylebg}>

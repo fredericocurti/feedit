@@ -77,7 +77,7 @@ nav {
 }
 
 .side-margin{
-  margin-left: 225px;
+  margin-left: 200px;
 }
 
 .avatarBtn {
@@ -117,16 +117,7 @@ nav {
   flex-direction: column;
 }
 
-.nota-excelente{ 
-  /*color:#67e200;*/
-  color: #00ff3e }
-
 .grey-text{color:gray;}
-.nota-bom{ 
-  /*color:#ff9800;*/
-  color: #3dcdff
-  }
-.nota-ruim{color : red}
 
 .preloader-wrapper.small{
     /*margin: 10px auto 0 auto;*/
@@ -144,6 +135,32 @@ nav {
   text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
   background-repeat: no-repeat;
   background-position: right bottom;
+  transition: max-height 0.2s ease;
+  -webkit-transition: max-height 0.2s ease;
+  -moz-transition: max-height 0.2s ease;
+  -o-transition: max-height 0.2s ease;
+  -ms-transition: max-height 0.2s ease;
+  /*height: 100px;*/
+  cursor: pointer;
+  max-height: 100px;
+}
+
+.card-content.open{
+  max-height: 250px;
+  /*height: 180px;*/
+}
+
+.ccbutton{
+  display:inline-block;
+  transform: rotate(0deg);
+  transition: transform 0.2s ease;
+}
+
+.ccbutton.open{
+  transform : rotate(90deg);
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
 }
 
 .excelente-card{
@@ -157,6 +174,23 @@ nav {
 .ruim-card{
     background-image: url('../img/sad.png');
 }
+
+.excelente-card:hover{
+    background-color: greenyellow !important;
+}
+
+.bom-card:hover{
+    background-color: darkorange !important;
+}
+
+.ruim-card:hover{
+    background-color: rgb(191, 26, 108) !important;
+}
+
+.total-card:hover{
+  background-color: lightskyblue !important;
+}
+
 
 .chart-card{
   /*min-height: 370px !important;*/
@@ -307,8 +341,6 @@ nav {
   margin:5px !important;
 }*/
 .data-container{
-  margin-left:3% !important;
-  margin-right:3% !important;
   margin-bottom: 12%;
 }
 

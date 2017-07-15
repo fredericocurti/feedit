@@ -3,19 +3,26 @@ import Paper from 'material-ui/Paper'
 import CircularProgress from 'material-ui/CircularProgress';
 import Divider from 'material-ui/Divider'
 
+
 import moment from 'moment'
 
 const Store = require('../helpers/store.js')
+let colors = Store.getStore('colors')
 
 export default class CounterCard extends React.Component {
     constructor(props) {
         super(props)
+        this.switchOpen = this.switchOpen.bind(this)
+        this.handleClick = this.handleClick.bind(this)
         this.state = {
           day : '',
           week: '',
           lasthour : '',
+          lastplace: '',
           always : '',
           ready: false,
+          open: false,
+          cursorPos: {}
         }
   }
   
@@ -86,68 +93,100 @@ export default class CounterCard extends React.Component {
           day : todayReviews,
           week : weekReviews,
           ready: true,
-          lasthour : moment(newest.timestamp).fromNow()
+          lasthour : moment(newest.timestamp).fromNow(),
+          lastplace : newest.place
         })
        
     }
 
+    switchOpen(){
+      this.setState( { open : !this.state.open })
+    }
+
+    handleClick(e){
+      // Get Cursor Position 
+      let cursorPos = {
+        top: e.clientY,
+        left: e.clientX,
+        // Prevent Component duplicates do ripple effect at the same time 
+        time: Date.now()
+      }
+      this.setState({ cursorPos: cursorPos })
+    }
+
     render() {
       const color = () => {
-        if (this.props.scoreType == 'excelente'){
-          return '#00ff3e'
-        } else if ( this.props.scoreType == 'bom' ){
-          return '#3dcdff'
-        } else if ( this.props.scoreType == 'ruim' ){
-          return 'red'
+        if (this.props.scoreType !== 'total'){
+          return colors[this.props.scoreType]
         } else {
-          return '#ff0088'
+          return '#00d6ff'
         }
       }
 
       const getClass = () =>{
-        if (this.props.scoreType == 'excelente'){
-          return 'card-content excelente-card'
-        } else if ( this.props.scoreType == 'bom' ){
-          return 'card-content bom-card'
-        } else if ( this.props.scoreType == 'ruim' ){
-          return 'card-content ruim-card'
-        } else {
-          return 'card-content total-card'
-        }
+          return 'card card-content ' + this.props.scoreType + '-card'
       }
 
       const style = { 
         backgroundColor: color(),
         color: 'white',
-        minHeight : 100,
-        fontSize : 1+'rem'
+        fontSize : 1+'rem',
+        padding: '15px',
       }
 
       const output = () => {
         if (this.state.ready){
-
-          return (
-          <Paper zDepth={2} style={style} className={getClass()}>
-
-            <div className='center' style={{paddingTop: 5}}> 
-              <b> {this.props.scoreType.replace(/\b\w/g, l => l.toUpperCase())} </b>
-            </div>
-
-            <div style={{padding: 15}} >
-              Ultima avaliação: <b> <br/> { this.state.lasthour } </b> <br/>
-              Hoje: <b> { this.state.day } </b> <br/>
-              Últimos 7 dias: <b> { this.state.week } </b> <br/>
-              Total : <b> { this.state.always } </b><br/>
-
-            </div>
-          </Paper>
-          )
+          switch (this.state.open){
+            case false:
+            return (
+              <div style={style} 
+                className={getClass()}
+                onClick={this.switchOpen}
+              >
+                    <div style={{overflow:'auto'}}>
+                      <div className='left' style={{paddingTop:5}}>
+                        <span  style={{fontSize:1+'em',textTransform:'capitalize'}}>
+                          <span className='ccbutton'> ► </span> {"\u00A0"} {this.props.scoreType} 
+                        </span>
+                      </div>
+                      <div className='right'>
+                        <span  style={{fontSize:1.7+'em'}}>
+                            <b> { this.state.always } </b>
+                        </span>
+                      </div>
+                    </div>
+              </div>
+              )
+            
+            case true:
+            return(
+              <div style={style} className={getClass() + ' open'} onClick={this.switchOpen}>
+                    <div style={{overflow:'auto'}}>
+                      <div className='left' style={{paddingTop:5}}>
+                        <span  style={{fontSize:1+'em',textTransform:'capitalize'}}>
+                          <span className='ccbutton open'> ► </span> {"\u00A0"} {this.props.scoreType} 
+                        </span>
+                      </div>
+                      <div className='right'>
+                        <span  style={{fontSize:1.7+'em'}}>
+                            <b> { this.state.always } </b>
+                        </span>
+                      </div>
+                    </div>
+                      Ultima avaliação: <br/><b>{ this.state.lasthour } </b>
+                      no local <b> {this.state.lastplace.replace(/\b\w/g, l => l.toUpperCase())} </b> <br/>
+                      Hoje: <b> { this.state.day } </b> <br/>
+                      Últimos 7 dias: <b> { this.state.week } </b> <br/>
+              </div>
+            )
+          }
+          
 
         } else {
           return (
             <Paper zDepth={2} style={style} className={getClass()}>
-              <CircularProgress color='white' 
-                style={{paddingTop: 30, margin: '0 auto',display: 'block'}}
+              <CircularProgress size={30} color='white' 
+                style={{ margin: '0 auto',display: 'block'}}
               />
             </Paper>
           )

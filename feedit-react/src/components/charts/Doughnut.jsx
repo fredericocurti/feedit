@@ -1,14 +1,15 @@
 import React from 'react';
 import {Doughnut,Chart} from 'react-chartjs-2';
 
-import DropDownMenu from 'material-ui/DropDownMenu';
+import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import Divider from 'material-ui/Divider'
-
+import Paper from 'material-ui/Paper'
 import moment from 'moment'
 
 
 var Store = require('../../helpers/store')
+let colors = Store.getStore('colors')
 
 var originalDoughnutDraw = Chart.controllers.doughnut.prototype.draw;
 Chart.helpers.extend(Chart.controllers.doughnut.prototype, {
@@ -37,7 +38,7 @@ Chart.helpers.extend(Chart.controllers.doughnut.prototype, {
 export default class DoughnutChart extends React.Component {
 	constructor(props){
 		super(props)
-    console.log('dougnut props',this.props)
+    // console.log('dougnut props',this.props)
     
     this.state = {
       value: 1,
@@ -50,9 +51,9 @@ export default class DoughnutChart extends React.Component {
           datasets: [{
             data: [0,0,0],
             backgroundColor: [
-            '#00ff3e',
-            '#3dcdff',
-            '#ff0000'
+            colors.excelente,
+            colors.bom,
+            colors.ruim
             ],
             hoverBackgroundColor: [
             '#00ff91',
@@ -92,8 +93,13 @@ export default class DoughnutChart extends React.Component {
       }
     })
 
+    window.addEventListener('resize', () => {
+      setTimeout(() => {Store.setHeight(this.div.clientHeight) 
+      } , true) }, 200)    
+  }
 
-    
+  componentDidMount(){
+      Store.setHeight(this.div.clientHeight)
   }
 
   componentWillUnmount(){
@@ -109,20 +115,21 @@ export default class DoughnutChart extends React.Component {
   }
 
   recalculate(value){
-    console.log('recalculating')
-    console.log(value)
+    // console.log(value)
     let data = this.state.data
     let newCounters = { excelente: 0, bom:0, ruim :0}
       
-    if (value == 1){
+    if (value === 1){
       let counters = Store.getStore('counters')
       data.datasets[0].data = [counters.excelente,counters.bom,counters.ruim]
         
 
-    } else if (value == 2){
+    } else if (value === 2){
 
       let keys = Object.keys(this.reviews)
-      for (let i = 0; i < keys.length; i++){
+      let l = keys.length
+      let i
+      for (i = 0; i < l; i++) {
           this.reviews[keys[i]].forEach((element) => {
               let time = moment(element.timestamp)
               // if ( time.isSame(moment(), 'day') ){
@@ -134,11 +141,14 @@ export default class DoughnutChart extends React.Component {
               }
           })
       }
+  
       data.datasets[0].data = [newCounters.excelente,newCounters.bom,newCounters.ruim]
 
-    } else if (value == 3){
+    } else if (value === 3) {
       let keys = Object.keys(this.reviews)
-      for (let i = 0; i < keys.length; i++){
+      let l = keys.length
+      let i
+      for (i = 0; i < l ; i++){
           this.reviews[keys[i]].forEach((element) => {
               let time = moment(element.timestamp)
               if ( time.isSame(moment(), 'day') ){
@@ -149,7 +159,6 @@ export default class DoughnutChart extends React.Component {
       data.datasets[0].data = [newCounters.excelente,newCounters.bom,newCounters.ruim] 
     }
 
-    console.log('recalculated data')
     data.text = 
         this.state.data.datasets[0].data[0] +
         this.state.data.datasets[0].data[1] + 
@@ -160,17 +169,38 @@ export default class DoughnutChart extends React.Component {
   }
 
   render() {
+    const style = {
+          paddingLeft : 15,
+          marginTop: 20,
+          paddingRight: 15,
+          paddingBottom: 15
+        }
+
     return (
-      <div>
-        <ul className='grey-text left'> Distribuição total das notas </ul>
-          <DropDownMenu className='right' value={this.state.value} onChange={this.handleChange}>
+      <Paper zDepth={2} className='chart-card-inner' 
+        style={{
+            paddingLeft : 15,
+            paddingRight: 15,
+            paddingBottom: 15,
+            paddingTop: 0
+        }}>
+
+      <div ref={ (div) => this.div = div}>
+        <ul className='grey-text left'> Distribuição </ul>
+          <SelectField 
+            className='right' 
+            value={this.state.value} 
+            onChange={this.handleChange}
+            style={{width: 130, fontSize: 15}}>
             <MenuItem value={1} primaryText="Sempre" />
             <MenuItem value={2} primaryText="Últimos 7 dias"/>
             <MenuItem value={3} primaryText="Hoje" />
-          </DropDownMenu>   
+          </SelectField>   
         
         <Doughnut data={this.state.data} height={150} />
       </div>
+
+      </Paper>
     );
   }
 }

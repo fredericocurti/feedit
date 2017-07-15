@@ -1,13 +1,9 @@
 import React, { Component } from 'react';
-import DataBox from './DataBox'
 import DataBoxContainer from './DataBoxContainer'
 
-import firebase from 'firebase'
 
 import Paper from 'material-ui/Paper'
-import Divider from 'material-ui/Divider'
 
-import Masonry from 'react-masonry-component'
 import Doughnut from './charts/Doughnut.jsx'
 import Gauge from './charts/Gauge.jsx'
 
@@ -16,7 +12,7 @@ import CounterCard from './CounterCard'
 
 var Store = require('../helpers/store')
 
-class Home extends React.Component {
+class Home extends Component {
 	constructor(props){
 		super(props);
         this.state = {
@@ -98,47 +94,37 @@ class Home extends React.Component {
     }
 
 	render () {
-        const masonryOptions = {
-            transitionDuration: 150,
-            enableResizableChildren: true,
-            // gutter: 40,
-            // columnWidth:{ width : 20 + '%' }
-        }
-            const masonryStyle = {
-        }
-
 		return (
             <div className='col s12'>
-
                 <div className='row'>
-
-                    <div className='chart-card col s6 m3'>
+                    <div className='chart-card col s12 m3'>
                         <CounterCard scoreType='excelente'/>
                     </div>
 
-                    <div className='chart-card col s6 m3'>
+                    <div className='chart-card col s12 m3'>
                         <CounterCard scoreType='bom'/>
                     </div>
 
-                    <div className='chart-card col s6 m3'>
+                    <div className='chart-card col s12 m3'>
                         <CounterCard scoreType='ruim'/>
                     </div>
 
-                    <div className='chart-card col s6 m3'>
+                    <div className='chart-card col s12 m3'>
                         <CounterCard scoreType='total'/>
                     </div>
+                </div>
 
+                <div className='row'>
                     <div className='chart-card col s12 m6'>
-                        <Paper zDepth={2} className='chart-card-inner'>
-                            <Doughnut/>
-                        </Paper>
+                        <Doughnut/>
                     </div>
 
                      <div className='chart-card col s12 m6'>
-                        <Paper zDepth={2} className='chart-card-inner'> <Gauge/> </Paper>
+                        <Gauge/>
                     </div>
-
                 </div>
+
+
             
             <DataBoxContainer/>
 

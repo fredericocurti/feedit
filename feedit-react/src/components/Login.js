@@ -41,7 +41,7 @@ export default class Login extends Component {
                 <div className="alert alert-danger" role="alert">
                   <span className="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                   <span className="sr-only"></span>
-                  &nbsp;{this.state.loginMessage} <a href="#" onClick={this.resetPassword} className="alert-link">Esqueceu sua senha?</a>
+                  &nbsp;{this.state.loginMessage} <a onClick={this.resetPassword} className="alert-link">Esqueceu sua senha?</a>
                 </div>
               }
 

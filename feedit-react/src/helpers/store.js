@@ -5,6 +5,12 @@ const emitter = new EventEmitter();
 var store = { 
     boxCount : 0,
     loadedBoxCount : 0,
+    doughnutHeight:0,
+    colors:{
+        excelente: '#00ff3e',
+        bom: '#ffb43d',
+        ruim: '#ff0000'
+    },
     counters : {
         excelente: 0,
         bom: 0,
@@ -16,7 +22,6 @@ var store = {
     };
 
 module.exports = {
-
     getStore : function(storeName) {
         if ( arguments.length === 0){
             return store
@@ -26,7 +31,7 @@ module.exports = {
     },
 
     subscribe: function(storeName,callback) {
-        emitter.addListener( storeName+'_update',callback)
+        emitter.addListener( storeName+'_update', callback)
     },
 
     unsubscribe: function(storeName,callback) {
@@ -59,6 +64,14 @@ module.exports = {
 
     setAmount : function(count){
         store.boxCount = count
+    },
+
+    setHeight : function(height){
+        if (store.doughnutHeight != height){
+            store.doughnutHeight = height
+            emitter.emit('doughnutHeight_update')
+        }
+
     },
 
     add: function(boxname,data){

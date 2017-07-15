@@ -9,7 +9,9 @@ import Avatar from 'material-ui/Avatar'
 import moment from 'moment'
 import 'moment/locale/pt-br';
 
-var Store = require('../helpers/store')
+let Store = require('../helpers/store')
+let colors = Store.getStore('colors')
+
 
 class DataBox extends React.Component {
 
@@ -23,10 +25,12 @@ class DataBox extends React.Component {
 		this.handleCollapsibleClick = this.handleCollapsibleClick.bind(this)
 		this.requestData = this.requestData.bind(this)
 		this.badgeColors = {
-			excelente: '#00ff3e',
-			bom: '#3dcdff',
-			ruim: 'red'
+			excelente: colors.excelente,
+			bom: colors.bom,
+			ruim: colors.ruim
 		}
+
+		this.notification_sound = new Audio('../assets/pop.mp3');
 
 		this.state = {
 			dataHasLoaded: false,
@@ -55,37 +59,46 @@ class DataBox extends React.Component {
 
 	componentWillMount(){
 		moment.locale('pt-BR')
-		/* Create reference to messages in Firebase Database */
+		let currentTime = moment().valueOf()
+		let oneWeekAgo = moment().subtract(7,'d').valueOf()
+		this.childCount = 0
+		
+				/* Create reference to messages in Firebase Database */
 		this.boxRef = firebase.database()
-			.ref('users/'+ this.state.uid +'/data/machines/' + this.props.boxname)
+			.ref('users/'+ this.state.uid +'/data/machines/' + this.props.boxname) 
+
 
 		this.boxRef.child('entries')
 			.orderByChild('date')
-			.limitToLast(100)
+			.startAt( oneWeekAgo )
 			.on('child_added', snapshot => {
+				// console.log('new data received', snapshot.val())
 		/* Update React state when message is added at Firebase Database */
 			let review = { 
 				key : snapshot.key,
 				score: snapshot.val().score,
 				date: moment(parseInt(snapshot.val().date,10)).format('L'),
 				time: moment(parseInt(snapshot.val().date,10)).format('LTS'),
-				timestamp : parseInt(snapshot.val().date)
+				timestamp : parseInt(snapshot.val().date),
+				place: this.props.boxname
 			}
 
 			var datas = this.state.data
 			datas.unshift(review)
-			
+			this.childCount ++
 			
 			var total = this.state.total
 			total ++
 			this.setState( { 
 				total : total,
-				data: datas
-				} )
-
+				data: datas,
+				requested : this.childCount
+			} )
+			
 			// Handles live added data
 			if(this.state.dataHasLoaded){
 				console.log("New data added to box " + this.props.boxname)
+				this.notification_sound.play()
 				this.increaseCounters(review.score)
 				Store.addCounters(this.props.boxname,review.score)
 				Store.add(this.props.boxname,this.state.data)
@@ -108,10 +121,11 @@ class DataBox extends React.Component {
 					this.setState({counters:counters})
 				})
 				this.setState( { total : total })
+				// console.log('total of box ' + this.props.boxname,total)
 				
 			
 				if (this.state.total == this.state.data.length || this.state.requested == this.state.data.length){
-					console.log(' requested initial data loaded @ ' + this.props.boxname + ', total: ' + this.state.total)
+					console.log(' requested initial data loaded @ ' + this.props.boxname + ',weekold amount:' + this.childCount + ' total: ' + this.state.total)
 					
 					Store.setLoaded()
 					Store.add(this.props.boxname,this.state.data)
@@ -252,7 +266,8 @@ class DataBox extends React.Component {
 							score: snapshot.val().score,
 							date: moment(parseInt(snapshot.val().date,10)).format('L'),
 							time: moment(parseInt(snapshot.val().date,10)).format('LTS'),
-							timestamp : parseInt(snapshot.val().date)
+							timestamp : parseInt(snapshot.val().date),
+							place : this.props.boxname
 						};
 
 						newData.unshift(review)
