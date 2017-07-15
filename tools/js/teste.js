@@ -93,7 +93,7 @@ Feedit.prototype.displayGui = function(){
     // Draws container for key values
     $("#maindata").append(
       '<div class="row" style="padding-top:50px;">'+
-          '<div id="data-wrapper" class="card col s6" style="containerStyle: null;">'+
+          '<div id="data-wrapper" class="card col s12 m6 l6" style="containerStyle: null;">'+
               '<h5 style="color:gray;">Simulador de reviews</h5>'+
               '<label for="datadate" class="active">Data</label>'+
               '<input id="datadate" type="date" class="datepicker">'+
