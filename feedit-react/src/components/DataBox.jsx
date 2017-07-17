@@ -24,13 +24,14 @@ class DataBox extends React.Component {
 		this.resetCounters = this.resetCounters.bind(this)
 		this.handleCollapsibleClick = this.handleCollapsibleClick.bind(this)
 		this.requestData = this.requestData.bind(this)
+		this.playSound = this.playSound.bind(this)
 		this.badgeColors = {
 			excelente: colors.excelente,
 			bom: colors.bom,
 			ruim: colors.ruim
 		}
 
-		this.notification_sound = new Audio('../assets/pop.mp3');
+		this.notificationSound = new Audio('../assets/pop.mp3');
 
 		this.state = {
 			dataHasLoaded: false,
@@ -61,12 +62,13 @@ class DataBox extends React.Component {
 		moment.locale('pt-BR')
 		let currentTime = moment().valueOf()
 		let oneWeekAgo = moment().subtract(7,'d').valueOf()
+		let total = this.state.total
+
 		this.childCount = 0
 		
 				/* Create reference to messages in Firebase Database */
 		this.boxRef = firebase.database()
 			.ref('users/'+ this.state.uid +'/data/machines/' + this.props.boxname) 
-
 
 		this.boxRef.child('entries')
 			.orderByChild('date')
@@ -83,22 +85,22 @@ class DataBox extends React.Component {
 				place: this.props.boxname
 			}
 
-			var datas = this.state.data
-			datas.unshift(review)
+			let newData = this.state.data
+			newData.unshift(review)
+
 			this.childCount ++
-			
-			var total = this.state.total
 			total ++
+
 			this.setState( { 
 				total : total,
-				data: datas,
+				data: newData,
 				requested : this.childCount
 			} )
 			
 			// Handles live added data
 			if(this.state.dataHasLoaded){
 				console.log("New data added to box " + this.props.boxname)
-				this.notification_sound.play()
+				this.playSound()
 				this.increaseCounters(review.score)
 				Store.addCounters(this.props.boxname,review.score)
 				Store.add(this.props.boxname,this.state.data)
@@ -151,6 +153,10 @@ class DataBox extends React.Component {
 
 	// AUX FUNCTIONS --------------------------------------------------------------------
 
+	playSound(){
+		this.notificationSound.play()
+	}
+	
 	increaseCounters(score){
 		this.state.counters[score] ++
 	}
@@ -332,17 +338,17 @@ class DataBox extends React.Component {
 		var triggerarray = [
 					this.props.boxname.replace(/\b\w/g, l => l.toUpperCase()),
 					<span key={this.props.boxname + '-total-counter'} className="badge counter-badge" data-badge-caption={this.state.total}></span>,
-					<div className='counters' key={'counters-'+this.props.boxname}>
+					<div className='counters' key={'counters-'+this.props.boxname}>					
 						{[
 						this.showExcelenteBadge(),
 						this.showBomBadge(),
 						this.showRuimBadge(),
 						]}
+
 					</div>,
 					this.showNewBadge(),
-					this.showMemoryBadge(),
-
-		]
+					this.showMemoryBadge() 
+			]
 
 		var triggerLoader = () => {
 			if (this.state.dataHasLoaded){

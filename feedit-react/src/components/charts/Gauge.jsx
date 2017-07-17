@@ -13,6 +13,7 @@ export default class GaugeChart extends Component {
 	constructor(props){
 		super(props)
         this.refresh = this.refresh.bind(this)
+        this.calculate = this.calculate.bind(this)
         this.state = {
             value : 0,
             isEmpty : false,
@@ -31,7 +32,7 @@ export default class GaugeChart extends Component {
             // {strokeStyle: "#FFDD00", min: 1000, max: 2000}, // Yellow
             // {strokeStyle: "#30B32D", min: 2000, max: 3000}, // Green
             // ],
-
+            highDpiSupport: true,
             generateGradient: true,
             staticLabels: {
                 font: "10px sans-serif",  // Specifies font
@@ -46,12 +47,7 @@ export default class GaugeChart extends Component {
         Store.subscribe('reviews', () => {
             // console.log('Data received at the gauge')
             this.data =  Store.getStore('reviews')
-            this.calculate()
-        })
-
-        Store.subscribe('reviews', () => {
-            this.reviews = Store.getStore('reviews')
-            // console.log(this.reviews)
+            setTimeout( () => {this.calculate()},1000)
         })
 
         Store.subscribe('doughnutHeight', () => {

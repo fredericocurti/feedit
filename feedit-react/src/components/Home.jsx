@@ -3,11 +3,12 @@ import DataBoxContainer from './DataBoxContainer'
 
 
 import Paper from 'material-ui/Paper'
+import CounterCard from './CounterCard'
+
 
 import Doughnut from './charts/Doughnut.jsx'
 import Gauge from './charts/Gauge.jsx'
-
-import CounterCard from './CounterCard'
+import Line from './charts/Line.jsx'
 
 
 var Store = require('../helpers/store')
@@ -115,14 +116,23 @@ class Home extends Component {
                 </div>
 
                 <div className='row'>
-                    <div className='chart-card col s12 m6'>
+                    <div className='chart-card col s12 m4'>
                         <Doughnut/>
                     </div>
 
-                     <div className='chart-card col s12 m6'>
+                     <div className='chart-card col s12 m4'>
                         <Gauge/>
                     </div>
                 </div>
+
+                <div className='row'>
+
+                    <div className='chart-card col s12 m12'>
+                        <Line/>
+                    </div>
+
+                </div>
+
 
 
             

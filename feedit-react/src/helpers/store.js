@@ -9,7 +9,8 @@ var store = {
     colors:{
         excelente: '#00ff3e',
         bom: '#ffb43d',
-        ruim: '#ff0000'
+        ruim: '#ff0000',
+        total: 'lightskyblue'
     },
     counters : {
         excelente: 0,

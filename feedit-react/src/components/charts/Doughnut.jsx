@@ -1,5 +1,6 @@
 import React from 'react';
 import {Doughnut,Chart} from 'react-chartjs-2';
+import CircularProgress from 'material-ui/CircularProgress';
 
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
@@ -41,6 +42,7 @@ export default class DoughnutChart extends React.Component {
     // console.log('dougnut props',this.props)
     
     this.state = {
+      loaded : false,
       value: 1,
       data: {
           labels: [
@@ -82,7 +84,7 @@ export default class DoughnutChart extends React.Component {
             this.state.data.datasets[0].data[1] + 
             this.state.data.datasets[0].data[2]
             
-        this.setState({data : data})
+        this.setState({data : data, loaded : true})
       }
     })
   
@@ -107,6 +109,7 @@ export default class DoughnutChart extends React.Component {
   }
 
   componentDidUpdate(){
+    console.log('doughnut updated')
   }
 
   handleChange = (event, index, value) => {
@@ -135,7 +138,8 @@ export default class DoughnutChart extends React.Component {
               // if ( time.isSame(moment(), 'day') ){
               //     newCounters[element.score] ++
               // }
-              if ( time.isAfter(moment().subtract(7,'days').startOf('day'))){
+              let sevenDaysAgo = moment().subtract(7,'days').startOf('day')
+              if ( time.isAfter(sevenDaysAgo) ){
                   // console.log('is within last 7 days')
                   newCounters[element.score] ++
               }
@@ -147,11 +151,12 @@ export default class DoughnutChart extends React.Component {
     } else if (value === 3) {
       let keys = Object.keys(this.reviews)
       let l = keys.length
+      let now = moment()
       let i
       for (i = 0; i < l ; i++){
           this.reviews[keys[i]].forEach((element) => {
               let time = moment(element.timestamp)
-              if ( time.isSame(moment(), 'day') ){
+              if ( time.isSame(now, 'day') ){
                   newCounters[element.score] ++
               }
           })
@@ -192,9 +197,9 @@ export default class DoughnutChart extends React.Component {
             value={this.state.value} 
             onChange={this.handleChange}
             style={{width: 130, fontSize: 15}}>
-            <MenuItem value={1} primaryText="Sempre" />
-            <MenuItem value={2} primaryText="Últimos 7 dias"/>
-            <MenuItem value={3} primaryText="Hoje" />
+              <MenuItem value={1} primaryText="Sempre" />
+              <MenuItem value={2} primaryText="Última semana"/>
+              <MenuItem value={3} primaryText="Hoje" />
           </SelectField>   
         
         <Doughnut data={this.state.data} height={150} />
