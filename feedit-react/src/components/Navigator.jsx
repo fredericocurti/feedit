@@ -88,7 +88,7 @@ render () {
 
     let navbar = () => {
         return(
-            <div key='navbar' className="navbar-fixed" style={{ height: 50 }}>
+            <div key='navbar' className="navbar-fixed" style={{ height: 50, zIndex: 5}}>
                 <nav className="nav">
                     <div id="navbar" className="nav-wrapper gradient sticky" style={{ zIndex : 2 }}>
                         <ul>
@@ -103,30 +103,6 @@ render () {
                             </div>
                         </li>
                         </ul>
-                        <ul className="right">
-                            <FlatButton className='avatarBtn'
-                                onTouchTap={this.handleTouchTap}
-                                hoverColor={ 'rgba(130,130,130,0.5)' }>
-                                <Avatar src={this.props.user.photoURL} className='userImg' />
-                                <Popover
-                                    open={this.state.open}
-                                    anchorEl={this.state.anchorEl}
-                                    anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-                                    targetOrigin={{horizontal: 'middle', vertical: 'top'}}
-                                    onRequestClose={this.handleRequestClose}
-                                >
-                                    <Menu>
-                                        <MenuItem 
-                                            disabled 
-                                            primaryText={ <div style={{fontSize: 14}}>{this.props.user.email}</div> }/>
-                                        <Divider/>
-                                        <MenuItem primaryText="Ajuda &amp; feedback" />
-                                        <MenuItem primaryText="Configurações" />
-                                        <MenuItem primaryText="Sair" onTouchTap={this.handleLogout}/>
-                                    </Menu>
-                                </Popover>                            
-                            </FlatButton>
-                        </ul>
                     </div>
                 </nav>
             </div>
@@ -139,25 +115,56 @@ render () {
                 key='sidebar'
                 docked={this.state.docked}
                 containerClassName='drawer'
-                width={200}
+                width={250}
                 ref={ (Drawer) => { this.drawer = Drawer } } >
+                
+                    <FlatButton className='avatarBtn'
+                        onTouchTap={this.handleTouchTap}
+                        hoverColor={ 'rgba(130,130,130,0.5)' }>
+                        <Avatar src={this.props.user.photoURL} className='userImg' />
+                        <Popover
+                            open={this.state.open}
+                            anchorEl={this.state.anchorEl}
+                            anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                            targetOrigin={{horizontal: 'middle', vertical: 'top'}}
+                            onRequestClose={this.handleRequestClose}
+                        >
+                            <Menu>
+                                <MenuItem 
+                                    disabled 
+                                    primaryText={ <div style={{fontSize: 14}}>{this.props.user.email}</div> }/>
+                                <Divider/>
+                                <MenuItem primaryText="Ajuda &amp; feedback" />
+                                <MenuItem primaryText="Configurações" />
+                                <MenuItem primaryText="Sair" onTouchTap={this.handleLogout}/>
+                            </Menu>
+                        </Popover>                            
+                    </FlatButton>
 
                 <MenuItem disabled
                     primaryText={ 
-                        <ul className='drawer-item'>
+                        <ul className='drawer-item' style={{color: 'white', marginTop: 0}}>
                             {this.state.user.email}
                         </ul>
                     }
                 />
-
-                <MenuItem
-                    leftIcon={<FontIcon style={{color: 'lightgray'}} className="material-icons" >home</FontIcon>}
-                    primaryText={ 
-                        <ul style={{color: 'lightgray'}}>
-                            Visão Geral
-                        </ul>
-                    }
+                <MenuItem style={{marginTop:20}}
+                    leftIcon={<FontIcon className="material-icons" >home</FontIcon>}
+                    primaryText='Visão Geral'
                 />
+
+                {/* final da navbar */}
+                <div className='sidebar-bottom-item'>
+                    <Divider/>
+                    <MenuItem leftIcon={<FontIcon className="material-icons" >help</FontIcon>} primaryText="Ajuda &amp; feedback" />
+                    <MenuItem leftIcon={<FontIcon className="material-icons" >settings</FontIcon>} primaryText="Configurações" />
+                    <MenuItem 
+                        leftIcon={<FontIcon className="material-icons" >power_settings_new</FontIcon>} 
+                        primaryText="Sair" onTouchTap={this.handleLogout}
+                    />
+                </div>
+
+
 
             </Drawer>
         )
@@ -168,7 +175,7 @@ render () {
     }
 
     return(
-        <div id='navigator'>
+        <div id='navigator' style={{overflow: 'auto'}}>
             {this.state.user 
                 ? navigator() 
                 : null

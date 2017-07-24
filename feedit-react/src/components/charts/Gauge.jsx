@@ -2,6 +2,9 @@ import {Gauge} from 'gaugeJS'
 import React,{Component} from 'react'
 import Paper from 'material-ui/Paper'
 import moment from 'moment'
+import SelectField from 'material-ui/SelectField';
+import FontIcon from 'material-ui/FontIcon';
+import MenuItem from 'material-ui/MenuItem';
 
 // import Divider from 'material-ui/Divider'
 // import FontIcon from 'material-ui/FontIcon'
@@ -14,11 +17,15 @@ export default class GaugeChart extends Component {
 		super(props)
         this.refresh = this.refresh.bind(this)
         this.calculate = this.calculate.bind(this)
+        this.toggleOpen = this.toggleOpen.bind(this)
         this.state = {
             value : 0,
             isEmpty : false,
-            height: 350
+            height: 200,
+            loaded: false,
+            open: true
         }
+
         this.opts = {
             angle: 0.15, /// The span of the gauge arc 
             lineWidth: 0.3, // The line thickness 
@@ -47,7 +54,11 @@ export default class GaugeChart extends Component {
         Store.subscribe('reviews', () => {
             // console.log('Data received at the gauge')
             this.data =  Store.getStore('reviews')
-            setTimeout( () => {this.calculate()},1000)
+            if (!this.state.loaded){
+                this.calculate()
+            } else {
+                setTimeout( () => {this.calculate()},1000)
+            }
         })
 
         Store.subscribe('doughnutHeight', () => {
@@ -70,6 +81,10 @@ export default class GaugeChart extends Component {
         this.gauge.set(this.state.value)
     }
 
+    toggleOpen(){
+        this.setState({ open : !this.state.open })
+    }
+
     calculate(){
         // console.log('gauge data',this.data)
         let keys = Object.keys(this.data)
@@ -80,7 +95,7 @@ export default class GaugeChart extends Component {
 
         for (i = 0; i < length; i++){
             this.data[keys[i]].forEach((element) => {
-                if ( moment(element.timestamp).isSame(moment(), 'day') ){
+                if ( moment(element.timestamp).isSame(moment(), 'day')   ){
                     reviewCount ++
                     if (element.score === 'excelente'){ score += 1}
                     else if (element.score === 'bom'){score += 0.75}
@@ -89,14 +104,13 @@ export default class GaugeChart extends Component {
             })
         }
 
-        // console.log(score,reviewCount)
-        // console.log( score/reviewCount * 100)
-
         if (reviewCount === 0){
             this.setState( { isEmpty : true, value: '?' } )
         } else {
             this.setState({ value : (score/reviewCount * 100).toFixed(1),isEmpty: false })
         }
+
+        this.setState({loaded:true})
        
     }
 
@@ -107,27 +121,41 @@ export default class GaugeChart extends Component {
 
   render() {
     return (
-        <Paper zDepth={2} className='chart-card-inner'         
+        <Paper zDepth={1} className='chart-card-inner'         
         style={{
-            paddingLeft : 15,
-            paddingRight: 15,
-            paddingBottom: 15,
-            paddingTop: 15,
-            height: this.state.height + 15
-        }}>  
-            
-            <div style={{maxHeight : 400}}>
-                <div className='grey-text'> Desempenho médio hoje <br/>
-                <b> Pontuação: { this.state.value }/100 </b> </div>
-                    
-                    <div className='center' style={{padding : 15}}>
+            padding: 0,
+            height: this.state.open ? this.state.height : 'auto'
+        }}>
+
+        <div className='paper-title small'>
+          <MenuItem disabled style={{paddingLeft:50,paddingRight:0}} leftIcon={
+            <FontIcon className="material-icons" onClick={this.toggleOpen}>
+            { this.state.open ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }
+            </FontIcon>} primaryText={
+              <span key='gauge-title' style={{color:'black'}}>Desempenho hoje</span>}
+          />
+        </div>
+
+        {/*{ this.state.open && this.state.loaded
+        ? <div>
+
+        </div> 
+        : null
+        }*/}            
+            <div style={{maxHeight : 400, paddingTop: 10, display: this.state.open ? 'block' : 'none'}}>
+                 <span style={{paddingLeft:20}}>Pontuação:</span><b> { this.state.value }/100 </b> 
+                    <div className='center' style={{padding : 15}}
+                    >
                         { this.state.isEmpty 
                         ? <div> Ainda não existe nenhuma avaliação hoje </div> 
                         : null }
-                        <canvas 
-                            style={{width: 100+'%'}}
+
+                        <canvas style={{
+                            width: 100+'%',
+                            height: 100}}
                             ref={(canvas) => this.canvas = canvas }
-                        />
+                        /> 
+
                 </div>
 
             </div>

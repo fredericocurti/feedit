@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import firebase from 'firebase'
 import Masonry from 'react-masonry-component'
 import DataBox from './DataBox.jsx'
+import MediaQuery from 'react-responsive'
 
 var Store = require('../helpers/store')
 
@@ -15,6 +16,7 @@ class DataBoxContainer extends React.Component {
   }
   
     componentWillMount() {
+        this.userUid = firebase.auth().currentUser.uid
         this.fetchData()
         window.onfocus = () => {
 			this.setState( { isFocused : true })
@@ -25,8 +27,8 @@ class DataBoxContainer extends React.Component {
     }
 
     fetchData(token){
-        const url = 'https://febee-2b942.firebaseio.com/users/'+
-        firebase.auth().currentUser.uid+'/data/machines.json?shallow=true'
+        const url = 'https://febee-2b942.firebaseio.com/users/' +
+        this.userUid + '/data/machines.json?shallow=true'
         fetch(url).then(response => {
             response.json().then( (responseJSON) => {
                 this.setResponse(responseJSON)
@@ -38,7 +40,7 @@ class DataBoxContainer extends React.Component {
         if (response){
            Store.setAmount(Object.keys(response).length)         
         }
-        this.setState( { boxes : response,  dataFetched: true})
+        this.setState( { boxes : response,  dataFetched: true}, () => { this.renderDataBoxes() })
     }
     
     renderDataBoxes(){
@@ -52,7 +54,7 @@ class DataBoxContainer extends React.Component {
                             key={boxKeys[i]} 
                             boxname={boxKeys[i]} 
                             isFocused={this.state.isFocused}
-                            sendCounter={this.getChildCount}
+                            userUid={this.userUid}
                         />
                     )
                 }
@@ -61,7 +63,7 @@ class DataBoxContainer extends React.Component {
             return <h4> Ainda não existe nenhum feedback para esse usuário, por favor configure
                         os aparelhos corretamente </h4>
         }
-        return boxArray
+        this.setState({boxArray : boxArray})
     }
 
 
@@ -73,11 +75,14 @@ class DataBoxContainer extends React.Component {
         // gutter: 40,
         // columnWidth:{ width : 20 + '%' }
     }
+
         const masonryStyle = {
     }
 
     return (
-      <div className='col s12'>
+      <div className='col s12' style={{marginBottom: 100,marginTop:40}}>
+        <MediaQuery minDeviceWidth={1224}>
+        
             <Masonry
                 enableResizableChildren={true}
                 className={'masonry'} // default '' 
@@ -87,8 +92,16 @@ class DataBoxContainer extends React.Component {
                 disableImagesLoaded={false} // default false
                 updateOnEachImageLoad={false}  // default false and works only if disableImagesLoaded is false
             >
-                { this.renderDataBoxes() }
+                { this.state.boxArray }
             </Masonry>
+        </MediaQuery>
+        
+        <MediaQuery maxDeviceWidth={1224}>
+            { this.state.boxArray }
+        </MediaQuery>
+
+
+
       </div>
     );
   }

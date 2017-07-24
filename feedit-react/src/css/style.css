@@ -74,6 +74,7 @@ background: linear-gradient(to left, #FFEDBC, #ED4264);*/
 nav {
     height: 50px;
     line-height: 50px;
+    box-shadow: none;
 }
 
 .side-margin{
@@ -81,6 +82,7 @@ nav {
 }
 
 .avatarBtn {
+  margin-top: 100px !important;
   height: 50px !important;
 }
 
@@ -108,7 +110,6 @@ nav {
 .masonry{
   margin: auto;
   max-width: 100%;
-  min-height: 500px;
 }
 
 .Site {
@@ -201,8 +202,7 @@ nav {
 }
 
 .chart-card-inner{
-  min-height: 250px;
-  padding: 10px;
+  padding: 0px;
 }
 
 .gauge{
@@ -342,15 +342,57 @@ nav {
 }*/
 .data-container{
   margin-bottom: 12%;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+/*.paper-container{
+ padding: 45px !important;
+ margin-top: 125 !important;
+ margin-bottom: 100 !important;
+ position: relative !important;
+ z-index: 10 !important;
+}*/
+
+.paper-title{
+  background-color: #f8f8f8;
+  padding: 20px;
+}
+
+.paper-title.small{
+  padding: 0px;
+}
+
+/*.paper-title.small:hover{
+  background-color: #e8e8e8;
+}*/
+
+.paper-showbtn{
+  
 }
 
 .drawer{
-  margin-top: 50px;
-  background-color: #2d2d2d !important;
+  margin-top: 60px;
+  /*background-color: #2d2d2d !important;*/
+  background-color: rgba(255, 255, 255,0) !important;
+  box-shadow: none !important;
+  height: 100% !important;
+  padding-top: 30px;
+  z-index: 3 !important;
 }
 
 .drawer-item{
-  color:gray;
+  color:black;
+}
+
+.sidebar-bottom-item{
+  position: absolute;
+  bottom: 0px;
+  margin-bottom: 60px;
+  width: 100%;
 }
 
 .tooltipster-base{
@@ -392,7 +434,7 @@ nav {
   }
 
   .side-margin{
-    margin-left: 0px;
+    margin-left: 0px !important;
   }
 
   .grid-item {
@@ -413,6 +455,8 @@ nav {
 
   .Collapsible.open {
     width: 90%;
+    /*box-shadow: none;
+    -webkit-box-shadow: none*/
   }
 
   .Collapsible__trigger.open {
@@ -431,6 +475,15 @@ nav {
     margin-left: 5px !important;
     margin-top: 8px !important;
   }
+
+.card-content{
+  transition: none ;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -o-transition: none;
+  -ms-transition: none;
+}
+
 
   nav {
       color: #fff;
@@ -506,6 +559,11 @@ nav {
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
 }*/
+
+.material-icons:hover{
+  background-color: #e5e5e5;
+  cursor: pointer;
+}
 
 .header{
   color: rgba(228, 42, 62, 1);

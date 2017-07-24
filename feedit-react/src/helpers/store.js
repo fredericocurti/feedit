@@ -42,9 +42,7 @@ module.exports = {
     addCounters: function(boxname,count) {
         // console.log( 'loaded,total',store.loadedBoxCount, store.boxCount )
         if (typeof count == 'string'){
-            if (count == 'excelente'){ store.counters.excelente ++}
-            else if (count == 'bom'){ store.counters.bom ++}
-            else if (count == 'ruim'){ store.counters.ruim ++}
+            store.counters[count] ++
         } else {
             store.counters.excelente += count.excelente
             store.counters.bom += count.bom
@@ -77,6 +75,7 @@ module.exports = {
 
     add: function(boxname,data){
         // console.log('store received new data')
+        console.log(typeof data)
         if ( !store.reviews[boxname] ){
             store.reviews[boxname] = data
         } else { 

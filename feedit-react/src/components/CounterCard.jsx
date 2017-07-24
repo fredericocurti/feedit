@@ -37,7 +37,6 @@ export default class CounterCard extends React.Component {
     
         if (this.props.scoreType == 'total'){
           let counter = Store.getStore('counters')
-          console.log(counter)
           let sum = counter.excelente + counter.bom + counter.ruim
           this.setState( { always : sum } )
         } else {
@@ -123,8 +122,14 @@ export default class CounterCard extends React.Component {
         }
       }
 
-      const getClass = () =>{
+      const getClass = () => {
+        if (!this.state.open){
           return 'card card-content ' + this.props.scoreType + '-card'
+        } else {
+          return 'card card-content ' + this.props.scoreType + '-card open'
+
+        }
+
       }
 
       const style = { 
@@ -136,8 +141,6 @@ export default class CounterCard extends React.Component {
 
       const output = () => {
         if (this.state.ready){
-          switch (this.state.open){
-            case false:
             return (
               <div style={style} 
                 className={getClass()}
@@ -146,7 +149,7 @@ export default class CounterCard extends React.Component {
                     <div style={{overflow:'auto'}}>
                       <div className='left' style={{paddingTop:5}}>
                         <span  style={{fontSize:1+'em',textTransform:'capitalize'}}>
-                          <span className='ccbutton'> ► </span> {"\u00A0"} {this.props.scoreType} 
+                          <span className={this.state.open ? 'ccbutton open' : 'ccbutton'}> ► </span> {"\u00A0"} {this.props.scoreType} 
                         </span>
                       </div>
                       <div className='right'>
@@ -155,33 +158,16 @@ export default class CounterCard extends React.Component {
                         </span>
                       </div>
                     </div>
+                    { this.state.open
+                    ? <span>
+                        • Ultima avaliação: <br/><b>{ this.state.lasthour } </b>
+                        no local <b> {this.state.lastplace.replace(/\b\w/g, l => l.toUpperCase())} </b> <br/>
+                        • Hoje: <b> { this.state.day } </b> <br/>
+                        • Últimos 7 dias: <b> { this.state.week } </b> <br/>
+                      </span>
+                     : null }
               </div>
               )
-            
-            case true:
-            return(
-              <div style={style} className={getClass() + ' open'} onClick={this.switchOpen}>
-                    <div style={{overflow:'auto'}}>
-                      <div className='left' style={{paddingTop:5}}>
-                        <span  style={{fontSize:1+'em',textTransform:'capitalize'}}>
-                          <span className='ccbutton open'> ► </span> {"\u00A0"} {this.props.scoreType} 
-                        </span>
-                      </div>
-                      <div className='right'>
-                        <span  style={{fontSize:1.7+'em'}}>
-                            <b> { this.state.always } </b>
-                        </span>
-                      </div>
-                    </div>
-                      	• Ultima avaliação: <br/><b>{ this.state.lasthour } </b>
-                      no local <b> {this.state.lastplace.replace(/\b\w/g, l => l.toUpperCase())} </b> <br/>
-                      	• Hoje: <b> { this.state.day } </b> <br/>
-                      	• Últimos 7 dias: <b> { this.state.week } </b> <br/>
-              </div>
-            )
-          }
-          
-
         } else {
           return (
             <Paper zDepth={2} style={style} className={getClass()}>

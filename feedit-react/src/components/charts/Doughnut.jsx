@@ -3,7 +3,9 @@ import {Doughnut,Chart} from 'react-chartjs-2';
 import CircularProgress from 'material-ui/CircularProgress';
 
 import SelectField from 'material-ui/SelectField';
+import FontIcon from 'material-ui/FontIcon';
 import MenuItem from 'material-ui/MenuItem';
+
 import Divider from 'material-ui/Divider'
 import Paper from 'material-ui/Paper'
 import moment from 'moment'
@@ -40,10 +42,11 @@ export default class DoughnutChart extends React.Component {
 	constructor(props){
 		super(props)
     // console.log('dougnut props',this.props)
-    
+    this.toggleOpen = this.toggleOpen.bind(this)
     this.state = {
       loaded : false,
       value: 1,
+      open: true,
       data: {
           labels: [
             'Excelente',
@@ -84,7 +87,10 @@ export default class DoughnutChart extends React.Component {
             this.state.data.datasets[0].data[1] + 
             this.state.data.datasets[0].data[2]
             
-        this.setState({data : data, loaded : true})
+        
+        this.setState({data : data, loaded : true}, ()=>{
+          Store.setHeight(this.div.clientHeight)
+        })
       }
     })
   
@@ -96,12 +102,13 @@ export default class DoughnutChart extends React.Component {
     })
 
     window.addEventListener('resize', () => {
-      setTimeout(() => {Store.setHeight(this.div.clientHeight) 
+      setTimeout(() => {
+        if (this.state.open) { Store.setHeight(this.div.clientHeight) }
       } , true) }, 200)    
   }
 
   componentDidMount(){
-      Store.setHeight(this.div.clientHeight)
+      
   }
 
   componentWillUnmount(){
@@ -109,12 +116,20 @@ export default class DoughnutChart extends React.Component {
   }
 
   componentDidUpdate(){
-    console.log('doughnut updated')
+    // console.log('doughnut updated')
   }
 
   handleChange = (event, index, value) => {
     this.setState({value})
     this.recalculate(value)
+  }
+
+  toggleOpen(){
+    this.setState({open : !this.state.open}, () => {
+      if (this.state.open){
+        Store.setHeight(this.div.clientHeight)
+      }
+    })
   }
 
   recalculate(value){
@@ -182,27 +197,41 @@ export default class DoughnutChart extends React.Component {
         }
 
     return (
-      <Paper zDepth={2} className='chart-card-inner' 
+      <Paper zDepth={1} className='chart-card-inner' 
         style={{
-            paddingLeft : 15,
-            paddingRight: 15,
-            paddingBottom: 15,
+            paddingLeft : 0,
+            paddingRight: 0,
+            paddingBottom: 0,
             paddingTop: 0
         }}>
-
+  
       <div ref={ (div) => this.div = div}>
-        <ul className='grey-text left'> Distribuição </ul>
-          <SelectField 
-            className='right' 
-            value={this.state.value} 
-            onChange={this.handleChange}
-            style={{width: 130, fontSize: 15}}>
-              <MenuItem value={1} primaryText="Sempre" />
-              <MenuItem value={2} primaryText="Última semana"/>
-              <MenuItem value={3} primaryText="Hoje" />
-          </SelectField>   
-        
-        <Doughnut data={this.state.data} height={150} />
+
+        <div className='paper-title small'>
+          <MenuItem disabled style={{paddingLeft:50,paddingRight:0}} leftIcon={
+            <FontIcon className="material-icons" onClick={this.toggleOpen}>
+            { this.state.open ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }
+            </FontIcon>} primaryText={
+              [<span key='doughnut-title' style={{color:'black'}}>Distribuição</span>,
+              this.state.open && this.state.loaded ? <SelectField
+                key='dougnhut-field'
+                className='right' 
+                value={this.state.value} 
+                onChange={this.handleChange}
+                style={{width: 150, fontSize: 15}}>
+                  <MenuItem value={1} primaryText="Sempre" />
+                  <MenuItem value={2} primaryText="Última semana"/>
+                  <MenuItem value={3} primaryText="Hoje" />
+            </SelectField> : null
+            ]}
+          />
+        </div>
+        { this.state.open && this.state.loaded
+        ? <div style={{padding: 15}}>
+          <Doughnut data={this.state.data} height={150} />
+        </div> 
+        : null
+        }
       </div>
 
       </Paper>

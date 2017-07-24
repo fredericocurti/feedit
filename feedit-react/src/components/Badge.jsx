@@ -9,6 +9,9 @@ class Badge extends React.Component {
 	}
 
 	componentWillMount(){
+        // setTimeout( () => {
+        //     this.props.resetFunction()
+        // }, 10000)
   	}
 
 

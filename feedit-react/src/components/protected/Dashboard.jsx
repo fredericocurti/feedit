@@ -1,13 +1,18 @@
 import React, { Component } from 'react';
-
+import Headroom from 'react-headroom'
 import Snackbar from 'material-ui/Snackbar'
-
-import Clock from '../Clock.jsx'
 import Home from '../Home.jsx'
 import '../../css/materialize.css'
 import '../../css/style.css'
 import Navigator from '../Navigator.jsx'
 import { firebaseAuth } from '../../config/constants'
+
+import Popover from 'material-ui/Popover'
+import Menu from 'material-ui/Menu'
+import MenuItem from 'material-ui/MenuItem'
+import FlatButton from 'material-ui/FlatButton';
+import Divider from 'material-ui/Divider';
+import Avatar from 'material-ui/Avatar';
 
 
 class Dashboard extends Component {
@@ -40,7 +45,7 @@ class Dashboard extends Component {
   }
 
   componentDidUpdate(){
-    console.log('dashboard updated')
+    // console.log('dashboard updated')
   }
 
 // AUX FUNCTIONS --------------------------------------------------------------
@@ -71,14 +76,13 @@ class Dashboard extends Component {
     }
 
     return (
-      <div style={{height : 100+'%'}}>
-        <Navigator user={this.state.user} toggleDrawer={this.toggleDrawer}/>
           <div style={{height : 100+'%',overflowY: 'auto'}}>
+              <Navigator user={this.state.user} toggleDrawer={this.toggleDrawer}/>
+            <div style={{height: 250, backgroundColor: '#ed4264'}}/>
             <div id="Dashboard" className='data-container'>
               <div className={sideMargin()}>
                 <div className='container'>
                 {/*<DoughnutExample/>*/}
-                <Clock />
                 <Home/>
                 <Snackbar 
                   open={this.state.open}
@@ -90,7 +94,6 @@ class Dashboard extends Component {
             </div>
           </div>
         </div>
-      </div>
     );
   }
 }

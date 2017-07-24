@@ -6,8 +6,10 @@ import MenuItem from 'material-ui/MenuItem';
 import Divider from 'material-ui/Divider'
 import Paper from 'material-ui/Paper'
 import CircularProgress from 'material-ui/CircularProgress'
-import moment from 'moment'
+import FontIcon from 'material-ui/FontIcon';
 
+import moment from 'moment'
+import MediaQuery from 'react-responsive'
 
 var Store = require('../../helpers/store')
 let colors = Store.getStore('colors')
@@ -16,23 +18,14 @@ var _ = require('lodash')
 export default class LineChart extends Component {
 	constructor(props){
 		super(props)
-        this.filter = this.filter.bind(this);
-        this.data = {
-                    labels: [],
-                    datasets: [{
-                        label: "",
-                        data: [
-                            0
-                        ],
-                        fill: false,
-                    }]
-                }
-
+        this.filter = this.filter.bind(this)
+        this.toggleOpen = this.toggleOpen.bind(this)
         this.state = {
             box : 'todas',
+            open: true,
             value : 12,
             hoursAgo : 12,
-            data : this.data
+            data : {},
         }
 
         this.config = {
@@ -69,14 +62,18 @@ export default class LineChart extends Component {
                     }
                 }
         }
-
-  }
-
+}
+  
   componentWillMount(){
     Store.subscribe('reviews', () => {
         this.reviews = Store.getStore('reviews')
         this.boxes = Object.keys(this.reviews)
-        setTimeout(() => { this.filter() }, 4000)
+        if (!this.state.loaded){
+            this.filter()
+        } else {
+            setTimeout(() => { this.filter() }, 4000)
+        }
+
     })
   }
 
@@ -90,6 +87,10 @@ export default class LineChart extends Component {
   }
 
 // 
+    toggleOpen(){
+        this.setState({ open : !this.state.open })
+    }
+
 
     handleTimeChange = (event, index, value) => {
         this.setState({ hoursAgo : value, value : value },() => {this.filter()})
@@ -116,7 +117,7 @@ export default class LineChart extends Component {
     let scores = ['excelente','bom','ruim','total']
 
     if (!this.state.loaded){
-        this.setState({ loaded : true })
+        this.setState({ loaded : true, showing: false })
     }
 
     let newData = {}
@@ -125,10 +126,6 @@ export default class LineChart extends Component {
 
     for (i; i < hoursAgo; i++) {
         let newTime = currentTime.clone().subtract(i,'h')
-        // { 
-        //     timestamp : newTime.valueOf(),
-        //     hour : newTime.hours()
-        // }
         hoursArray.push(newTime)
     }
 
@@ -173,59 +170,101 @@ export default class LineChart extends Component {
 
   render() {
     const style = {
-          paddingLeft : 15,
+          paddingLeft : 0,
           marginTop: 20,
-          paddingRight: 15,
-          paddingBottom: 15
+          paddingRight: 0,
+          paddingBottom: 0
         }
 
+    // let mobileconfig = this.config
+    // mobileconfig.options['animation'] = {
+    //     duration: 0, // general animation time
+    // }
+    // mobileconfig.options['hover'] = {
+    //     mode: 'nearest',
+    //     intersect: true,
+    //     animationDuration: 0, // duration of animations when hovering an item
+    // }
+    // mobileconfig.options['responsiveAnimationDuration'] = 0 // animation duration after a resize}
+
     return (
-        <Paper zDepth={2} className='chart-card-inner' style={{padding: '0 15px 15px 15px'}}>
-            <ul className='grey-text left'> Frequência </ul>
-            { this.state.loaded
-            ?   <div>
-                    <SelectField
-                        className='right'
-                        value={this.state.box}
-                        onChange={this.handleBoxChange}
-                        style={{width: 150}}
-                    >
-                        <MenuItem value={'todas'} primaryText='Todas' style={{color: 'lightblue'}}/>
-                        <Divider/>
-                    { this.boxes.map( (boxname) => 
-                        <MenuItem 
-                            key={boxname} 
-                            value={boxname} 
-                            primaryText={_.capitalize(boxname)}
-                        /> 
-                    )}
+        <Paper zDepth={1} className='chart-card-inner'>
+            <div className='paper-title small'>
+                <MenuItem 
+                    disabled 
+                    style={{paddingLeft:50,paddingRight:0}} 
+                    leftIcon={
+                        <FontIcon className="material-icons" onClick={this.toggleOpen}>
+                        { this.state.open ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }
+                        </FontIcon>
+                        } 
+                    primaryText={
+                        [<span key='doughnut-title' style={{color:'black'}}>Frequência</span>,
+                        this.state.loaded && this.state.open
+                        ?   <span>
+                                <SelectField
+                                    className='right'
+                                    value={this.state.box}
+                                    onChange={this.handleBoxChange}
+                                    style={{width: 150,fontSize: 15}}
+                                >
+                                    <MenuItem value={'todas'} primaryText='Todas' style={{color: 'lightblue'}}/>
+                                    <Divider/>
+                                { this.boxes.map( (boxname) => 
+                                    <MenuItem 
+                                        key={boxname} 
+                                        value={boxname} 
+                                        primaryText={_.capitalize(boxname)}
+                                    /> 
+                                )}
+                                </SelectField>
+                                <SelectField 
+                                    className='right'
+                                    value={this.state.value}
+                                    onChange={this.handleTimeChange}
+                                    style={{width: 180,fontSize: 15}}
+                                >
+                                    <MenuItem value={6} primaryText='6 horas atrás'/>
+                                    <MenuItem value={12} primaryText='12 horas atrás'/>
+                                    <MenuItem value={24} primaryText='24 horas atrás'/>
+                                    <MenuItem value={48} primaryText='48 horas atrás'/>
+                                </SelectField>
+                            </span>
+                        : null
+                        ]}
+                />
+            </div>
 
-
-                    </SelectField>
-                    <SelectField 
-                        className='right'
-                        value={this.state.value}
-                        onChange={this.handleTimeChange}
-                        style={{width: 180}}
-                    >
-                        <MenuItem value={6} primaryText='6 horas atrás'/>
-                        <MenuItem value={12} primaryText='12 horas atrás'/>
-                        <MenuItem value={24} primaryText='24 horas atrás'/>
-                        <MenuItem value={48} primaryText='48 horas atrás'/>
-                    </SelectField>
-                </div>
-            : null
-            }
             
 
-        <div ref={ (div) => this.div = div}>
-            { this.state.loaded
-            ? <Line data={this.state.data} options={this.config.options} height={100} />
-            : <CircularProgress size={30} color='red' 
-                style={{ margin: '0 auto',display: 'block', paddingTop:110}}
-                />
-            } 
+
+        <div ref={ (div) => this.div = div} >
+
+        <MediaQuery minDeviceWidth={1224}>
+            { this.state.open && this.state.loaded
+            ? <div style={{padding:15}}>
+                <Line data={this.state.data}  options={this.config.options} height={100} />
+            </div>
+            : null }
+        </MediaQuery>
+
+        <MediaQuery maxDeviceWidth={1224}>
+          {/*<div>You are a tablet or mobile phone</div>*/}
+            { this.state.open && this.state.loaded
+            ? <div style={{padding:15}}>
+                <Line data={this.state.data}  options={this.config.options} height={200} />
+            </div>            : null }
+        </MediaQuery>
+
+
         </div>
+        {/*{ this.state.showing ?
+            <div className='row center'>
+                <a className='btn red darken-2' 
+                onClick={this.filter}>Mostrar gráfico</a>
+            </div>
+            : null
+        }*/}
 
       </Paper>
     );
