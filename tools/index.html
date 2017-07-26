@@ -39,7 +39,14 @@
               endingTop: '8%' // Ending top style attribute
             });
             $("#loadingbar").hide()
-            firebase.initializeApp(config);
+            // Initialize Firebase
+            var config = {
+              apiKey: "AIzaSyBcFce_uWpOt8QHJKnU7fBBaPmOSMEbiTo",
+              authDomain: "febee-2b942.firebaseapp.com",
+              databaseURL: "https://febee-2b942.firebaseio.com",
+              storageBucket: "febee-2b942.appspot.com",
+              messagingSenderId: "301542026521"
+            };
             // var database = firebase.database();
             Feedit.prototype.checkSetup();
             $('.button-collapse').sideNav({

@@ -54,7 +54,6 @@ function Feedit() {
 
 // Sets up shortcuts to Firebase features and initiate firebase auth.
 Feedit.prototype.initFirebase = function() {
-  firebase.initializeApp(config)
   this.auth = firebase.auth();
   this.database = firebase.database();
   this.storage = firebase.storage();
@@ -392,6 +391,7 @@ function login(){
 // ---------------------- AUX FUNCTIONS ----------------------------------------
 
 window.onload = function(){
+  firebase.initializeApp(config);
   window.feedit = new Feedit();
   $("#userpassword").keypress(function(e) {
       if(e.which == 13) {
