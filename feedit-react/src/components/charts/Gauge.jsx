@@ -9,7 +9,7 @@ import MenuItem from 'material-ui/MenuItem';
 // import Divider from 'material-ui/Divider'
 // import FontIcon from 'material-ui/FontIcon'
 
-var Store = require('../../helpers/store')
+import Store from '../../helpers/store.js'
 let colors = Store.getStore('colors')
 
 export default class GaugeChart extends Component {
@@ -51,7 +51,7 @@ export default class GaugeChart extends Component {
     }
 
     componentWillMount(){
-        Store.subscribe('reviews', () => {
+        Store.subscribe('reviews', this.onReviewReceived = () => {
             // console.log('Data received at the gauge')
             this.data =  Store.getStore('reviews')
             if (!this.state.loaded){
@@ -61,10 +61,15 @@ export default class GaugeChart extends Component {
             }
         })
 
-        Store.subscribe('doughnutHeight', () => {
+        Store.subscribe('doughnutHeight', this.onHeightReceived = () => {
             // console.log('NEW HEIGHTT', Store.getStore('doughnutHeight'))
             this.setState({height : Store.getStore('doughnutHeight')})
         })
+
+        if (Store.isReady()){
+            this.onReviewReceived()
+            this.onHeightReceived()
+        }
 
 
     }
@@ -74,12 +79,18 @@ export default class GaugeChart extends Component {
         this.gauge = new Gauge(target).setOptions(this.opts); // create sexy gauge!
         this.gauge.maxValue = 100; // set max gauge value 
         this.gauge.setMinValue(0);  // set min value 
-        this.gauge.set(0); // set actual value 
+        this.gauge.set(this.state.value); // set actual value 
     }
 
     componentDidUpdate(){
         this.gauge.set(this.state.value)
     }
+
+    componentWillUnmount() {
+        Store.unsubscribe('reviews', this.onReviewReceived)
+        Store.unsubscribe('doughnutHeight', this.onHeightReceived)
+    }
+    
 
     toggleOpen(){
         this.setState({ open : !this.state.open })
@@ -138,7 +149,6 @@ export default class GaugeChart extends Component {
 
         {/*{ this.state.open && this.state.loaded
         ? <div>
-
         </div> 
         : null
         }*/}            

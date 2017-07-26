@@ -6,7 +6,7 @@ import Divider from 'material-ui/Divider'
 
 import moment from 'moment'
 
-const Store = require('../helpers/store.js')
+import Store from '../helpers/store.js'
 let colors = Store.getStore('colors')
 
 export default class CounterCard extends React.Component {
@@ -27,23 +27,34 @@ export default class CounterCard extends React.Component {
   }
   
     componentWillMount(){
-      Store.subscribe('reviews', () => {
+    
+      Store.subscribe('reviews', this.onReviewReceived = () => {
         // console.log('Data received @ store', Store.getStore('reviews'))
         this.data = Store.getStore('reviews')
         this.calculate()
-      })
 
-      Store.subscribe('counters', () => {
-    
         if (this.props.scoreType == 'total'){
-          let counter = Store.getStore('counters')
-          let sum = counter.excelente + counter.bom + counter.ruim
-          this.setState( { always : sum } )
+          let counter = Store.getStore('totalCountersSum').total
+          this.setState( { always : counter } )
         } else {
-          let counter = Store.getStore('counters')[this.props.scoreType]
+          let counter = Store.getStore('totalCountersSum')[this.props.scoreType]
           this.setState( { always : counter } )
         }
+
       })
+
+      if (Store.isReady()){
+        this.onReviewReceived()
+      }
+
+
+      // Store.subscribe('reviews_update', this.onCountersReceived = () => {
+
+      // })
+
+      // if (Store.getStore('totalCounterSum' != { total : 0, excelente:0, bom: 0, ruim: 0 })) {
+      //   this.onCountersReceived()
+      // } 
 
     }    
     
@@ -52,6 +63,7 @@ export default class CounterCard extends React.Component {
     }
 
     componentWillUnmount() {
+        Store.unsubscribe('reviews',this.onReviewReceived)
     }
     
     calculate(){

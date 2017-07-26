@@ -10,8 +10,11 @@ import Divider from 'material-ui/Divider'
 import Paper from 'material-ui/Paper'
 import moment from 'moment'
 
+import Store from '../../helpers/store.js'
+import _ from 'lodash'
 
-var Store = require('../../helpers/store')
+let resizilla = require('resizilla')
+
 let colors = Store.getStore('colors')
 
 var originalDoughnutDraw = Chart.controllers.doughnut.prototype.draw;
@@ -43,6 +46,7 @@ export default class DoughnutChart extends React.Component {
 		super(props)
     // console.log('dougnut props',this.props)
     this.toggleOpen = this.toggleOpen.bind(this)
+    this.onDivResize = this.onDivResize.bind(this)
     this.state = {
       loaded : false,
       value: 1,
@@ -73,50 +77,53 @@ export default class DoughnutChart extends React.Component {
   }
 
   componentWillMount(){
-    Store.subscribe('counters', () => {
+    Store.subscribe('reviews', this.onReviewReceived = () => {
       let data = this.state.data
-      let counters = Store.getStore('counters')
+      let counters = Store.getStore('totalCountersSum')
+      this.reviews = Store.getStore('reviews')
+
+      if (this.state.value === 2 || this.state.value === 3){
+        this.recalculate(this.state.value)
+      }
+
       if (this.state.value === 1){
         data.datasets[0].data = [
             counters.excelente,
             counters.bom,
             counters.ruim 
         ]
-        data.text = 
-            this.state.data.datasets[0].data[0] +
-            this.state.data.datasets[0].data[1] + 
-            this.state.data.datasets[0].data[2]
-            
-        
-        this.setState({data : data, loaded : true}, ()=>{
+        data.text = _.sum(this.state.data.datasets[0].data)
+
+        this.setState({data : data, loaded : true}, () => {
           Store.setHeight(this.div.clientHeight)
         })
       }
     })
-  
-    Store.subscribe('reviews', () => {
-      this.reviews = Store.getStore('reviews')
-      if (this.state.value === 2 || this.state.value === 3){
-        this.recalculate(this.state.value)
-      }
-    })
 
-    window.addEventListener('resize', () => {
-      setTimeout(() => {
-        if (this.state.open) { Store.setHeight(this.div.clientHeight) }
-      } , true) }, 200)    
+    if ( Store.isReady ){
+      this.onReviewReceived()
+    }
+  
+    this.resizeHandler = resizilla(this.onDivResize, 350)
+
   }
 
   componentDidMount(){
-      
   }
 
   componentWillUnmount(){
-    // Store.unsubscribe('counters')
+    Store.unsubscribe('reviews', this.onReviewReceived)
+    this.resizeHandler.destroy()
   }
 
   componentDidUpdate(){
     // console.log('doughnut updated')
+  }
+
+  onDivResize(){
+    if (this.state.open) { 
+      Store.setHeight(this.div.clientHeight)
+    }
   }
 
   handleChange = (event, index, value) => {
@@ -135,11 +142,11 @@ export default class DoughnutChart extends React.Component {
   recalculate(value){
     // console.log(value)
     let data = this.state.data
-    let newCounters = { excelente: 0, bom:0, ruim :0}
+    let newCounters = { excelente: 0, bom:0, ruim :0 }
       
     if (value === 1){
-      let counters = Store.getStore('counters')
-      data.datasets[0].data = [counters.excelente,counters.bom,counters.ruim]
+      let counters = Store.getStore('totalCountersSum')
+      data.datasets[0].data = [counters['excelente'],counters['bom'],counters['ruim']]
         
 
     } else if (value === 2){
@@ -179,12 +186,8 @@ export default class DoughnutChart extends React.Component {
       data.datasets[0].data = [newCounters.excelente,newCounters.bom,newCounters.ruim] 
     }
 
-    data.text = 
-        this.state.data.datasets[0].data[0] +
-        this.state.data.datasets[0].data[1] + 
-        this.state.data.datasets[0].data[2]
-
-      this.setState({data : data})
+    data.text = _.sum(this.state.data.datasets[0].data)
+    this.setState({data : data})
 
   }
 

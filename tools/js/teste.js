@@ -17,11 +17,8 @@ var db = {};
 var initialisloaded = false;
 var limit = 0;
 var userimg = "img/default-icon-user.png";
-var notification_sound = new Audio('assets/pop.mp3');
-var counterMemory = {}
-var notificationslist = [];
-var newDataStack = [];
-var userIsWatching = true;
+var keys = []
+var scores = ['excelente','bom','ruim']
 
 function dataBlock(value){
   this.data = {};
@@ -57,6 +54,7 @@ function Feedit() {
 
 // Sets up shortcuts to Firebase features and initiate firebase auth.
 Feedit.prototype.initFirebase = function() {
+  firebase.initializeApp(config)
   this.auth = firebase.auth();
   this.database = firebase.database();
   this.storage = firebase.storage();
@@ -101,7 +99,16 @@ Feedit.prototype.displayGui = function(){
               '<input id="datatime" type="time" class="timepicker">'+
               '<label for="local">Nome da máquina</label>'+
               '<input id="local" type="text" class="validate">'+
+
               '<div class="input-field col s12">'+
+                  '<select id="boxselect">' +
+                      '<option value="">Loading...</option>'+
+                  '</select>' +
+                  '<label>Caixa</label>'+
+              '</div>'+
+
+              '<div class="input-field col s12">'+
+
                   '<select id="scoreselect">'+
                       '<option value="excelente">Excelente</option>'+
                       '<option value="bom">Bom</option>'+
@@ -111,6 +118,7 @@ Feedit.prototype.displayGui = function(){
               '</div>'+
               '<a id="sendbutton" style="margin-top:350px;" class="btn-floating halfway-fab btn-large waves-effect waves-light blue darken-3"><i class="material-icons">send</i></a>'+
               '<a id="sendnowbutton" style="margin-left:350px !important; right: 100px;" class="btn-floating halfway-fab btn-large waves-effect waves-light blue lighten-3"><i class="material-icons">call_merge</i></a>'+
+              '<a id="autobutton" style="margin-left:500px !important; right: 175; background-color:salmon" class="btn-floating halfway-fab btn-large waves-effect waves-light"><i class="material-icons">av_timer</i></a>'+
           '</div>'+
       '</div>');
 
@@ -119,6 +127,74 @@ Feedit.prototype.displayGui = function(){
       selectMonths: true, // Creates a dropdown to control month
       selectYears: 15 // Creates a dropdown of 15 years to control year
     });
+
+    const url = 'https://febee-2b942.firebaseio.com/users/' +
+                this.auth.currentUser.uid + 
+                '/data/machines.json?shallow=true'
+
+    fetch(url).then(response => {
+        response.json().then((responseJSON) => {
+          console.log(responseJSON)
+          keys = Object.keys(responseJSON)
+          $('#boxselect').children()[0].remove()
+          keys.forEach( (key) => {
+            $('#boxselect').append(`<option value="${key}"> ${key.capitalize()} </option>`)
+            $('#boxselect').material_select();
+          })
+        })
+
+      })
+
+    function doSomething() {
+        place = keys[Math.floor(Math.random()*keys.length)]
+        score = scores[Math.floor(Math.random()*scores.length)]
+        time = moment.duration($('#datatime').val()).valueOf()
+        date = moment($('#datadate').val(),'DD MMMM, YYYY')
+
+        console.log(moment(date.valueOf() + time).format('MMMM Do YYYY, h:mm:ss a'))
+
+        if (autobuttonState){
+          feedit.database.ref('/users/' + currentUser.uid + '/data/machines/' + place.toLowerCase() + '/entries').push(
+            {
+              date: Date.now(),
+              score : score 
+            }
+          ).then( () => { 
+            console.log('AUTOPUSH - RANDOM : Pushed score ' + score + ' to ' + place + ' at ' + moment().format('LTS'))
+            Materialize.toast('AUTO-RANDOMLY Pushed score ' + score.toUpperCase() + ' to ' + place.toUpperCase() + ' at ' + moment().format('LTS'), 5000, 'rounded') // 'rounded' is the class I'm applying to the toast
+            })          
+        }
+
+      }
+
+    var autobutton = $('#autobutton')
+    console.log(autobutton)
+    var autobuttonState = false
+    autobutton.click( () => {
+      autobuttonState = !autobuttonState
+      console.log('clicked')
+      if (autobuttonState == true){
+        autobutton.css('background-color', 'lightgreen')
+        doSomething();
+        Materialize.toast('AUTO-MODE ON',2000)
+        (function loop() {
+            var rand = Math.round(Math.random() * (60000)) + 30000;
+            setTimeout(function() {
+                    doSomething();
+                    if (autobuttonState == true){
+                      loop();                        
+                    }
+            }, rand);
+        }());
+
+      } else {
+        autobutton.css('background-color','salmon')
+        Materialize.toast('AUTO-MODE OFF',2000)
+
+      }
+    })
+
+
 
     $('select').material_select();
 
@@ -172,7 +248,7 @@ Feedit.prototype.displayGui = function(){
             score : score 
           }
         ).then( () => { 
-          Materialize.toast('Pushed score ' + score.toUpperCase() + ' to ' + place.toUpperCase() + ' at right now', 5000, 'rounded') // 'rounded' is the class I'm applying to the toast
+          Materialize.toast('Pushed score ' + score.toUpperCase() + ' to ' + place.toUpperCase() + ' at right now', 5000, 'rounded')
         });
       } else {
         Materialize.toast('Please fill the place field to send a instant review',2000)
@@ -180,7 +256,6 @@ Feedit.prototype.displayGui = function(){
     })
       
 }
-
 
 
 Feedit.prototype.checkSetup = function() {

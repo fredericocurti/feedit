@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 
-var Store = require('../helpers/store')
+import Store from '../helpers/store.js'
 let colors = Store.getStore('colors')
 
 class DataRow extends Component {

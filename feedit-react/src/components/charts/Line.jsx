@@ -11,9 +11,11 @@ import FontIcon from 'material-ui/FontIcon';
 import moment from 'moment'
 import MediaQuery from 'react-responsive'
 
-var Store = require('../../helpers/store')
+import Store from '../../helpers/store.js'
+import _ from 'lodash'
+
 let colors = Store.getStore('colors')
-var _ = require('lodash')
+
 
 export default class LineChart extends Component {
 	constructor(props){
@@ -26,6 +28,7 @@ export default class LineChart extends Component {
             value : 12,
             hoursAgo : 12,
             data : {},
+            loaded: false,
         }
 
         this.config = {
@@ -65,22 +68,27 @@ export default class LineChart extends Component {
 }
   
   componentWillMount(){
-    Store.subscribe('reviews', () => {
+    Store.subscribe('reviews', this.onReviewReceived = () => {
         this.reviews = Store.getStore('reviews')
         this.boxes = Object.keys(this.reviews)
         if (!this.state.loaded){
             this.filter()
         } else {
-            setTimeout(() => { this.filter() }, 4000)
+            setTimeout(() => { this.filter() }, 2000)
         }
-
     })
+
+    if (Store.isReady){
+        this.onReviewReceived()
+    }
+
   }
 
   componentDidMount(){
   }
 
   componentWillUnmount(){
+    Store.unsubscribe('reviews', this.onReviewReceived)
   }
   
   componentDidUpdate(){
@@ -164,6 +172,7 @@ export default class LineChart extends Component {
         }
         newData.datasets.push(scoreDataset)
     })
+
     this.setState({ data : newData })
 
   }
@@ -201,7 +210,7 @@ export default class LineChart extends Component {
                     primaryText={
                         [<span key='doughnut-title' style={{color:'black'}}>Frequência</span>,
                         this.state.loaded && this.state.open
-                        ?   <span>
+                        ?   <span key='doughnut-fields'>
                                 <SelectField
                                     className='right'
                                     value={this.state.box}

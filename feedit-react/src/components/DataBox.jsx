@@ -8,11 +8,11 @@ import {getMemory, setMemory} from '../helpers/memory'
 import Avatar from 'material-ui/Avatar'
 import moment from 'moment'
 import 'moment/locale/pt-br';
+import Notifications from '../helpers/notifications.js'
 
+import Store from '../helpers/store.js'
 
-let Store = require('../helpers/store.js')
 let colors = Store.getStore('colors')
-let Notifications = require('../helpers/notifications.js')
 
 class DataBox extends React.Component {
 
@@ -22,17 +22,16 @@ class DataBox extends React.Component {
 		super(props);
 		this.resetNewBadge = this.resetNewBadge.bind(this)
 		this.resetMemoryBadge = this.resetMemoryBadge.bind(this)
-		this.resetCounters = this.resetCounters.bind(this)
 		this.handleCollapsibleClick = this.handleCollapsibleClick.bind(this)
-		this.requestData = this.requestData.bind(this)
+		this.requestOlderData = this.requestOlderData.bind(this)
 		this.badgeColors = {
 			excelente: colors.excelente,
 			bom: colors.bom,
 			ruim: colors.ruim
 		}
 
-		this.listenerIsReady = false
-
+		this.initialLoaded = false
+							
 		this.state = {
 			dataHasLoaded: false,
 			uid : this.props.userUid,
@@ -43,16 +42,19 @@ class DataBox extends React.Component {
 			requested: 100,
 			requestInc: 50,
 			requestOffset: 0,
-			total: 0,
 			data: [],
 			displayingData: [0,50],
 			counters: {
-				initial : 50,
 				excelente: 0,
 				bom: 0,
-				ruim : 0
+				ruim : 0,
+				total : 0
 			},
-		};
+		}
+
+		this.boxRef = firebase.database()
+			.ref('/users/' + this.state.uid + '/data/machines/' + this.props.boxname)
+
 	}
 
 	componentWillUpdate(){
@@ -60,131 +62,47 @@ class DataBox extends React.Component {
 	
 	componentWillMount(){
 		moment.locale('pt-BR')
-		let currentTime = moment().valueOf()
-		let oneWeekAgo = moment().subtract(7,'d').valueOf()
-		let total = this.state.total
-
-		this.childCount = 0
-		
-		/* Create reference to messages in Firebase Database */
-		this.boxRef = firebase.database()
-			.ref('/users/'+ this.props.userUid +'/data/machines/' + this.props.boxname) 
-
-		let startingData = this.state.data
-		this.boxRef.child('entries')
-			.orderByChild('date')
-			.startAt( oneWeekAgo )
-			.once('value', snapshot => {
-				// console.log('new data received', snapshot.val())
-		/* Update React state when message is added at Firebase Database */
-				snapshot.forEach((child) => {
-					let review = { 
-						key : child.key,
-						score: child.val().score,
-						date: moment(parseInt(child.val().date,10)).format('L'),
-						time: moment(parseInt(child.val().date,10)).format('LTS'),
-						timestamp : parseInt(child.val().date),
-						place: this.props.boxname
-					}
-					startingData.unshift(review)
-					this.childCount ++
-				}) 
+		if (Store.isReady()){
+			let store = Store.getBox(this.props.boxname)
+			this.setState({ data : store.reviews , counters : store.totalCounters},() => {
+				this.setState({dataHasLoaded : true, requested : store.reviews.length, newUnseen : store.newUnseen})
 			})
-			.then(() => {
-				this.setState({ 
-					data: startingData,
-					requested : this.childCount
+			this.initialLoaded = true
+		}
+
+		Store.subscribe(`databoxes_${this.props.boxname}`, this.onDataboxReceived = () => {
+			let store = Store.getBox(this.props.boxname)
+			this.setState({ counters: store.totalCounters, data : store.reviews },() => {
+				this.setState({
+					dataHasLoaded : true, 
+					requested : store.reviews.length,
+					newUnseen : store.newUnseen
 				})
-		})
-
-		// counts db total and handles data after initial loading is complete
-		this.boxRef.child('counters')
-			.once('value', snapshot => {
-				var total = 0
-				let counters = this.state.counters
-				snapshot.forEach( (item) => {
-					total += item.val()
-					counters[item.key] = item.val()
-					this.setState({counters:counters})
-				})
-				this.setState( { total : total })
-			
-				if (this.state.total == this.state.data.length || this.state.requested == this.state.data.length){
-					console.log(' requested initial data loaded @ ' + this.props.boxname + ',weekold amount:' + this.childCount + ' total: ' + this.state.total)
-					
-					Store.setLoaded()
-					Store.add(this.props.boxname,this.state.data)
-					Store.addCounters(this.props.boxname,this.state.counters)
-
-					this.setState ( { dataHasLoaded : true } )
-					// checks for a counter difference
-					this.checkMemory()
-				}
-		})
-
-		this.boxRef.child('entries')
-			.orderByChild('date')
-			.limitToLast(1)
-			.on('child_added', snapshot => {
-				if (this.listenerIsReady){
-					let newData = this.state.data
-					let review = { 
-						key : snapshot.key,
-						score: snapshot.val().score,
-						date: moment(parseInt(snapshot.val().date,10)).format('L'),
-						time: moment(parseInt(snapshot.val().date,10)).format('LTS'),
-						timestamp : parseInt(snapshot.val().date),
-						place: this.props.boxname
-					}
-					
-					newData.unshift(review)
-					this.increaseCounters(review.score)
-					this.setState({ 
-						data: newData,
-						newUnseen : this.state.newUnseen + 1,
-						requestOffset : this.state.requestOffset + 1,
-						total : this.state.total + 1
-					}, () => {
-						Store.add(this.props.boxname,newData)
-						Store.addCounters(this.props.boxname,review.score)
-						Notifications.notify(review)
-					})
-				} else {
-					this.listenerIsReady = true
-					console.log('child_added listener ready')
-				}
-
 			})
 
+			if (!this.initialLoaded){
+				this.checkMemory()
+			}
+
+			this.initialLoaded = true
+
+			})
+	
 		window.addEventListener("beforeunload", (ev) => {  
 			ev.preventDefault();
-			setMemory(this.props.userUid,this.props.boxname,this.state.total)
+			setMemory(this.props.userUid,this.props.boxname,this.state.counters.total)
 		})
 	}
 	
 	componentWillUnmount(){
-		setMemory(this.props.userUid,this.props.boxname,this.state.total)
+		Store.unsubscribe(`databoxes_${this.props.boxname}`, this.onDataboxReceived)
+		setMemory(this.state.userUid,this.props.boxname,this.state.counters.total)
+		Store.resetBox(this.props.boxname)
 	}
 
 
 	// AUX FUNCTIONS --------------------------------------------------------------------
 
-
-	
-	increaseCounters(score){
-		let newCounters = this.state.counters
-		newCounters[score] ++
-		this.setState({
-			counters : newCounters
-		})		
-	}
-	
-	resetCounters(){
-		var counters = this.state.counters
-		counters.excelente = 0
-		counters.bom = 0
-		counters.ruim = 0
-	}
 
 	// Static badges
 	showExcelenteBadge(){
@@ -250,6 +168,7 @@ class DataBox extends React.Component {
 	}
 	
 	resetNewBadge(){
+		Store.resetUnseen(this.props.boxname)
 		this.setState({ newUnseen : 0 })
 	}
 
@@ -270,34 +189,25 @@ class DataBox extends React.Component {
 		this.setState({ memoryDifference : 0 })
 	}
 
-	requestData(){
+	requestOlderData(){
 		let dD = this.state.displayingData
 		dD[1] += 50
-		this.setState({ displayingData : dD })
+		this.setState ({displayingData: dD })
 
 		if (this.state.dataHasLoaded && dD[1] > this.state.requested){
 			let newData = []
 
-			this.setState(
-				{ requested: this.state.requested + this.state.requestInc,
-				dataHasLoaded: false 
+			this.setState({
+				requested: this.state.requested + this.state.requestInc,
 				}, () => {
-				this.boxRef.child('entries')
+				this.boxRef.child('entries')	
 				.orderByChild('date')
 				.limitToLast( this.state.requested + this.state.requestOffset )
 				.once('value', snapshot => {
 					console.log('requested more data @ box',this.props.boxname)
 					snapshot.forEach( (snapshot) => {
 
-						let review = { 
-							key : snapshot.key,
-							score: snapshot.val().score,
-							date: moment(parseInt(snapshot.val().date,10)).format('L'),
-							time: moment(parseInt(snapshot.val().date,10)).format('LTS'),
-							timestamp : parseInt(snapshot.val().date),
-							place : this.props.boxname
-						};
-
+						let review = Store.review(this.props.boxname,snapshot)
 						newData.unshift(review)
 
 					})
@@ -310,19 +220,16 @@ class DataBox extends React.Component {
 					let concatData = this.state.data.concat(newData)
 
 					this.setState({
-						dataHasLoaded : true,
 						data: concatData
 					})
-					
-					
 				})
-			})  
-
+			})
+			
 		}
 	}
 
 	checkMemory(){
-		const currentLength = this.state.total
+		const currentLength = this.state.counters.total
 		var memoryPromise = getMemory(this.props.boxname)
 		memoryPromise.then(snapshot => {
 			let memoryLength = snapshot.val()
@@ -334,7 +241,6 @@ class DataBox extends React.Component {
 		})
 	}
 
-
 	handleCollapsibleClick(){
 		if (this.state.isOpen){
 			this.collapsible.closeCollapsible()
@@ -345,21 +251,13 @@ class DataBox extends React.Component {
 		}
 	}
 
-	isNew(){
-		if (this.state.dataHasLoaded){
-			return true
-		} else {
-			return false
-		}
-	}
-
 	showMoreBtn(){
-		if (this.state.total > this.state.requested || this.state.data.length > this.state.displayingData[1]){
+		if (this.state.counters.total > this.state.requested || this.state.data.length > this.state.displayingData[1]){
 			return (
 				<div>
 					<a className='btn btn-flat' 
 					style={{ margin: 'auto',display:'block'}}
-					onClick={this.requestData}
+					onClick={this.requestOlderData}
 					>
 						<b>+</b> Mostrar mais 
 					</a>
@@ -374,7 +272,7 @@ class DataBox extends React.Component {
 	render () {
 		var triggerarray = [
 					this.props.boxname.replace(/\b\w/g, l => l.toUpperCase()),
-					<span key={this.props.boxname + '-total-counter'} className="badge counter-badge" data-badge-caption={this.state.total}></span>,
+					<span key={this.props.boxname + '-total-counter'} className="badge counter-badge" data-badge-caption={this.state.counters.total}></span>,
 					<div className='counters' key={'counters-'+this.props.boxname}>					
 						{[
 						this.showExcelenteBadge(),
@@ -429,7 +327,7 @@ class DataBox extends React.Component {
 						{ this.state.data.slice(as[0],as[1]).map( review => 
 							<DataRow 
 								key={review.key} 
-								isNew={this.isNew()} 
+								isNew={ this.state.dataHasLoaded ? true : false  } 
 								score={review.score}
 								date={review.date}
 								time={review.time}

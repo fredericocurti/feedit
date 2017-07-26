@@ -4,7 +4,7 @@ import Masonry from 'react-masonry-component'
 import DataBox from './DataBox.jsx'
 import MediaQuery from 'react-responsive'
 
-var Store = require('../helpers/store')
+import Store from '../helpers/store.js'
 
 class DataBoxContainer extends React.Component {
     constructor(props) {
@@ -16,37 +16,40 @@ class DataBoxContainer extends React.Component {
   }
   
     componentWillMount() {
+
         this.userUid = firebase.auth().currentUser.uid
-        this.fetchData()
-        window.onfocus = () => {
-			this.setState( { isFocused : true })
-		}
-		window.onblur = () => {
-			this.setState( { isFocused : false })
-		}
-    }
-
-    fetchData(token){
-        const url = 'https://febee-2b942.firebaseio.com/users/' +
-        this.userUid + '/data/machines.json?shallow=true'
-        fetch(url).then(response => {
-            response.json().then( (responseJSON) => {
-                this.setResponse(responseJSON)
+        if (Store.getStore('machines') != []){
+            this.setState({ boxes : Store.getStore('machines'), dataFetched : true }, () => {
+                this.renderDataBoxes()
             })
-        });
+        }
+
+        Store.subscribe('machines', () => {
+            this.setState({ boxes : Store.getStore('machines'), dataFetched : true }, () => {
+                this.renderDataBoxes()
+            })
+        })
+
+        window.addEventListener('focus', this.onWindowFocus = () => {
+            this.setState( { isFocused : true })
+        })
+
+        window.addEventListener('blur', this.onWindowBlur = () => {
+            this.setState( { isFocused : false })
+        })
+
     }
 
-    setResponse(response){
-        if (response){
-           Store.setAmount(Object.keys(response).length)         
-        }
-        this.setState( { boxes : response,  dataFetched: true}, () => { this.renderDataBoxes() })
+    componentWillUnmount() {
+        window.removeEventListener('focus',this.onWindowFocus)
+        window.removeEventListener('blur',this.onWindowBlur)
     }
+    
     
     renderDataBoxes(){
         var boxArray = []
         if (this.state.boxes != null){
-            var boxKeys = Object.keys(this.state.boxes)
+            var boxKeys = this.state.boxes
             for (var i = 0; i < boxKeys.length; i ++){
                 if (boxKeys[i] != 'error'){
                     boxArray.push(
@@ -63,6 +66,7 @@ class DataBoxContainer extends React.Component {
             return <h4> Ainda não existe nenhum feedback para esse usuário, por favor configure
                         os aparelhos corretamente </h4>
         }
+
         this.setState({boxArray : boxArray})
     }
 

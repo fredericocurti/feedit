@@ -15,10 +15,12 @@ var Store = require('../helpers/store')
 
 class Home extends Component {
 	constructor(props){
-		super(props);
+        super(props);
+        this.toggleOpen = this.toggleOpen.bind(this)
         this.state = {
             boxes : [],
-            isFocused: true
+            isFocused: true,
+            open : true
         }
 	}
 
@@ -36,10 +38,17 @@ class Home extends Component {
         console.log("btn clicked")
     }
 
+    toggleOpen(){
+        this.setState({open : !this.state.open})
+    }
+
 	render () {
 		return (
                 <Paper style={{marginTop: 75, marginBottom:100, position: 'relative', zIndex : 10}} zDepth={4}>
                 <h5 className='paper-title'> Visão Geral </h5>
+
+                {this.state.open 
+                ? 
                 <div className='col s12' style={{padding:'10px 45px 45px 45px'}}>
                     {/*<Clock />*/}
                     <MediaQuery minDeviceWidth={1224}>
@@ -107,6 +116,8 @@ class Home extends Component {
                         <a onClick={this.onItemClick} className='btn waves-effect waves-light'>Log store</a>*/}
 
                 </div>
+                : null }
+                <a className='btn red' onClick={this.toggleOpen}>CLOSE</a>
                 </Paper>
         )
 	}

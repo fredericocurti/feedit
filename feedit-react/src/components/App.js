@@ -4,11 +4,13 @@ import {Preloader} from 'react-materialize'
 import Login from './Login'
 import Dashboard from './protected/Dashboard.jsx'
 import { firebaseAuth } from '../config/constants'
-
 // import '../css/materialize.css'
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
+import Notifications from '../helpers/notifications'
+
+import Store from '../helpers/store.js'
 
 function PrivateRoute ({component: Component, authed, ...rest}) {
   return (
@@ -44,6 +46,10 @@ export default class App extends Component {
     this.removeListener = firebaseAuth().onAuthStateChanged((user) => {
       if (user) {
         console.log('User signed in',user)
+
+        Store.start(user)
+        Notifications.setup()
+
         this.setState({
           authed: true,
           loading: false,
@@ -58,6 +64,7 @@ export default class App extends Component {
         })
       }
     })
+
   }
 
   componentWillUnmount () {
