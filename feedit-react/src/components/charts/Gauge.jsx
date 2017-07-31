@@ -140,7 +140,7 @@ export default class GaugeChart extends Component {
 
         <div className='paper-title small'>
           <MenuItem disabled style={{paddingLeft:50,paddingRight:0}} leftIcon={
-            <FontIcon className="material-icons" onClick={this.toggleOpen}>
+            <FontIcon className="material-icons chart-card-btn" onClick={this.toggleOpen}>
             { this.state.open ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }
             </FontIcon>} primaryText={
               <span key='gauge-title' style={{color:'black'}}>Desempenho hoje</span>}
@@ -153,13 +153,11 @@ export default class GaugeChart extends Component {
         : null
         }*/}            
             <div style={{maxHeight : 400, paddingTop: 10, display: this.state.open ? 'block' : 'none'}}>
-                 <span style={{paddingLeft:20}}>Pontuação:</span><b> { this.state.value }/100 </b> 
-                    <div className='center' style={{padding : 15}}
-                    >
-                        { this.state.isEmpty 
-                        ? <div> Ainda não existe nenhuma avaliação hoje </div> 
-                        : null }
-
+                 { this.state.isEmpty
+                 ? <div style={{textAlign:'center'}}> Ainda não existe nenhuma avaliação hoje </div> 
+                 : <span style={{paddingLeft:20}}>Pontuação:<b> { this.state.value }/100 </b></span>
+                 } 
+                    <div className='center' style={{padding : 15}} >
                         <canvas style={{
                             width: 100+'%',
                             height: 100}}

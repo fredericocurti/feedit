@@ -18,13 +18,13 @@ class DataBoxContainer extends React.Component {
     componentWillMount() {
 
         this.userUid = firebase.auth().currentUser.uid
-        if (Store.getStore('machines') != []){
+        if (Store.isReady()){
             this.setState({ boxes : Store.getStore('machines'), dataFetched : true }, () => {
                 this.renderDataBoxes()
             })
         }
 
-        Store.subscribe('machines', () => {
+        Store.subscribe('machines', this.onMachinesReceived = () => {
             this.setState({ boxes : Store.getStore('machines'), dataFetched : true }, () => {
                 this.renderDataBoxes()
             })
@@ -41,6 +41,7 @@ class DataBoxContainer extends React.Component {
     }
 
     componentWillUnmount() {
+        Store.unsubscribe('machines',this.onMachinesReceived)
         window.removeEventListener('focus',this.onWindowFocus)
         window.removeEventListener('blur',this.onWindowBlur)
     }

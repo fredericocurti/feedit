@@ -19,6 +19,7 @@ class Navigator extends Component {
     this.mql = window.matchMedia('(min-width: 480px)')
     this.mediaQueryChanged = this.mediaQueryChanged.bind(this)
     this.toggleDrawer = this.toggleDrawer.bind(this)
+    this.switchComponent = this.switchComponent.bind(this)
     this.state = {
       open: false,
       anchorEl: null,
@@ -80,11 +81,26 @@ handleTouchTap = (event) => {
     })
   }
 
+  switchComponent = (id) => {
+    switch(id){
+        case 1:
+            this.props.switchComponent('home')
+            break
+        case 2:
+            this.props.switchComponent('settings')
+            break
+    }
+  }
+
   // --------------------------------------------------------------------------
   // RENDER FUNCTION
 
 
 render () {
+    var items = [
+        {id: 1, title: 'home'},
+        {id: 2, title: 'settings'},
+    ]
 
     let navbar = () => {
         return(
@@ -149,6 +165,7 @@ render () {
                     }
                 />
                 <MenuItem style={{marginTop:20}}
+                    onTouchTap={this.switchComponent.bind(this,1)}
                     leftIcon={<FontIcon className="material-icons" >home</FontIcon>}
                     primaryText='Visão Geral'
                 />
@@ -157,7 +174,10 @@ render () {
                 <div className='sidebar-bottom-item'>
                     <Divider/>
                     <MenuItem leftIcon={<FontIcon className="material-icons" >help</FontIcon>} primaryText="Ajuda &amp; feedback" />
-                    <MenuItem leftIcon={<FontIcon className="material-icons" >settings</FontIcon>} primaryText="Configurações" />
+                    <MenuItem
+                        leftIcon={<FontIcon className="material-icons" >settings</FontIcon>} 
+                        primaryText="Configurações"
+                        onTouchTap={this.switchComponent.bind(this,2)} />
                     <MenuItem 
                         leftIcon={<FontIcon className="material-icons" >power_settings_new</FontIcon>} 
                         primaryText="Sair" onTouchTap={this.handleLogout}

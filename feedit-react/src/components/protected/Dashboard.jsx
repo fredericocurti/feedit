@@ -1,19 +1,25 @@
 import React, { Component } from 'react';
-import Headroom from 'react-headroom'
-import Snackbar from 'material-ui/Snackbar'
+// import Snackbar from 'material-ui/Snackbar'
+
+import Settings from '../Settings.jsx'
 import Home from '../Home.jsx'
 import '../../css/materialize.css'
 import '../../css/style.css'
 import Navigator from '../Navigator.jsx'
 import { firebaseAuth } from '../../config/constants'
 
-import Popover from 'material-ui/Popover'
-import Menu from 'material-ui/Menu'
-import MenuItem from 'material-ui/MenuItem'
-import FlatButton from 'material-ui/FlatButton';
-import Divider from 'material-ui/Divider';
-import Avatar from 'material-ui/Avatar';
 
+// import Popover from 'material-ui/Popover'
+// import Menu from 'material-ui/Menu'
+// import MenuItem from 'material-ui/MenuItem'
+import FlatButton from 'material-ui/FlatButton';
+// import Divider from 'material-ui/Divider';
+// import Avatar from 'material-ui/Avatar';
+import Dialog from 'material-ui/Dialog';
+
+
+import Notifications from '../../helpers/notifications'
+import allow_desktop from '../../img/allow-desktop.png'
 
 class Dashboard extends Component {
 
@@ -24,13 +30,15 @@ class Dashboard extends Component {
     this.mql = window.matchMedia('(min-width: 480px)')
     this.mediaQueryChanged = this.mediaQueryChanged.bind(this)
     this.toggleDrawer = this.toggleDrawer.bind(this)
+    this.switchComponent = this.switchComponent.bind(this)
     this.state = {
         loaded : false,
-        open : false,
         mql: this.mql,
         docked: this.mql.matches,
         user: firebaseAuth().currentUser,
         drawerIsOpen : true,
+        currentComponent : 'home',
+        dialogOpen: false
     }
 
 	}
@@ -41,7 +49,17 @@ class Dashboard extends Component {
   }
 
   componentDidMount(){
-    this.setState( { loaded : true, open: true } )
+    this.setState({loaded : true, open: true })
+    
+    setTimeout(Notifications.setup((status) => {
+      console.log('NOTIFICATION STATUS : ' + status)
+      if (status != 'granted'){
+        this.setState({dialogOpen:true})
+      } else {
+        this.setState({dialogOpen:false})
+      }
+
+    }),4000)
   }
 
   componentDidUpdate(){
@@ -55,13 +73,33 @@ class Dashboard extends Component {
     this.setState( {drawerIsOpen : drawerStatus} )
   }
 
-  handleToggle = () => this.setState({open: !this.state.open});
+  handleOpen = () => {
+    this.setState({dialogOpen: true});
+  };
+
+  handleClose = () => {
+    this.setState({dialogOpen: false});
+  };
+
 
   mediaQueryChanged() {
     this.setState({
       docked: this.mql.matches,
       open: this.mql.matches
     })
+  }
+
+  switchComponent(nextComponent) {
+    if (nextComponent != this.state.currentComponent){
+      switch(nextComponent){
+        case 'home':
+          this.setState({ currentComponent : 'home' })
+          break
+        case 'settings':
+          this.setState({ currentComponent : 'settings' })
+      }
+    }
+    
   }
 
 // RENDER FUNCTION ------------------------------------------------------------
@@ -75,21 +113,58 @@ class Dashboard extends Component {
       }
     }
 
+    const getCurrentComponent = () => {
+      let comp = this.state.currentComponent
+      if (comp == 'home'){
+        return <Home/>
+      } else if (comp == 'settings'){
+        return <Settings/>
+      }
+    }
+
+    const notificationStatusDialog = () => {
+      this.actions = [
+        <FlatButton
+          label="Ok"
+          primary={true}
+          keyboardFocused={true}
+          onTouchTap={this.handleClose}
+        />,
+    ];
+      return <Dialog
+                title={
+                  "Para ser notificado sobre novas avaliações " +
+                  "habilite as notificações automáticas como mostra a imagem abaixo"
+                }
+                actions={this.actions}
+                modal={false}
+                open={this.state.dialogOpen}
+                onRequestClose={this.handleClose}
+              >
+                <img style={{margin:'0 auto',display:'block'}}src={allow_desktop}/>
+            </Dialog>
+
+    }
+
+
     return (
-          <div style={{height : 100+'%',overflowY: 'auto'}}>
-              <Navigator user={this.state.user} toggleDrawer={this.toggleDrawer}/>
-            <div style={{height: 250, backgroundColor: '#ed4264'}}/>
+        <div style={{height : 100+'%',overflowY: 'auto'}}>
+
+
+          <Navigator 
+            user={this.state.user} 
+            toggleDrawer={this.toggleDrawer} 
+            switchComponent={this.switchComponent}
+          />
+          { notificationStatusDialog() }
+          <div style={{height: 250, backgroundColor: '#ed4264'}}/>
             <div id="Dashboard" className='data-container'>
               <div className={sideMargin()}>
                 <div className='container'>
-                {/*<DoughnutExample/>*/}
-                <Home/>
-                <Snackbar 
-                  open={this.state.open}
-                  message="Usuário autenticado com sucesso!"
-                  autoHideDuration={4000}
-                  onRequestClose={this.handleToggle}
-                />
+                
+                { getCurrentComponent() }
+
+
               </div>
             </div>
           </div>

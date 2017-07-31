@@ -1,3 +1,7 @@
+import firebase from 'firebase'
+
+
+const messaging = firebase.messaging()
 // In production, we register a service worker to serve assets from local cache.
 
 // This lets the app load faster on subsequent visits in production, and gives
@@ -12,6 +16,7 @@
 
 export default function register() {
   if ('serviceWorker' in navigator) {
+    console.log('Attempting to register service worker')
     window.addEventListener('load', () => {
       const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
       navigator.serviceWorker
@@ -42,6 +47,23 @@ export default function register() {
         });
     });
   }
+
+    // const customSwUrl = `${process.env.PUBLIC_URL}/workers/sw.js`;
+    // navigator.serviceWorker
+    //   .register(customSwUrl)
+    //   .then(registration => {
+    //     console.log('Custom Service worker registered')
+    //     messaging.useServiceWorker(registration)
+    //     messaging.requestPermission().then(() => {
+    //       console.log('Notifications helper ready/allowed')
+    //       messaging.getToken().then((token)=>{
+    //         console.log(token)
+    //       })
+    //     })
+    // }).catch((err)=>{
+    //   console.log(err)
+    // })
+
 }
 
 export function unregister() {

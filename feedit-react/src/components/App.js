@@ -8,7 +8,6 @@ import { firebaseAuth } from '../config/constants'
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
-import Notifications from '../helpers/notifications'
 
 import Store from '../helpers/store.js'
 
@@ -48,7 +47,7 @@ export default class App extends Component {
         console.log('User signed in',user)
 
         Store.start(user)
-        Notifications.setup()
+
 
         this.setState({
           authed: true,
@@ -85,7 +84,7 @@ export default class App extends Component {
                 }
                 <PublicRoute authed={this.state.authed} path='/login' component={Login} />
                 <PrivateRoute authed={this.state.authed} path='/dashboard' component={Dashboard} />
-                <Route render={() => <h3>No Match</h3>} />
+                {/* <Route render={() => <h3>No Match</h3>} /> */}
               </Switch>
           </div>
         </MuiThemeProvider>

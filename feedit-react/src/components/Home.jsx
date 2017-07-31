@@ -4,6 +4,7 @@ import MediaQuery from 'react-responsive'
 
 import Paper from 'material-ui/Paper'
 import CounterCard from './CounterCard'
+import FontIcon from 'material-ui/FontIcon'
 
 import Clock from './Clock.jsx'
 import Doughnut from './charts/Doughnut.jsx'
@@ -44,8 +45,10 @@ class Home extends Component {
 
 	render () {
 		return (
-                <Paper style={{marginTop: 75, marginBottom:100, position: 'relative', zIndex : 10}} zDepth={4}>
-                <h5 className='paper-title'> Visão Geral </h5>
+                <div className='card z-depth-5' style={{marginTop: 75, marginBottom:100, position: 'relative', zIndex : 10}}>
+                <h5 className='paper-title valign-wrapper'> 
+                    <FontIcon className="material-icons" style={{marginRight: 10}}> home </FontIcon>
+                    Visão Geral </h5>
 
                 {this.state.open 
                 ? 
@@ -118,7 +121,7 @@ class Home extends Component {
                 </div>
                 : null }
                 <a className='btn red' onClick={this.toggleOpen}>CLOSE</a>
-                </Paper>
+                </div>
         )
 	}
 }

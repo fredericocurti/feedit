@@ -212,7 +212,7 @@ export default class DoughnutChart extends React.Component {
 
         <div className='paper-title small'>
           <MenuItem disabled style={{paddingLeft:50,paddingRight:0}} leftIcon={
-            <FontIcon className="material-icons" onClick={this.toggleOpen}>
+            <FontIcon className="material-icons chart-card-btn" onClick={this.toggleOpen}>
             { this.state.open ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }
             </FontIcon>} primaryText={
               [<span key='doughnut-title' style={{color:'black'}}>Distribuição</span>,

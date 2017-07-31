@@ -203,7 +203,7 @@ export default class LineChart extends Component {
                     disabled 
                     style={{paddingLeft:50,paddingRight:0}} 
                     leftIcon={
-                        <FontIcon className="material-icons" onClick={this.toggleOpen}>
+                        <FontIcon className="material-icons chart-card-btn" onClick={this.toggleOpen}>
                         { this.state.open ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }
                         </FontIcon>
                         } 

@@ -9,8 +9,9 @@ import Avatar from 'material-ui/Avatar'
 import moment from 'moment'
 import 'moment/locale/pt-br';
 import Notifications from '../helpers/notifications.js'
-
+import _ from 'lodash'
 import Store from '../helpers/store.js'
+import VirtualList from 'react-virtual-list';
 
 let colors = Store.getStore('colors')
 
@@ -24,6 +25,8 @@ class DataBox extends React.Component {
 		this.resetMemoryBadge = this.resetMemoryBadge.bind(this)
 		this.handleCollapsibleClick = this.handleCollapsibleClick.bind(this)
 		this.requestOlderData = this.requestOlderData.bind(this)
+		this.setRowAsSeen = this.setRowAsSeen.bind(this)
+		this.deleteRow = this.deleteRow.bind(this)
 		this.badgeColors = {
 			excelente: colors.excelente,
 			bom: colors.bom,
@@ -31,6 +34,7 @@ class DataBox extends React.Component {
 		}
 
 		this.initialLoaded = false
+		this.virtualListLoaded = false
 							
 		this.state = {
 			dataHasLoaded: false,
@@ -38,6 +42,7 @@ class DataBox extends React.Component {
 			newUnseen: 0,
 			isOpen : false,
 			isFocused: true,
+			collapsibleReady: false,
 			memoryDifference : 0,
 			requested: 100,
 			requestInc: 50,
@@ -64,7 +69,7 @@ class DataBox extends React.Component {
 		moment.locale('pt-BR')
 		if (Store.isReady()){
 			let store = Store.getBox(this.props.boxname)
-			this.setState({ data : store.reviews , counters : store.totalCounters},() => {
+			this.setState({ data : _.values(store.reviews).reverse() , counters : store.totalCounters},() => {
 				this.setState({dataHasLoaded : true, requested : store.reviews.length, newUnseen : store.newUnseen})
 			})
 			this.initialLoaded = true
@@ -72,7 +77,7 @@ class DataBox extends React.Component {
 
 		Store.subscribe(`databoxes_${this.props.boxname}`, this.onDataboxReceived = () => {
 			let store = Store.getBox(this.props.boxname)
-			this.setState({ counters: store.totalCounters, data : store.reviews },() => {
+			this.setState({ counters: store.totalCounters, data : _.values(store.reviews).reverse()},() => {
 				this.setState({
 					dataHasLoaded : true, 
 					requested : store.reviews.length,
@@ -81,7 +86,7 @@ class DataBox extends React.Component {
 			})
 
 			if (!this.initialLoaded){
-				this.checkMemory()
+				setTimeout ( this.checkMemory(), 3000)
 			}
 
 			this.initialLoaded = true
@@ -100,7 +105,10 @@ class DataBox extends React.Component {
 		Store.resetBox(this.props.boxname)
 	}
 
-
+	componentDidMount() {
+		this.setState({collapsibleReady:true})
+	}
+	
 	// AUX FUNCTIONS --------------------------------------------------------------------
 
 
@@ -192,7 +200,7 @@ class DataBox extends React.Component {
 	requestOlderData(){
 		let dD = this.state.displayingData
 		dD[1] += 50
-		this.setState ({displayingData: dD })
+		this.setState ({ displayingData: dD })
 
 		if (this.state.dataHasLoaded && dD[1] > this.state.requested){
 			let newData = []
@@ -207,7 +215,7 @@ class DataBox extends React.Component {
 					console.log('requested more data @ box',this.props.boxname)
 					snapshot.forEach( (snapshot) => {
 
-						let review = Store.review(this.props.boxname,snapshot)
+						let review = Store.formatReview(this.props.boxname,snapshot,false)
 						newData.unshift(review)
 
 					})
@@ -228,15 +236,39 @@ class DataBox extends React.Component {
 		}
 	}
 
+	deleteRow(key){
+		Store.removeReview(this.props.boxname,key)
+	}
+
+	setRowAsSeen(key){
+		Store.setRowAsSeen(key,this.props.boxname)
+		let seenReview = _.find(this.state.data,{ key : key })
+		let index = this.state.data.indexOf(seenReview)
+		let newData = this.state.data
+		newData[index].isNew = false
+		this.setState({ data : newData })
+	}
+
+
 	checkMemory(){
 		const currentLength = this.state.counters.total
 		var memoryPromise = getMemory(this.props.boxname)
 		memoryPromise.then(snapshot => {
 			let memoryLength = snapshot.val()
-			if (memoryLength != currentLength){
-				console.log('there is a dif @ ' + this.props.boxname)
+			if (memoryLength != currentLength && memoryLength < currentLength){
+				// console.log('there is a dif @ ' + this.props.boxname)
 				const difference = currentLength - memoryLength
-				this.setState( { memoryDifference : difference } )
+				this.setState({ memoryDifference : difference }, () => {
+					let newData = this.state.data
+					for (let i = 0; i < difference; i ++){
+						console.log(newData[i])
+						newData[i].isNew = true
+					}
+					this.setState({ data : newData })
+				})
+
+			
+
 			}
 		})
 	}
@@ -267,9 +299,74 @@ class DataBox extends React.Component {
 	};
 
 
+    getColor(score){
+		return colors[score]
+	}
+
+	getVirtualList(){
+		let slice = this.state.displayingData
+		if (this.state.collapsibleReady && this.state.dataHasLoaded && !this.virtualListLoaded){
+			// console.log('collapsible ready, creating list')
+		const MyList = ({
+			virtual,
+			itemHeight,
+		}) => (
+			<div style={virtual.style}> {
+			 	virtual.items.map( (review) => {
+					this.isEven = !this.isEven
+					return <DataRow
+						deleteRow={this.deleteRow}
+						setRowAsSeen={this.setRowAsSeen}
+						key={review.key}
+						color={this.getColor(review.score)}
+						isNew={review.isNew} 
+						review={review}
+						boxstate={this.state.isOpen}
+						windowstate={this.props.isFocused}
+					/> 
+				 }
+
+				)}
+				{ this.showMoreBtn() }
+			</div>
+			);
+
+			const options = {
+			container: this.collapsible.refs.inner,
+			 // use this scrollable element as a container
+			initialState: {
+				firstItemIndex: 0, // show first ten items
+				lastItemIndex: 12,  // during initial render
+				}
+			}
+
+			let MyVirtualList = VirtualList(options)(MyList)
+			this.VirtualList = MyVirtualList
+			this.virtualListLoaded = true
+			return <MyVirtualList
+						items={this.state.data.slice(slice[0],slice[1])}
+						itemHeight={30}
+						itemBuffer={15}
+					/>
+		} else if (this.virtualListLoaded === true){
+			
+			return <this.VirtualList
+						items={this.state.data.slice(slice[0],slice[1])}
+						itemHeight={30}
+						itemBuffer={15}
+					/>
+		} else {
+			return null
+		}
+	}
+	
+
 // RENDER FUNCTION --------------------------------------------------------
 
 	render () {
+
+		let as = this.state.displayingData
+				
 		var triggerarray = [
 					this.props.boxname.replace(/\b\w/g, l => l.toUpperCase()),
 					<span key={this.props.boxname + '-total-counter'} className="badge counter-badge" data-badge-caption={this.state.counters.total}></span>,
@@ -302,9 +399,10 @@ class DataBox extends React.Component {
 			}
 		}
 
-		let as = this.state.displayingData
+		
 
 		return (
+
 			/*<Collapsible popout>
 				<CollapsibleItem header={[
 					this.props.boxname.replace(/\b\w/g, l => l.toUpperCase()),
@@ -322,22 +420,39 @@ class DataBox extends React.Component {
 					transitionTime={250} 
 					easing='ease'
 					trigger={ triggerLoader() }
+					lazyRender={false}
 					>
+					{ this.getVirtualList() }
 
-						{ this.state.data.slice(as[0],as[1]).map( review => 
-							<DataRow 
-								key={review.key} 
-								isNew={ this.state.dataHasLoaded ? true : false  } 
-								score={review.score}
-								date={review.date}
-								time={review.time}
-								boxstate={this.state.isOpen}
-								windowstate={this.props.isFocused} /> )
-						}
-						{ this.showMoreBtn() }
+
 				</Collapsible>
 			</div>
-		);
+				/* /* <Collapsible 
+					ref = { (Collapsible) => { this.collapsible = Collapsible } }
+					handleTriggerClick = { this.handleCollapsibleClick }
+					openedClassName='open'
+					triggerOpenedClassName='open'
+					transitionTime={250} 
+					easing='ease'
+					trigger={ triggerLoader() }
+					>
+
+			// 			{ this.state.data.length > 0 
+			// 			? 
+			// 			this.state.data.slice(as[0],as[1]).map( review => 
+			// 				<DataRow
+			// 					deleteRow={this.deleteRow}
+			// 					key={review.key}
+			// 					color={this.getColor(review.score)}
+			// 					isNew={ this.state.dataHasLoaded ? true : false  } 
+			// 					review={review}
+			// 					boxstate={this.state.isOpen}
+			// 					windowstate={this.props.isFocused} /> )
+			// 			: <h5 style={{padding:10}}> Ainda não existem avaliações nessa caixa </h5>}
+			// 			{ this.showMoreBtn() }
+			// 	</Collapsible>
+			// </div> */
+		)
 	}
 }
 

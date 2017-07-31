@@ -5,6 +5,7 @@ import _ from 'lodash'
 
 const EventEmitter = require('events').EventEmitter
 const emitter = new EventEmitter();
+emitter.setMaxListeners(20)
 
 var store = {
     isReady : false,
@@ -25,17 +26,17 @@ var store = {
     machines : []
     }
 
-window.logStore = () => {
-    console.log(store)
-}
+window.emitter = emitter
 
-export default {
+var isEven = false
+
+export default window.store = {
     start : function(user) {
         store.user = user
         moment.locale('pt-BR')
 		let oneWeekAgo = moment().subtract(7,'d').valueOf()
         
-        console.log('STORE STARTING')
+        console.log('Store started')
         // Shallow request to get the machine names
         const url = 'https://febee-2b942.firebaseio.com/users/' +
                     store.user.uid + 
@@ -44,7 +45,7 @@ export default {
         fetch(url).then(response => {
             response.json().then((responseJSON) => {
                 if (responseJSON){
-                    console.log('STORE GOT MACHINES', responseJSON)
+                    console.log('Store fetched user boxes', responseJSON)
             
                     store.machines = Object.keys(responseJSON)
                     store.boxCount = store.machines.length
@@ -56,9 +57,10 @@ export default {
                             .ref('/users/'+ store.user.uid +'/data/machines/' + boxName)
                         
                         let box = {}
-                            box['reviews'] = []
+                            box['reviews'] = {}
                             box['totalCounters'] = { total : 0, excelente:0, bom: 0, ruim: 0 }
                             box['childAddedIsReady'] = false
+                            box['reviewDeletionInProgress'] = false
                             box['newUnseen'] = 0
 
                         store.databoxes[boxName] = box
@@ -69,10 +71,10 @@ export default {
                         .startAt(oneWeekAgo)
                         .once('value',snapshot => {
                             snapshot.forEach((child) => {
-                                store.databoxes[boxName].reviews.unshift(this.review(boxName,child))
+                                store.databoxes[boxName].reviews[child.key] = (this.formatReview(boxName,child,false))
                             })
                             // data for filtering components
-                            store.reviews[boxName] = store.databoxes[boxName].reviews
+                            store.reviews[boxName] = _.values(store.databoxes[boxName].reviews)
                         })
 
                         // Loads total counters and emits updates
@@ -100,15 +102,16 @@ export default {
                         .orderByChild('date')
                         .limitToLast(1)
                         .on('child_added', snapshot => {
-                            if (store.databoxes[boxName].childAddedIsReady){
-                                store.databoxes[boxName].reviews.unshift(this.review(boxName,snapshot))
-                                store.databoxes[boxName].newUnseen ++
-                                store.databoxes[boxName].totalCounters[snapshot.val().score] ++
-                                store.databoxes[boxName].totalCounters.total ++
-                                Notifications.notify(this.review(boxName,snapshot))
-                                emitter.emit(`databoxes_${boxName}_update`)
-                                emitter.emit('reviews_update')
-
+                            // console.log(store.databoxes[boxName].reviewDeletionInProgress)
+                            if (store.databoxes[boxName].childAddedIsReady &&
+                                !store.databoxes[boxName].reviewDeletionInProgress) {
+                                    store.databoxes[boxName].reviews[snapshot.key] = (this.formatReview(boxName,snapshot,true))
+                                    store.databoxes[boxName].newUnseen ++
+                                    store.databoxes[boxName].totalCounters[snapshot.val().score] ++
+                                    store.databoxes[boxName].totalCounters.total ++
+                                    Notifications.notify(this.formatReview(boxName,snapshot,true))
+                                    emitter.emit(`databoxes_${boxName}_update`)
+                                    emitter.emit('reviews_update')
                             } else {
                                 store.databoxes[boxName].childAddedIsReady = true
                             }
@@ -131,9 +134,43 @@ export default {
     getBox : function(boxName){
         return store.databoxes[boxName]
     },
+    
+    removeReview : function(boxName,key){
+        console.log('attempting to remove review ID ' + key + ' @ box ' + boxName)
+        store.databoxes[boxName].reviewDeletionInProgress = true
+        let ref = firebase.database().ref('/users/' + store.user.uid + '/data/machines/' + boxName)
+            let entry = store.databoxes[boxName].reviews[key]
+            let score = entry.score
+            let confirmDialog = window.confirm('Tem certeza que deseja remover a avaliação ' + _.capitalize(entry.score) + ' no local ' + 
+            _.capitalize(entry.place) + ' ?')
+
+            if (confirmDialog){
+                delete store.databoxes[boxName].reviews[key]
+                store.databoxes[boxName].totalCounters[score] --
+                store.databoxes[boxName].totalCounters.total --
+                store.totalCountersSum[score] --
+                store.totalCountersSum.total --
+                ref.child('entries').child(key).remove().then(() => {
+                    ref.child('counters').child(score).transaction( (currentCount) => {
+                        return currentCount - 1
+                    }).then( () => {
+                        console.log(`removed key ${key} from store and database, emitting updates`)
+                        emitter.emit('reviews_update')
+                        emitter.emit(`databoxes_${boxName}_update`)
+                        store.databoxes[boxName].reviewDeletionInProgress = false
+
+                    })
+                })
+            }
+
+    },
 
     resetUnseen : function(boxName){
         store.databoxes[boxName].newUnseen = 0
+    },
+
+    setRowAsSeen : function(key,boxName){
+        store.databoxes[boxName].reviews[key].isNew = false
     },
 
     isReady : function(){
@@ -161,16 +198,22 @@ export default {
 
     },
 
-    review : (name,child) => {
+    formatReview : (name,child,isnew) => {
     let reviewMoment = moment(parseInt(child.val().date))
-    return {
-        key : child.key,
-        score: child.val().score,
-        date: reviewMoment.format('L'),
-        time: reviewMoment.format('LTS'),
-        timestamp : parseInt(child.val().date),
-        place: name
+    let review = {
+ 
+            key : child.key,
+            score: child.val().score,
+            date: reviewMoment.format('L'),
+            time: reviewMoment.format('LTS'),
+            timestamp : parseInt(child.val().date),
+            place: name,
+            isNew : isnew,
+            isEven : !isEven
+    
     }
-}
+    return review
+
+    }
 
 }
