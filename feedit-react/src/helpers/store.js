@@ -15,8 +15,8 @@ var store = {
     loadedBoxCount : 0,
     doughnutHeight:0,
     colors : {
-        excelente: '#00ff3e',
-        bom: '#ffb43d',
+        excelente: '#b2ff59',
+        bom: '#ffb74d',
         ruim: '#ff0000',
         total: 'lightskyblue'
     },
@@ -87,13 +87,20 @@ export default window.store = {
                                 store.totalCountersSum.total += item.val()
                             })
 
-                            store.isReady = true
-
                             emitter.emit(`databoxes_${boxName}_update`)
                             store.loadedBoxCount ++
 
                             if (store.loadedBoxCount === store.boxCount){
+                                store.isReady = true
                                 emitter.emit('reviews_update')
+                                Notifications.setup((status) => {
+                                    console.log('NOTIFICATION STATUS : ' + status)
+                                    // if (status != 'granted'){
+                                    //     this.setState({dialogOpen:true})
+                                    // } else {
+                                    //     this.setState({dialogOpen:false})
+                                    // }
+                                })
                             }
                         })
 
@@ -109,7 +116,7 @@ export default window.store = {
                                     store.databoxes[boxName].newUnseen ++
                                     store.databoxes[boxName].totalCounters[snapshot.val().score] ++
                                     store.databoxes[boxName].totalCounters.total ++
-                                    Notifications.notify(this.formatReview(boxName,snapshot,true))
+                                    Notifications.handleReview(this.formatReview(boxName,snapshot,true))
                                     emitter.emit(`databoxes_${boxName}_update`)
                                     emitter.emit('reviews_update')
                             } else {
@@ -124,7 +131,7 @@ export default window.store = {
     },
 
     getStore : function(storeName) {
-        if ( arguments.length === 0){
+        if ( arguments.length === 0 ){
             return store
         } else {
             return store[storeName]
@@ -200,7 +207,7 @@ export default window.store = {
 
     formatReview : (name,child,isnew) => {
     let reviewMoment = moment(parseInt(child.val().date))
-    let review = {
+    return {
  
             key : child.key,
             score: child.val().score,
@@ -209,11 +216,8 @@ export default window.store = {
             timestamp : parseInt(child.val().date),
             place: name,
             isNew : isnew,
-            isEven : !isEven
     
     }
-    return review
-
     }
 
 }

@@ -109,6 +109,7 @@ class DataBox extends React.Component {
 		this.setState({collapsibleReady:true})
 	}
 	
+	
 	// AUX FUNCTIONS --------------------------------------------------------------------
 
 
@@ -120,7 +121,7 @@ class DataBox extends React.Component {
 					color={'white'}
 					backgroundColor={this.badgeColors.excelente}
 					size={26}
-					style={{ marginLeft: 5}}
+					style={{ marginLeft: 5, textShadow: '2px 2px 5px rgba(0, 0, 0, 0.25)'}}
 					key={'counter-excelente-'+this.props.boxname}
 				>
           			{this.state.counters.excelente}
@@ -138,7 +139,7 @@ class DataBox extends React.Component {
 					color={'white'}
 					backgroundColor={this.badgeColors.bom}
 					size={26}
-					style={{ marginLeft: 5}}
+					style={{ marginLeft: 5, textShadow: '2px 2px 5px rgba(0, 0, 0, 0.25)'}}
 					key={'counter-bom-'+this.props.boxname}
 				>
           			{this.state.counters.bom}
@@ -153,7 +154,7 @@ class DataBox extends React.Component {
 					color={'white'}
 					backgroundColor={this.badgeColors.ruim}
 					size={26}
-					style={{ marginLeft: 5}}
+					style={{ marginLeft: 5, textShadow: '2px 2px 5px rgba(0, 0, 0, 0.25)'}}
 					key={'counter-ruim-'+this.props.boxname}
 				>
           			{this.state.counters.ruim}
@@ -258,17 +259,16 @@ class DataBox extends React.Component {
 			if (memoryLength != currentLength && memoryLength < currentLength){
 				// console.log('there is a dif @ ' + this.props.boxname)
 				const difference = currentLength - memoryLength
-				this.setState({ memoryDifference : difference }, () => {
-					let newData = this.state.data
-					for (let i = 0; i < difference; i ++){
-						console.log(newData[i])
-						newData[i].isNew = true
-					}
-					this.setState({ data : newData })
-				})
-
-			
-
+				if (difference <= currentLength - 1){
+					this.setState({ memoryDifference : difference }, () => {
+						let newData = this.state.data
+						for (let i = 0; i < difference; i ++){
+							// console.log(newData[i])
+							newData[i].isNew = true
+						}
+						this.setState({ data : newData })
+					})
+				}
 			}
 		})
 	}
@@ -307,7 +307,7 @@ class DataBox extends React.Component {
 		let slice = this.state.displayingData
 		if (this.state.collapsibleReady && this.state.dataHasLoaded && !this.virtualListLoaded){
 			// console.log('collapsible ready, creating list')
-		const MyList = ({
+		const 	MyList = ({
 			virtual,
 			itemHeight,
 		}) => (
@@ -346,14 +346,14 @@ class DataBox extends React.Component {
 			return <MyVirtualList
 						items={this.state.data.slice(slice[0],slice[1])}
 						itemHeight={30}
-						itemBuffer={15}
+						itemBuffer={20}
 					/>
 		} else if (this.virtualListLoaded === true){
 			
 			return <this.VirtualList
 						items={this.state.data.slice(slice[0],slice[1])}
 						itemHeight={30}
-						itemBuffer={15}
+						itemBuffer={20}
 					/>
 		} else {
 			return null
@@ -417,7 +417,7 @@ class DataBox extends React.Component {
 					handleTriggerClick = { this.handleCollapsibleClick }
 					openedClassName='open'
 					triggerOpenedClassName='open'
-					transitionTime={250} 
+					transitionTime={200} 
 					easing='ease'
 					trigger={ triggerLoader() }
 					lazyRender={false}

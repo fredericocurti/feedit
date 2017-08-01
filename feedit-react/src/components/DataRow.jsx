@@ -87,7 +87,10 @@ class DataRow extends Component {
 
     coloredGrade(grade){
         return ( 
-            <div className={`col ${this.state.deleteBtnVisible ? "s3" : "s4"} left-align`} style={{ color: this.props.color }}> {grade.replace(/\b\w/g, l => l.toUpperCase())} </div>
+            <div className={`col ${this.state.deleteBtnVisible ? "s3" : "s4"} left-align`} 
+            style={{ color: this.props.color }}>
+            {grade.replace(/\b\w/g, l => l.toUpperCase())} 
+            </div>
         )
     }
 

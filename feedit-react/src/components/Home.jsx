@@ -52,7 +52,7 @@ class Home extends Component {
 
                 {this.state.open 
                 ? 
-                <div className='col s12' style={{padding:'10px 45px 45px 45px'}}>
+                <div className='col s12' style={{padding:'0 40px 45px 40px'}}>
                     {/*<Clock />*/}
                     <MediaQuery minDeviceWidth={1224}>
                         <div className='row'>

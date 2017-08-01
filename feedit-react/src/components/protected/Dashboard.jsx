@@ -17,7 +17,7 @@ import FlatButton from 'material-ui/FlatButton';
 // import Avatar from 'material-ui/Avatar';
 import Dialog from 'material-ui/Dialog';
 
-
+import Store from '../../helpers/store.js'
 import Notifications from '../../helpers/notifications'
 import allow_desktop from '../../img/allow-desktop.png'
 
@@ -51,15 +51,6 @@ class Dashboard extends Component {
   componentDidMount(){
     this.setState({loaded : true, open: true })
     
-    setTimeout(Notifications.setup((status) => {
-      console.log('NOTIFICATION STATUS : ' + status)
-      if (status != 'granted'){
-        this.setState({dialogOpen:true})
-      } else {
-        this.setState({dialogOpen:false})
-      }
-
-    }),4000)
   }
 
   componentDidUpdate(){
@@ -90,7 +81,7 @@ class Dashboard extends Component {
   }
 
   switchComponent(nextComponent) {
-    if (nextComponent != this.state.currentComponent){
+    if (nextComponent != this.state.currentComponent && Store.isReady()){
       switch(nextComponent){
         case 'home':
           this.setState({ currentComponent : 'home' })

@@ -25,8 +25,8 @@ export default class LineChart extends Component {
         this.state = {
             box : 'todas',
             open: true,
-            value : 12,
-            hoursAgo : 12,
+            value : 6,
+            hoursAgo : 6,
             data : {},
             loaded: false,
         }
@@ -74,7 +74,7 @@ export default class LineChart extends Component {
         if (!this.state.loaded){
             this.filter()
         } else {
-            setTimeout(() => { this.filter() }, 2000)
+            this.update = setTimeout(() => { this.filter() }, 2000)
         }
     })
 
@@ -89,6 +89,7 @@ export default class LineChart extends Component {
 
   componentWillUnmount(){
     Store.unsubscribe('reviews', this.onReviewReceived)
+    clearTimeout(this.update)
   }
   
   componentDidUpdate(){
@@ -252,7 +253,7 @@ export default class LineChart extends Component {
         <MediaQuery minDeviceWidth={1224}>
             { this.state.open && this.state.loaded
             ? <div style={{padding:15}}>
-                <Line data={this.state.data}  options={this.config.options} height={100} />
+                <Line data={this.state.data}  options={this.config.options} height={80} />
             </div>
             : null }
         </MediaQuery>

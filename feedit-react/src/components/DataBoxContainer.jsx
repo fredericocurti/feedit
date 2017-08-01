@@ -31,10 +31,12 @@ class DataBoxContainer extends React.Component {
         })
 
         window.addEventListener('focus', this.onWindowFocus = () => {
+            // console.log('focused')
             this.setState( { isFocused : true })
         })
 
         window.addEventListener('blur', this.onWindowBlur = () => {
+            // console.log('unfocused')
             this.setState( { isFocused : false })
         })
 
@@ -75,8 +77,9 @@ class DataBoxContainer extends React.Component {
 
   render() {
     const masonryOptions = {
-        transitionDuration: 150,
+        transitionDuration: 200,
         enableResizableChildren: true,
+        horizontalOrder: true
         // gutter: 40,
         // columnWidth:{ width : 20 + '%' }
     }
@@ -85,7 +88,7 @@ class DataBoxContainer extends React.Component {
     }
 
     return (
-      <div className='col s12' style={{marginBottom: 100,marginTop:40}}>
+      <div className='col s12' style={{marginBottom: 150,marginTop:40}}>
         <MediaQuery minDeviceWidth={1224}>
         
             <Masonry
