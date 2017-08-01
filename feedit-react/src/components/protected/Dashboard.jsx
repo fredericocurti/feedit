@@ -16,10 +16,13 @@ import FlatButton from 'material-ui/FlatButton';
 // import Divider from 'material-ui/Divider';
 // import Avatar from 'material-ui/Avatar';
 import Dialog from 'material-ui/Dialog';
+import MediaQuery from 'react-responsive'
+
 
 import Store from '../../helpers/store.js'
 import Notifications from '../../helpers/notifications'
 import allow_desktop from '../../img/allow-desktop.png'
+
 
 class Dashboard extends Component {
 
@@ -140,25 +143,35 @@ class Dashboard extends Component {
 
     return (
         <div style={{height : 100+'%',overflowY: 'auto'}}>
-
-
-          <Navigator 
+        { notificationStatusDialog() }
+        <Navigator 
             user={this.state.user} 
             toggleDrawer={this.toggleDrawer} 
             switchComponent={this.switchComponent}
-          />
-          { notificationStatusDialog() }
-          <div style={{height: 250, backgroundColor: '#ed4264'}}/>
+        />
+
+        <MediaQuery minDeviceWidth={1224}>
+            <div style={{height: 250, backgroundColor: '#ed4264'}}/>
             <div id="Dashboard" className='data-container'>
               <div className={sideMargin()}>
                 <div className='container'>
-                
                 { getCurrentComponent() }
-
-
               </div>
             </div>
           </div>
+        </MediaQuery>
+
+        <MediaQuery maxDeviceWidth={1224}>
+        {/*<div>You are a tablet or mobile phone</div>*/}
+            <div className={sideMargin()}>
+                <div className='container'>
+                  { getCurrentComponent() }
+              </div>
+            </div>
+        </MediaQuery>
+
+
+          
         </div>
     );
   }

@@ -7,6 +7,7 @@ import FlatButton from 'material-ui/FlatButton';
 import Divider from 'material-ui/Divider';
 import Drawer from 'material-ui/Drawer';
 import FontIcon from 'material-ui/FontIcon';
+import MediaQuery from 'react-responsive'
 
 import { logout } from '../helpers/auth'
 
@@ -29,12 +30,9 @@ class Navigator extends Component {
     };
   }
 
-
 componentWillMount(){
-    console.log('navbar will mount')
     this.mql.addListener(this.mediaQueryChanged)
     this.setState({mql:this.mql, docked : this.mql.matches})
-
 }
 
 // --------------------------------------------------------------------------- 
@@ -82,6 +80,9 @@ handleTouchTap = (event) => {
   }
 
   switchComponent = (id) => {
+    if (!this.state.docked){
+        this.toggleDrawer()
+    }
     switch(id){
         case 1:
             this.props.switchComponent('home')
@@ -119,6 +120,36 @@ render () {
                             </div>
                         </li>
                         </ul>
+                        <MediaQuery maxDeviceWidth={1224}>
+                        <ul className="right">
+                        <li>
+                            <FlatButton className='avatarBtn'
+                                onTouchTap={this.handleTouchTap}
+                                hoverColor={ 'rgba(130,130,130,0.5)' }>
+                                <Avatar src={this.props.user.photoURL} className='userImg' />
+                                <Popover
+                                    open={this.state.open}
+                                    anchorEl={this.state.anchorEl}
+                                    anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                                    targetOrigin={{horizontal: 'middle', vertical: 'top'}}
+                                    onRequestClose={this.handleRequestClose}
+                                >
+                                    <Menu>
+                                        <MenuItem 
+                                            disabled 
+                                            primaryText={ <div style={{fontSize: 14}}>{this.props.user.email}</div> }/>
+                                        <Divider/>
+                                        <MenuItem primaryText="Ajuda &amp; feedback" />
+                                        <MenuItem primaryText="Configurações" />
+                                        <MenuItem primaryText="Sair" onTouchTap={this.handleLogout}/>
+                                    </Menu>
+                                </Popover>                            
+                            </FlatButton>
+                        </li>
+                        </ul>
+
+                        </MediaQuery>
+                        
                     </div>
                 </nav>
             </div>
@@ -166,7 +197,7 @@ render () {
                 />
                 <MenuItem style={{marginTop:20}}
                     onTouchTap={this.switchComponent.bind(this,1)}
-                    leftIcon={<FontIcon className="material-icons" >home</FontIcon>}
+                    leftIcon={<FontIcon className="material-icons">home</FontIcon>}
                     primaryText='Visão Geral'
                 />
 

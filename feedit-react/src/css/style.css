@@ -375,6 +375,14 @@ nav {
   padding: 20px;
 }
 
+.main-card{
+  z-index: 10 !important;
+}
+
+.main-card-inner{
+  padding:0 40px 45px 40px;
+}
+
 .paper-title.small{
   padding: 0px;
 }
@@ -442,6 +450,57 @@ nav {
     left: 80% !important;
   }
 
+  .drawer{
+  /*background-color: #2d2d2d !important;*/
+  background-color: white !important;
+  box-shadow: none !important;
+  height: 100% !important;
+  padding-top: 40px;
+  z-index: 1201 !important;
+  margin-top: 0px;
+  }
+
+  .avatarBtn{
+    margin-top: 0px !important;
+  }
+
+  .userImg .side{
+    border:3px solid gray;
+  }
+
+  .drawer-item{
+    color:gray !important;
+  }
+
+  .container{
+    width: 100%;
+  }
+
+  .main-card{
+    z-index: 0 !important;
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+  }
+  .main-card-inner{
+    padding: 10px 20px 10px 20px;
+  }
+
+  .paper-title{
+    margin-top: 0px !important;
+  }
+
+  .sidebar-bottom-item{
+    margin-bottom: 0px;
+  }
+
+  /* .drawer-item{
+    color:black !important;
+  } */
+
+  /* .chart-card{
+    margin-top: 5px;
+  } */
+
   .dashboard{
     padding-left: 0px;
   }
@@ -461,32 +520,9 @@ nav {
   .Collapsible {
     right: 0px;
     transform: scale(1);
-    width: 90%;
+    width: 95%;
     margin:auto;
     margin-top: 20px;
-  }
-
-  .Collapsible.open {
-    width: 90%;
-    /*box-shadow: none;
-    -webkit-box-shadow: none*/
-  }
-
-  .Collapsible__trigger.open {
-    padding-top: 5px;
-    padding-bottom: 5px;
-  }
-  
-  .circular-badge{
-    border-radius: 50% !important;
-    min-width: 1.7rem !important;
-    min-height: 1.7rem !important;
-    max-width: 1.7rem !important;
-    max-height: 1.7rem !important;
-    padding: 0 2px !important;
-    line-height: 25px !important;
-    margin-left: 5px !important;
-    margin-top: 8px !important;
   }
 
 .card-content{

@@ -121,7 +121,7 @@ export default class DoughnutChart extends React.Component {
   }
 
   onDivResize(){
-    if (this.state.open) { 
+    if (this.state.open && this.div) { 
       Store.setHeight(this.div.clientHeight)
     }
   }

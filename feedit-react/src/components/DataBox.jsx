@@ -12,6 +12,7 @@ import Notifications from '../helpers/notifications.js'
 import _ from 'lodash'
 import Store from '../helpers/store.js'
 import VirtualList from 'react-virtual-list';
+import MediaQuery from 'react-responsive'
 
 let colors = Store.getStore('colors')
 
@@ -259,7 +260,7 @@ class DataBox extends React.Component {
 			if (memoryLength != currentLength && memoryLength < currentLength){
 				// console.log('there is a dif @ ' + this.props.boxname)
 				const difference = currentLength - memoryLength
-				if (difference <= currentLength - 1){
+				if (difference <= currentLength - 1) {
 					this.setState({ memoryDifference : difference }, () => {
 						let newData = this.state.data
 						for (let i = 0; i < difference; i ++){
@@ -403,55 +404,84 @@ class DataBox extends React.Component {
 
 		return (
 
-			/*<Collapsible popout>
-				<CollapsibleItem header={[
-					this.props.boxname.replace(/\b\w/g, l => l.toUpperCase()),
-					<span key={this.props.boxname + '-total-counter'} className="badge counter-badge" data-badge-caption={this.state.data.length}></span>,
-					this.showNewBadge(),this.showRuimBadge(),this.showBomBadge(),this.showExcelenteBadge()
-				]} children={this.state.data.map( review => <DataRow key={review.key} new={this.rowVisibilityManager()} score={review.score} date={review.date} uc={this.updateChildren}/>)}
-				ref = {(CollapsibleItem) => {this.collapsible = CollapsibleItem}}/>
-			</Collapsible>*/
+			// <Collapsible popout>
+			// 	<CollapsibleItem header={[
+			// 		this.props.boxname.replace(/\b\w/g, l => l.toUpperCase()),
+			// 		<span key={this.props.boxname + '-total-counter'} className="badge counter-badge" data-badge-caption={this.state.data.length}></span>,
+			// 		this.showNewBadge(),this.showRuimBadge(),this.showBomBadge(),this.showExcelenteBadge()
+			// 	]} children={this.state.data.slice(0,20).map( review => 
+			// 	<DataRow
+			// 			deleteRow={this.deleteRow}
+			// 			setRowAsSeen={this.setRowAsSeen}
+			// 			key={review.key}
+			// 			color={this.getColor(review.score)}
+			// 			isNew={review.isNew} 
+			// 			review={review}
+			// 			boxstate={this.state.isOpen}
+			// 			windowstate={this.props.isFocused}
+			// 		/> )}
+			// 	ref = {(CollapsibleItem) => {this.collapsible = CollapsibleItem}}/>
+				
+			// </Collapsible>
 			<div className='grid-item'>
-				<Collapsible 
-					ref = { (Collapsible) => { this.collapsible = Collapsible } }
-					handleTriggerClick = { this.handleCollapsibleClick }
-					openedClassName='open'
-					triggerOpenedClassName='open'
-					transitionTime={200} 
-					easing='ease'
-					trigger={ triggerLoader() }
-					lazyRender={false}
+				<MediaQuery minDeviceWidth={1224}>
+					<Collapsible 
+						ref = { (Collapsible) => { this.collapsible = Collapsible } }
+						handleTriggerClick = { this.handleCollapsibleClick }
+						openedClassName='open'
+						triggerOpenedClassName='open'
+						transitionTime={200} 
+						easing='ease'
+						trigger={ triggerLoader() }
+						lazyRender={false}
+						>
+						{ this.getVirtualList() }
+					</Collapsible>
+				</MediaQuery>
+				<MediaQuery maxDeviceWidth={1224}>
+				{/*<div>You are a tablet or mobile phone</div>*/}
+					<Collapsible 
+						ref = { (Collapsible) => { this.collapsible = Collapsible } }
+						handleTriggerClick = { this.handleCollapsibleClick }
+						openedClassName='open'
+						triggerOpenedClassName='open'
+						transitionTime={0} 
+						trigger={ triggerLoader() }
+						lazyRender={false}
 					>
-					{ this.getVirtualList() }
-
-
-				</Collapsible>
+						{ this.getVirtualList() }
+					</Collapsible>		
+				</MediaQuery>
 			</div>
-				/* /* <Collapsible 
-					ref = { (Collapsible) => { this.collapsible = Collapsible } }
-					handleTriggerClick = { this.handleCollapsibleClick }
-					openedClassName='open'
-					triggerOpenedClassName='open'
-					transitionTime={250} 
-					easing='ease'
-					trigger={ triggerLoader() }
-					>
 
-			// 			{ this.state.data.length > 0 
-			// 			? 
-			// 			this.state.data.slice(as[0],as[1]).map( review => 
-			// 				<DataRow
-			// 					deleteRow={this.deleteRow}
-			// 					key={review.key}
-			// 					color={this.getColor(review.score)}
-			// 					isNew={ this.state.dataHasLoaded ? true : false  } 
-			// 					review={review}
-			// 					boxstate={this.state.isOpen}
-			// 					windowstate={this.props.isFocused} /> )
-			// 			: <h5 style={{padding:10}}> Ainda não existem avaliações nessa caixa </h5>}
-			// 			{ this.showMoreBtn() }
-			// 	</Collapsible>
-			// </div> */
+
+
+			// <div className='grid-item'>
+			// 	<Collapsible 
+			// 		ref = { (Collapsible) => { this.collapsible = Collapsible } }
+			// 		handleTriggerClick = { this.handleCollapsibleClick }
+			// 		openedClassName='open'
+			// 		triggerOpenedClassName='open'
+			// 		transitionTime={250} 
+			// 		easing='ease'
+			// 		trigger={ triggerLoader() }
+			// 		>
+
+			//  			{ this.state.data.length > 0 
+			//  			? 
+			//  			this.state.data.slice(as[0],as[1]).map( review => 
+			//  				<DataRow
+			//  					deleteRow={this.deleteRow}
+			//  					key={review.key}
+			//  					color={this.getColor(review.score)}
+			//  					isNew={ this.state.dataHasLoaded ? true : false  } 
+			//  					review={review}
+			//  					boxstate={this.state.isOpen}
+			//  					windowstate={this.props.isFocused} /> )
+			//  			: <h5 style={{padding:10}}> Ainda não existem avaliações nessa caixa </h5>}
+			//  			{ this.showMoreBtn() }
+			//  	</Collapsible>
+			//  </div>
 		)
 	}
 }

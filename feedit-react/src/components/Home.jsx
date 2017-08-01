@@ -45,14 +45,14 @@ class Home extends Component {
 
 	render () {
 		return (
-                <div className='card z-depth-5' style={{marginTop: 75, marginBottom:100, position: 'relative', zIndex : 10}}>
+                <div className='card z-depth-5 main-card' style={{marginTop: 75, marginBottom:100, position: 'relative'}}>
                 <h5 className='paper-title valign-wrapper'> 
                     <FontIcon className="material-icons" style={{marginRight: 10}}> home </FontIcon>
                     Visão Geral </h5>
 
                 {this.state.open 
                 ? 
-                <div className='col s12' style={{padding:'0 40px 45px 40px'}}>
+                <div className='col s12 main-card-inner'>
                     {/*<Clock />*/}
                     <MediaQuery minDeviceWidth={1224}>
                         <div className='row'>
@@ -75,21 +75,21 @@ class Home extends Component {
             
                     <MediaQuery maxDeviceWidth={1224}>
                     {/*<div>tablet or mobile phone</div>*/}
-                        <div className='row'>
-                            <div className='chart-card col s6 m3'>
+                        <div className='row' style={{marginBottom : 5}}>
+                            <div className='chart-card col s6 m3' style={{marginTop:5}}>
                                 <CounterCard scoreType='excelente'/>
                             </div>
-                            <div className='chart-card col s6 m3'>
+                            <div className='chart-card col s6 m3' style={{marginTop:5}}>
                                 <CounterCard scoreType='bom'/>
                             </div>
                         </div>
 
                         <div className='row'>
-                            <div className='chart-card col s6 m3'>
+                            <div className='chart-card col s6 m3' style={{marginTop:5}}>
                                 <CounterCard scoreType='ruim'/>
                             </div>
 
-                            <div className='chart-card col s6 m3'>
+                            <div className='chart-card col s6 m3' style={{marginTop:5}}>
                                 <CounterCard scoreType='total'/>
                             </div>
                         </div>
@@ -120,7 +120,7 @@ class Home extends Component {
 
                 </div>
                 : null }
-                <a className='btn red' onClick={this.toggleOpen}>CLOSE</a>
+                {/* <a className='btn red' onClick={this.toggleOpen}>CLOSE</a> */}
                 </div>
         )
 	}

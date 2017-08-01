@@ -15,7 +15,7 @@ var store = {
     loadedBoxCount : 0,
     doughnutHeight:0,
     colors : {
-        excelente: '#b2ff59',
+        excelente: '#2afc00',
         bom: '#ffb74d',
         ruim: '#ff0000',
         total: 'lightskyblue'

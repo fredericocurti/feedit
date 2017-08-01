@@ -146,22 +146,26 @@ export default window.notifications = {
                 notificationSound.play()
                 var options = { tag : 'feedit-notification' };
                 
-                this.registration.getNotifications(options).then((notifications) => {
+               navigator.serviceWorker.ready.then((registration) => {
+                    registration.getNotifications(options).then((notifications) => {
                     if (notifications.length != 0) {
                     notifications[0].close();
                     }
                 
                     this.registration.showNotification('Feedit',notification).then(() => {
-                        setTimeout(() => {
-                            this.registration.getNotifications(options).then((notifications) => {
-                                try {
-                                    notifications[0].close()
-                                } catch(e) {
-                                }
-                            })
-                        }, settings.mode == 'custom' ? 15000 : 7000)
+                        if (settings.mode == 'always'){
+                            setTimeout(() => {
+                                this.registration.getNotifications(options).then((notifications) => {
+                                    try {
+                                        notifications[0].close()
+                                    } catch(e) {
+                                    }
+                                })
+                            }, settings.mode == 'custom' ? 15000 : 7000)
+                        }
                     })
                 })
+            })
         }
     },
 
@@ -282,9 +286,9 @@ export default window.notifications = {
         }
 
         if (places.length == 1){
-            notificationString += 'No local '
+            notificationString += 'No local'
         } else {
-            notificationString += 'Nos locais '
+            notificationString += 'Nos locais'
         }
         
         places.forEach((place) => {
